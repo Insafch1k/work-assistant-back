@@ -22,7 +22,7 @@ def register():
     if data["user_role"] == "finder":
         AuthDAL.add_finder(list(user.values())[0])
     if data["user_role"] == "employer":
-        AuthDAL.add_employer(list(user.values())[0], data["organization_name"])
+        AuthDAL.add_employer(list(user.values())[0])
 
     #response = ProfileInitResponse(**user)
     #return jsonify(response.model_dump()), 201
