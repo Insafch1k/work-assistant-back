@@ -1,7 +1,6 @@
 from project.utils.db_connection import DBConnection
 from psycopg2 import Error
 
-
 class FavoriteDAL(DBConnection):
     @staticmethod
     def get_finder_id_by_tg(tg):
