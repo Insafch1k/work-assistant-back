@@ -1,4 +1,7 @@
 from project.utils.db_connection import DBConnection
+from psycopg2 import Error
+
+
 class ProfileDAL(DBConnection):
     @staticmethod
     def get_user_role(user_id):
@@ -15,7 +18,6 @@ class ProfileDAL(DBConnection):
         finally:
             conn.close()
 
-
     @staticmethod
     def update_profile(user_name, email, phone, photo, user_id):
         conn = ProfileDAL.connect_db()
@@ -30,7 +32,6 @@ class ProfileDAL(DBConnection):
             conn.rollback()
         finally:
             conn.close()
-
 
     @staticmethod
     def update_employer_profile(organization_name, user_id):
@@ -47,7 +48,6 @@ class ProfileDAL(DBConnection):
         finally:
             conn.close()
 
-
     @staticmethod
     def update_finder_profile(age, user_id):
         conn = ProfileDAL.connect_db()
@@ -62,7 +62,6 @@ class ProfileDAL(DBConnection):
             conn.rollback()
         finally:
             conn.close()
-
 
     @staticmethod
     def get_profile_data(profile_id):
@@ -82,7 +81,6 @@ class ProfileDAL(DBConnection):
             conn.rollback()
         finally:
             conn.close()
-
 
     @staticmethod
     def get_user_id_by_tg(tg):
