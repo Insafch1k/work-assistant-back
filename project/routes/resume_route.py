@@ -6,7 +6,7 @@ from project.DAL.resume_dal import ResumeDAL
 resume_router = Blueprint("resume_router", __name__)
 
 
-@resume_router.route('/resumes', methods=['POST'])
+@resume_router.route('/resumes', methods=["POST"])
 @jwt_required()
 def create_resume():
     """Создание нового резюме"""
@@ -32,7 +32,7 @@ def create_resume():
     }), 200
 
 
-@resume_router.route('/resumes/<int:resume_id>', methods=['DELETE'])
+@resume_router.route('/resumes/<int:resume_id>', methods=["DELETE"])
 @jwt_required()
 def delete_resume(resume_id):
     """Удаление резюме"""
@@ -46,7 +46,7 @@ def delete_resume(resume_id):
     return jsonify({"message": "Резюме удалено"}), 200
 
 
-@resume_router.route('/resumes/<int:resume_id>', methods=['PUT'])
+@resume_router.route('/resumes/<int:resume_id>', methods=["PATCH"])
 @jwt_required()
 def update_resume(resume_id):
     """Редактирование резюме"""
@@ -68,7 +68,7 @@ def update_resume(resume_id):
     }), 200
 
 
-@resume_router.route('/resumes', methods=['GET'])
+@resume_router.route('/resumes', methods=["GET"])
 @jwt_required()
 def get_user_resumes():
     """Получение всех активных резюме пользователя"""

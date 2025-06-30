@@ -61,5 +61,6 @@ class AuthDAL(DBConnection):
                 return cur.fetchone()[0]
         except Error as e:
             print("Ошибка при проверке существования пользователя!")
+            conn.rollback()
         finally:
             conn.close()

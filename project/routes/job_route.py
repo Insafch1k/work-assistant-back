@@ -17,7 +17,7 @@ employer_jobs = Blueprint("employer_jobs_router", __name__)
 finder_jobs = Blueprint("finder_jobs_router", __name__)
 
 
-@job_router.route('/jobs', methods=['POST'])
+@job_router.route('/jobs', methods=["POST"])
 @jwt_required()
 def create_job():
     """Создание новой вакансии"""
@@ -43,9 +43,10 @@ def create_job():
     }), 200
 
 
-@filter_router.route('/jobs/filter', methods=['GET'])
+@filter_router.route('/jobs/filter', methods=["GET"])
 @jwt_required()
 def filter_jobs():
+    """Фильтрация вакансий"""
     current_user_tg = get_jwt_identity()
     curr_id = FilterDAL.get_finder_id_by_tg(current_user_tg)
     if not curr_id:
@@ -87,6 +88,7 @@ def filter_jobs():
 @history_router.route("/jobs/<int:job_id>/view", methods=["POST"])
 @jwt_required()
 def add_job_view(job_id):
+    """Добавление связи для истории просмотра вакансий"""
     current_user_tg = get_jwt_identity()
     curr_id = HistoryDAL.get_finder_id_by_tg(current_user_tg)
     if not curr_id:
@@ -107,6 +109,7 @@ def add_job_view(job_id):
 @history_router.route("/jobs/history", methods=["GET"])
 @jwt_required()
 def get_view_history():
+    """Получение истории просмотра вакансий"""
     current_user_tg = get_jwt_identity()
     curr_id = HistoryDAL.get_finder_id_by_tg(current_user_tg)
     if not curr_id:
@@ -130,6 +133,7 @@ def get_view_history():
 @jobs_seeAll.route("/jobs/<int:job_id>/seeall", methods=["GET"])
 @jwt_required()
 def get_job_seeAll_finders(job_id):
+    """Получение общих данных"""
     # Проверка авторизации пользователя
     current_user_tg = get_jwt_identity()
     curr_id = Jobs.get_finder_id_by_tg(current_user_tg)
@@ -175,6 +179,7 @@ def get_job_seeAll_finders(job_id):
 @employer_jobs.route("/jobs/employers", methods=["GET"])
 @jwt_required()
 def get_jobs_for_employers():
+    """Получение списка вакансий для работодателя"""
     current_user_tg = get_jwt_identity()
     curr_id = Emplyers_Jobs.get_finder_id_by_tg(current_user_tg)
     if not curr_id:
@@ -200,6 +205,7 @@ def get_jobs_for_employers():
 @finder_jobs.route("/jobs/finders", methods=["GET"])
 @jwt_required()
 def get_jobs_for_finders():
+    """Получение списка вакансий для соискателя"""
     current_user_tg = get_jwt_identity()
     curr_id = Finder_Jobs.get_finder_id_by_tg(current_user_tg)
     if not curr_id:
@@ -210,6 +216,7 @@ def get_jobs_for_finders():
     for job in jobs:
         if len(job) >= 5:
             try:
+                #ДОБАВИТЬ В ДРУГИЕ РОУТЫ ФОРМУЛУ
                 if isinstance(job[4], datetime) and isinstance(job[5], datetime):
                     time_diff = job[5] - job[4]
                 elif isinstance(job[4], str) and isinstance(job[5], str):

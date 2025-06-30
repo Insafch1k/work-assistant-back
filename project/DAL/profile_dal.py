@@ -96,3 +96,152 @@ class ProfileDAL(DBConnection):
             conn.rollback()
         finally:
             conn.close()
+
+    @staticmethod
+    def get_employer_profile_data(employer_id):
+        conn = ProfileDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """SELECT u.user_name, u.rating, u.photo, COUNT(r.review_id) as review_count
+                          FROM users u
+                          JOIN employers e ON u.user_id = e.user_id
+                          LEFT JOIN reviews r ON r.employer_id = e.profile_id
+                          WHERE e.profile_id = %s
+                          GROUP BY u.user_id, e.profile_id"""
+                cur.execute(stat, (employer_id,))
+                conn.commit()
+                return cur.fetchone()[0]
+        except Error as e:
+            print(f"Ошибка при получении id пользователя: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
+
+
+    @staticmethod
+    def get_employer_jobs(employer_id):
+        conn = ProfileDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """SELECT job_id, title, salary, address, created_at
+                          FROM jobs
+                          WHERE employer_id = %s AND status = 'open'
+                          ORDER BY created_at DESC
+                          LIMIT 10"""
+                cur.execute(stat, (employer_id,))
+                conn.commit()
+                return cur.fetchone()[0]
+        except Error as e:
+            print(f"Ошибка при получении id пользователя: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
+
+
+    @staticmethod
+    def check_finder(current_user_tg):
+        conn = ProfileDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """SELECT u.user_id, f.profile_id
+                          FROM users u
+                          JOIN finders f ON u.user_id = f.user_id
+                          WHERE u.tg = %s"""
+                cur.execute(stat, (current_user_tg,))
+                conn.commit()
+                return cur.fetchone()
+        except Error as e:
+            print(f"Ошибка при получении id пользователя: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
+
+
+    @staticmethod
+    def check_employer_exist(employer_id):
+        conn = ProfileDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """SELECT 1 FROM employers WHERE profile_id = %s"""
+                cur.execute(stat, (employer_id,))
+                conn.commit()
+                return cur.fetchone()
+        except Error as e:
+            print(f"Ошибка при получении id пользователя: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
+
+
+    @staticmethod
+    def check_review(employer_id, user_id):
+        conn = ProfileDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """SELECT review_id FROM reviews 
+                          WHERE employer_id = %s AND reviewer_id = %s"""
+                cur.execute(stat, (employer_id, user_id,))
+                conn.commit()
+                return cur.fetchone()
+        except Error as e:
+            print(f"Ошибка при получении id пользователя: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
+
+    @staticmethod
+    def add_review(employer_id, user_id, rating, comment):
+        conn = ProfileDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """INSERT INTO reviews (employer_id, reviewer_id, rating, comment)
+                          VALUES (%s, %s, %s, %s)
+                          RETURNING review_id, created_at, updated_at"""
+                cur.execute(stat, (employer_id, user_id, rating, comment,))
+                conn.commit()
+                return cur.fetchone()
+        except Error as e:
+            print(f"Ошибка при получении id пользователя: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
+
+
+    @staticmethod
+    def update_review(rating, comment, review_id):
+        conn = ProfileDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """UPDATE reviews 
+                          SET rating = %s, comment = %s, updated_at = NOW()
+                          WHERE review_id = %s
+                          RETURNING review_id, created_at, updated_at"""
+                cur.execute(stat, (rating, comment, review_id,))
+                conn.commit()
+                return cur.fetchone()
+        except Error as e:
+            print(f"Ошибка при получении id пользователя: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
+
+
+    @staticmethod
+    def update_rating(employer_id):
+        conn = ProfileDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """UPDATE users u
+                          SET rating = (SELECT AVG(rating) 
+                                        FROM reviews r
+                                        JOIN employers e ON r.employer_id = e.profile_id
+                                        WHERE e.user_id = u.user_id)
+                          FROM employers e
+                          WHERE u.user_id = e.user_id AND e.profile_id = %s"""
+                cur.execute(stat, (employer_id,))
+                conn.commit()
+        except Error as e:
+            print(f"Ошибка при получении id пользователя: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
