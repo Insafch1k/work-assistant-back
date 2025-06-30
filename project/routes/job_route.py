@@ -1,9 +1,20 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from datetime import datetime
 
 from project.DAL.job_dal import JobDAL
+from project.DAL.filter_dal import FilterDAL
+from project.DAL.history_dal import HistoryDAL
+from project.DAL.jobs_seeAll_dal import Jobs
+from project.DAL.jobs_view_for_employer_dal import Emplyers_Jobs
+from project.DAL.jobs_view_for_finder_dal import Finder_Jobs
 
 job_router = Blueprint("job_router", __name__)
+filter_router = Blueprint("filter_router", __name__)
+history_router = Blueprint("history_router", __name__)
+jobs_seeAll = Blueprint("jobs_see_All_route", __name__)
+employer_jobs = Blueprint("employer_jobs_router", __name__)
+finder_jobs = Blueprint("finder_jobs_router", __name__)
 
 
 @job_router.route('/jobs', methods=['POST'])
@@ -16,9 +27,9 @@ def create_job():
         return jsonify({"error": "Только работодатели могут создавать объявления"}), 403
 
     data = request.get_json()
-    new_job = JobDAL.add_job(data["employer_id"], data["title"], data["wanted_job"], data["description"], data["salary"],
-                             data["date"], data["time_start"], data["time_end"], data["address"], data["is_urgent"],
-                             data["xp"], data["age"])
+    new_job = JobDAL.add_job(data["employer_id"], data["title"], data["wanted_job"], data["description"],
+                             data["salary"], data["date"], data["time_start"], data["time_end"], data["address"],
+                             data["is_urgent"], data["xp"], data["age"])
 
     return jsonify({
         "job_id": new_job[0],
@@ -30,3 +41,196 @@ def create_job():
         "address": new_job[3],
         "organization_name": new_job[4]
     }), 200
+
+
+@filter_router.route('/jobs/filter', methods=['GET'])
+@jwt_required()
+def filter_jobs():
+    current_user_tg = get_jwt_identity()
+    curr_id = FilterDAL.get_finder_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден"}), 404
+
+    data = request.get_json()
+    jobs = FilterDAL.get_filtered_jobs(
+        wanted_job=data["wanted_job"],
+        address=data["address"],
+        time_start=data["time_start"],
+        time_end=data["time_end"],
+        date=data["date"],
+        salary=data["salary"],
+        is_urgent=data["is_urgent"],
+        xp=data["xp"],
+        age=data["age"]
+    )
+
+    jobs_json = []
+    for job in jobs:
+        jobs_json.append({
+            "job_id": job[0],
+            "title": job[1],
+            "wanted_job": job[2],
+            "description": job[3],
+            "salary": job[4],
+            "date": job[5].isoformat() if job[5] else None,
+            "time_start": job[6].isoformat() if job[6] else None,
+            "time_end": job[7].isoformat() if job[7] else None,
+            "address": job[8],
+            "is_urgent": job[9],
+            "organization_name": job[10],
+            "created_at": job[11].isoformat()
+        })
+
+    return jsonify(jobs_json), 200
+
+
+@history_router.route("/jobs/<int:job_id>/view", methods=["POST"])
+@jwt_required()
+def add_job_view(job_id):
+    current_user_tg = get_jwt_identity()
+    curr_id = HistoryDAL.get_finder_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден"}), 404
+
+    result = HistoryDAL.add_job_view(curr_id, job_id)
+    if not result:
+        return jsonify({"error": "Просмотр уже существует или не удалось добавить"}), 400
+
+    return jsonify({
+        "history_id": result[0],
+        "finder_id": result[1],
+        "job_id": result[2],
+        "viewed_at": result[3].isoformat() if result[3] else None
+    }), 200
+
+
+@history_router.route("/jobs/history", methods=["GET"])
+@jwt_required()
+def get_view_history():
+    current_user_tg = get_jwt_identity()
+    curr_id = HistoryDAL.get_finder_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден"}), 404
+
+    history = HistoryDAL.get_view_history(curr_id)
+    history_list = []
+    for job in history:
+        history_list.append({
+            "job_id": job[0],
+            "title": job[1],
+            "salary": job[2],
+            "address": job[3],
+            "time_start": job[4].isoformat() if job[4] else None,
+            "time_end": job[5].isoformat() if job[5] else None
+        })
+
+    return jsonify(history_list), 200
+
+
+@jobs_seeAll.route("/jobs/<int:job_id>/seeall", methods=["GET"])
+@jwt_required()
+def get_job_seeAll_finders(job_id):
+    # Проверка авторизации пользователя
+    current_user_tg = get_jwt_identity()
+    curr_id = Jobs.get_finder_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден или не существует"}), 404
+
+    # Получение данных о работе
+    job_data = Jobs.get_job_seeAll(job_id)
+    if not job_data or not job_data[0]:
+        return jsonify({"error": "Работа не найдена"}), 404
+
+    job = job_data[0]  # Получаем первую (и единственную) запись
+
+    # Вычисление продолжительности работы
+    hours = None  # Инициализируем переменную
+
+    try:
+        if isinstance(job[3], datetime) and isinstance(job[4], datetime):
+            time_diff = job[4] - job[3]
+            hours = round(time_diff.total_seconds() / 3600, 2)
+        elif isinstance(job[3], str) and isinstance(job[4], str):
+            time_diff = datetime.strptime(job[4], "%a, %d %b %Y %H:%M:%S %Z") - \
+                        datetime.strptime(job[3], "%a, %d %b %Y %H:%M:%S %Z")
+            hours = round(time_diff.total_seconds() / 3600, 2)
+    except (ValueError, TypeError, AttributeError) as e:
+        print(f"Ошибка обработки времени: {e}")
+
+    # Формирование ответа
+    job_json = {
+        "title": job[0].strip() if isinstance(job[0], str) else job[0],
+        "salary": job[1],
+        "address": job[2].strip() if isinstance(job[2], str) else job[2],
+        "date": job[3].isoformat() if isinstance(job[3], datetime) else job[3],
+        "hours": hours,
+        "is_urgent": job[5],
+        "work_xp": job[6],
+        "age_restrict": job[7]
+    }
+
+    return jsonify(job_json), 200
+
+
+@employer_jobs.route("/jobs/employers", methods=["GET"])
+@jwt_required()
+def get_jobs_for_employers():
+    current_user_tg = get_jwt_identity()
+    curr_id = Emplyers_Jobs.get_finder_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден или не существует"})
+
+    jobs = Emplyers_Jobs.get_all_jobs(curr_id)
+    jobs_list = []
+    for job in jobs:
+        jobs_list.append({
+            "job_id": job[0],
+            "employer_id": job[1],
+            "title": job[2],
+            "salary": job[3],
+            "address": job[4],
+            "time_start": job[5].isoformat() if job[5] else None,
+            "time_end": job[6].isoformat() if job[6] else None,
+            "created_at": job[7].isoformat()
+        })
+
+    return jsonify(jobs), 200
+
+
+@finder_jobs.route("/jobs/finders", methods=["GET"])
+@jwt_required()
+def get_jobs_for_finders():
+    current_user_tg = get_jwt_identity()
+    curr_id = Finder_Jobs.get_finder_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден или не существует"}), 404
+
+    jobs = Finder_Jobs.get_all_jobs(curr_id)
+    jobs_list = []
+    for job in jobs:
+        if len(job) >= 5:
+            try:
+                if isinstance(job[4], datetime) and isinstance(job[5], datetime):
+                    time_diff = job[5] - job[4]
+                elif isinstance(job[4], str) and isinstance(job[5], str):
+                    time_diff = datetime.strptime(job[5], "%a, %d %b %Y %H:%M:%S %Z") - \
+                                datetime.strptime(job[4], "%a, %d %b %Y %H:%M:%S %Z")
+                else:
+                    time_diff = None
+
+                hours = round(time_diff.total_seconds() / 3600, 2) if time_diff else None
+            except (ValueError, TypeError, AttributeError) as e:
+                print(f"Ошибка обработки времени: {e}")
+                hours = None
+        else:
+            hours = None
+
+        jobs_list.append({
+            "job_id": job[0],
+            "title": job[1],
+            "salary": job[2],
+            "address": job[3],
+            "time_hours": hours
+        })
+
+    return jsonify(jobs_list), 200
