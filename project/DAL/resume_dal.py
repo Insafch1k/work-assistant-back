@@ -23,7 +23,7 @@ class ResumeDAL(DBConnection):
         conn = ResumeDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """INSERT INTO resumes (user_id, job_title, education, work_xp, skills) 
+                stat = """INSERT INTO resume (user_id, job_title, education, work_xp, skills) 
                 VALUES (%s, %s, %s, %s, %s)
                 RETURNING resume_id, user_id, job_title, education, work_xp, skills"""
                 cur.execute(stat, (user_id, job_title, education, work_xp, skills))
@@ -75,8 +75,8 @@ class ResumeDAL(DBConnection):
         conn = ResumeDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT r.resume_id, r.user_id, r.job_title, r.education, r.work_xp, r.skills
-                          FROM resumes r
+                stat = """SELECT r.job_title, r.education, r.work_xp, r.skills
+                          FROM resume r
                           JOIN users u ON r.user_id = u.user_id
                           WHERE u.tg = %s"""
                 cur.execute(stat, (current_user_tg,))
