@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from project.DAL.favorite_dal import FavoriteDAL
