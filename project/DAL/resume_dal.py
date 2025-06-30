@@ -71,6 +71,25 @@ class ResumeDAL(DBConnection):
             conn.close()
 
     @staticmethod
+    def update_resume(resume_id, job_title, education, work_xp, skills):
+        conn = ResumeDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """UPDATE resumes 
+                          SET job_title = %s, education = %s, work_xp = %s, skills = %s
+                          WHERE resume_id = %s
+                          RETURNING resume_id, job_title, education, work_xp, skills"""
+                cur.execute(stat, (resume_id, job_title, education, work_xp, skills))
+                conn.commit()
+                print(f"Резюме пользователя успешно обновлено!")
+                return cur.fetchone()[0]
+        except Error as e:
+            print(f"Ошибка при обновлении резюме пользователя: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
+
+    @staticmethod
     def get_resume_data(current_user_tg):
         conn = ResumeDAL.connect_db()
         try:

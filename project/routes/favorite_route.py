@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from project.DAL.favorite_dal import FavoriteDAL
@@ -6,10 +6,10 @@ from project.DAL.favorite_dal import FavoriteDAL
 favorite_router = Blueprint("favorite_router", __name__)
 
 
-@favorite_router.route('/jobs/<int:job_id>/favorite', methods=['POST'])
+@favorite_router.route("/jobs/<int:job_id>/add_favorite", methods=["POST"])
 @jwt_required()
-def toggle_favorite(job_id):
-    """Добавление/удаление вакансии в избранное"""
+def add_favorite(job_id):
+    """Добавление вакансии в избранное"""
     current_user_tg = get_jwt_identity()
     curr_id = FavoriteDAL.get_finder_id_by_tg(current_user_tg)
     if not curr_id:
@@ -18,46 +18,56 @@ def toggle_favorite(job_id):
     if not FavoriteDAL.check_job(job_id):
         return jsonify({"error": "Работа не найдена"}), 404
 
-    favorite_by = FavoriteDAL.get_status_job(job_id) or []
-
-    if curr_id in favorite_by:
-        favorite_by.remove(curr_id)
-        action = "removed"
-    else:
-        favorite_by.append(curr_id)
-        action = "added"
-
-    updated_job = FavoriteDAL.update_favorite_status(favorite_by, job_id)
+    data = request.get_json()
+    favorite_by = FavoriteDAL.get_status_job(curr_id, data["job_id"])
 
     return jsonify({
-        "job_id": updated_job[0],
-        "title": updated_job[1],
-        "is_favorite": curr_id in (updated_job[2] or []),
-        "action": action
+        "favorite_id": favorite_by[0],
+        "finder_id": favorite_by[1],
+        "job_id": favorite_by[2],
+        "created_at": favorite_by[3],
     }), 200
 
 
-@favorite_router.route('/jobs/favorites', methods=['GET'])
+@favorite_router.route("/jobs/remove_favorite/<int:favorite_id>", methods=["DELETE"])
 @jwt_required()
-def get_favorite_jobs():
-    """Получение избранных вакансий"""
+def remove_favorite(favorite_id):
+    """Удаление вакансии из избранного"""
     current_user_tg = get_jwt_identity()
     curr_id = FavoriteDAL.get_finder_id_by_tg(current_user_tg)
     if not curr_id:
         return jsonify({"error": "Пользователь не найден"}), 404
 
-    favorites = []
-    abed = FavoriteDAL.get_favorite_list(curr_id)
-    print(abed)
-    for job in abed:
-        favorites.append({
-            "job_id": job[0],
-            "title": job[1],
-            "salary": job[2],
-            "address": job[3],
-            "time_start": job[4].isoformat() if job[4] else None,
-            "time_end": job[5].isoformat() if job[5] else None,
-            "is_favorite": True
+    favorite = FavoriteDAL.delete_favorite_job(current_user_tg, favorite_id)
+    if not favorite:
+        return jsonify({"error": "Работа не найдена"}), 404
+
+    return jsonify({"message": "Удалено из избранного"}), 200
+
+
+@favorite_router.route("/jobs/get_favorite", methods=["GET"])
+@jwt_required()
+def get_favorites():
+    """Получение списка избранных вакансий"""
+    current_user_tg = get_jwt_identity()
+    curr_id = FavoriteDAL.get_finder_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден"}), 404
+
+    favorites = FavoriteDAL.get_favorite_list(current_user_tg)
+
+    favorite_json = []
+    for fav in favorites:
+        favorite_json.append({
+            "favorite_id": fav[8],
+            "job_id": fav[0],
+            "title": fav[1],
+            "salary": fav[2],
+            "address": fav[3],
+            "date": fav[4].isoformat() if fav[4] else None,
+            "time_start": fav[5].isoformat() if fav[5] else None,
+            "time_end": fav[6].isoformat() if fav[6] else None,
+            "organization": fav[7]
         })
 
     return jsonify(favorites), 200

@@ -27,10 +27,21 @@ def filter_jobs():
         age=data["age"]
     )
 
-    return jsonify([{
-        "title": job[0],
-        "salary": job[1],
-        "time_delta": str(job[2]) if job[2] else None,
-        "address": job[3],
-        "organization_name": job[4]
-    } for job in jobs]), 200
+    jobs_json = []
+    for job in jobs:
+        jobs_json.append({
+            "job_id": job[0],
+            "title": job[1],
+            "wanted_job": job[2],
+            "description": job[3],
+            "salary": job[4],
+            "date": job[5].isoformat() if job[5] else None,
+            "time_start": job[6].isoformat() if job[6] else None,
+            "time_end": job[7].isoformat() if job[7] else None,
+            "address": job[8],
+            "is_urgent": job[9],
+            "organization_name": job[10],
+            "created_at": job[11].isoformat()
+        })
+
+    return jsonify(jobs_json), 200

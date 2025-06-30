@@ -28,8 +28,8 @@ class FilterDAL(DBConnection):
         try:
             with conn.cursor() as cur:
                 base_query = """
-                    SELECT j.title, j.salary, (j.time_end - j.time_start), 
-                           j.address, e.organization_name
+                    SELECT j.job_id, j.title, j.wanted_job, j.description, j.salary, j.date, j.time_start, j.time_end, 
+                        j.address, j.is_urgent, e.organization_name, j.created_at
                     FROM jobs j
                     JOIN employers e ON j.employer_id = e.profile_id
                     WHERE j.status = true
