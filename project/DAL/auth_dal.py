@@ -37,12 +37,12 @@ class AuthDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def add_employer(user_id, organization_name):
+    def add_employer(user_id):
         conn = AuthDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """INSERT INTO employers (user_id, organization_name) VALUES (%s, %s)"""
-                cur.execute(stat, (user_id, organization_name, ))
+                stat = """INSERT INTO employers (user_id) VALUES (%s)"""
+                cur.execute(stat, (user_id, ))
                 conn.commit()
                 print(f"Работодатель успешно добавлен!")
         except Error as e:
