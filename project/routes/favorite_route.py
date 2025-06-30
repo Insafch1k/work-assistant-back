@@ -12,15 +12,17 @@ def add_favorite(job_id):
     """Добавление вакансии в избранное"""
     current_user_tg = get_jwt_identity()
     curr_id = FavoriteDAL.get_finder_id_by_tg(current_user_tg)
+    print("CURR_ID", curr_id, "\n\n")
+    print("JOB ID", job_id, "\n\n")
     if not curr_id:
         return jsonify({"error": "Пользователь не найден"}), 404
 
-    if not FavoriteDAL.check_job(job_id):
-        return jsonify({"error": "Работа не найдена"}), 404
+    # if not FavoriteDAL.check_job(job_id):
+    #     return jsonify({"error": "Работа не найдена"}), 404
 
-    data = request.get_json()
-    favorite_by = FavoriteDAL.get_status_job(curr_id, data["job_id"])
-
+    # data = request.get_json()
+    favorite_by = FavoriteDAL.add_job_favorite(curr_id, job_id)
+    print("ПОЛУЧЕННЫЕ ДАННЫЕ", favorite_by, "\n\n\n")
     return jsonify({
         "favorite_id": favorite_by[0],
         "finder_id": favorite_by[1],
