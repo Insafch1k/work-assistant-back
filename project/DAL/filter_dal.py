@@ -14,7 +14,8 @@ class FilterDAL(DBConnection):
                           WHERE u.tg = %s"""
                 cur.execute(stat, (tg,))
                 conn.commit()
-                return cur.fetchone()[0]
+                result = cur.fetchone()
+                return result[0] if result else None
         except Error as e:
             print(f"Ошибка при получении id пользователя: {e}")
             conn.rollback()
@@ -38,23 +39,23 @@ class FilterDAL(DBConnection):
                 conditions = []
                 params = []
 
-                if wanted_job:
+                if wanted_job is not None:
                     conditions.append("j.wanted_job ILIKE %s")
                     params.append(f"%{wanted_job}%")
 
-                if address:
+                if address is not None:
                     conditions.append("j.address ILIKE %s")
                     params.append(f"%{address}%")
 
-                if time_start:
+                if time_start is not None:
                     conditions.append("j.time_start >= %s")
                     params.append(time_start)
 
-                if time_end:
+                if time_end is not None:
                     conditions.append("j.time_end <= %s")
                     params.append(time_end)
 
-                if date:
+                if date is not None:
                     conditions.append("j.date::date = %s::date")
                     params.append(date)
 
@@ -67,16 +68,16 @@ class FilterDAL(DBConnection):
                     params.append(is_urgent)
 
                 if xp is not None:
-                    conditions.append("j.xp >= %s")
+                    conditions.append("j.xp = %s")
                     params.append(xp)
 
                 if age:
-                    if age == "Старше 14":
-                        conditions.append("j.age >= 14")
-                    elif age == "Старше 16":
-                        conditions.append("j.age >= 16")
-                    elif age == "Старше 18":
-                        conditions.append("j.age >= 18")
+                    if age == "Старше 14 лет":
+                        conditions.append("j.age >= 14 AND j.age = 'Старше 16 лет' AND j.age = 'Старше 18 лет'")
+                    elif age == "Старше 16 лет":
+                        conditions.append("j.age >= 16 AND j.age = 'Старше 18 лет'")
+                    elif age == "Старше 18 лет":
+                        conditions.append("j.age = %s")
 
                 if conditions:
                     base_query += " AND " + " AND ".join(conditions)
@@ -86,7 +87,7 @@ class FilterDAL(DBConnection):
                 cur.execute(base_query, params)
                 return cur.fetchall()
         except Error as e:
-            print(f"Filter error: {e}")
+            print(f"Ошибка при фильтрации объявлений: {e}")
             conn.rollback()
         finally:
             conn.close()

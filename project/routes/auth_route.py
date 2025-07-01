@@ -9,7 +9,6 @@ auth_router = Blueprint("auth_router", __name__)
 
 @auth_router.route("/profile/init", methods=["POST"])
 def register():
-    #data = ProfileInitRequest.model_validate(request.json)
     data = request.get_json()
     result = validate_register(data)
 
@@ -24,8 +23,6 @@ def register():
     if data["user_role"] == "employer":
         AuthDAL.add_employer(list(user.values())[0])
 
-    #response = ProfileInitResponse(**user)
-    #return jsonify(response.model_dump()), 201
 
     access_token = create_access_token(identity=str(data["tg"]))
     return jsonify({

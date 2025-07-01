@@ -17,33 +17,50 @@ employer_jobs = Blueprint("employer_jobs_router", __name__)
 finder_jobs = Blueprint("finder_jobs_router", __name__)
 
 
-@job_router.route('/jobs', methods=["POST"])
+@job_router.route("/jobs", methods=["POST"])
 @jwt_required()
 def create_job():
     """Создание новой вакансии"""
     current_user_tg = get_jwt_identity()
-    employer = JobDAL.get_finder_id_by_tg(current_user_tg)
-    if not employer:
+    curr_id = JobDAL.get_employer_id_by_tg(current_user_tg)
+    if not curr_id:
         return jsonify({"error": "Только работодатели могут создавать объявления"}), 403
 
     data = request.get_json()
-    new_job = JobDAL.add_job(data["employer_id"], data["title"], data["wanted_job"], data["description"],
+    fields = ["title", "wanted_job", "description", "salary", "date", "time_start", "time_end", "address",
+              "is_urgent", "xp", "age"]
+    if any(field not in data or not data[field] for field in fields):
+        return jsonify({"error": "Неправильно заполнены поля"}), 400
+
+    valid_xp = ["нет опыта", "от 1 года", "от 3 лет"]
+    valid_age = ["старше 14 лет", "старше 16 лет", "старше 18 лет"]
+
+    if data["xp"] not in valid_xp:
+        return jsonify({"error": "Недопустимое значение для опыта работы. "
+                                 "Допустимые значения: нет опыта, от 1 года, от 3 лет"}), 400
+
+    if data["age"] not in valid_age:
+        return jsonify({"error": "Недопустимое значение для возраста. "
+                                 "Допустимые значения: старше 14 лет, старше 16 лет, старше 18 лет"}), 400
+
+    new_job = JobDAL.add_job(curr_id, data["title"], data["wanted_job"], data["description"],
                              data["salary"], data["date"], data["time_start"], data["time_end"], data["address"],
                              data["is_urgent"], data["xp"], data["age"])
 
-    return jsonify({
+    print({
         "job_id": new_job[0],
         "title": new_job[1],
         "wanted_job": new_job[2],
-        "salary": new_job[2],
-        "time_delta": str(new_job[2]) if new_job[2] else None,
-        "created_at": new_job[3].isoformat(),
-        "address": new_job[3],
-        "organization_name": new_job[4]
-    }), 200
+        "salary": new_job[3],
+        "time_start": new_job[4],
+        "time_end": new_job[5],
+        "created_at": new_job[6].isoformat(),
+        "address": new_job[7]
+    })
+    return jsonify({"message": "Объявление успешно создано"}), 200
 
 
-@filter_router.route('/jobs/filter', methods=["GET"])
+@filter_router.route("/jobs/filter", methods=["GET"])
 @jwt_required()
 def filter_jobs():
     """Фильтрация вакансий"""
@@ -53,20 +70,42 @@ def filter_jobs():
         return jsonify({"error": "Пользователь не найден"}), 404
 
     data = request.get_json()
-    jobs = FilterDAL.get_filtered_jobs(
-        wanted_job=data["wanted_job"],
-        address=data["address"],
-        time_start=data["time_start"],
-        time_end=data["time_end"],
-        date=data["date"],
-        salary=data["salary"],
-        is_urgent=data["is_urgent"],
-        xp=data["xp"],
-        age=data["age"]
-    )
+    temp_json = {"wanted_job": None, "address": None, "time_start": None, "time_end": None, "date": None,
+                 "salary": None, "is_urgent": None, "xp": None, "age": None}
+
+    for temp in temp_json:
+        if temp in data:
+            temp_json[temp] = data[temp]
+
+    if temp_json["date"]:
+        try:
+            temp_json["date"] = f"{temp_json['date']} 00:00:00"
+        except ValueError:
+            return jsonify({"error": "Неверный формат даты. Используйте YYYY-MM-DD"}), 400
+
+    jobs = FilterDAL.get_filtered_jobs(wanted_job=temp_json["wanted_job"], address=temp_json["address"],
+                                       time_start=temp_json["time_start"], time_end=temp_json["time_end"],
+                                       date=temp_json["date"], salary=temp_json["salary"], is_urgent=temp_json["is_urgent"],
+                                       xp=temp_json["xp"], age=temp_json["age"])
+
+    if not jobs or not jobs[0]:
+        return jsonify({"error": "Работа не найдена"}), 404
 
     jobs_json = []
     for job in jobs:
+        hours = None
+
+        try:
+            if isinstance(job[6], datetime) and isinstance(job[7], datetime):
+                time_diff = job[7] - job[6]
+                hours = round(time_diff.total_seconds() / 3600, 2)
+            elif isinstance(job[6], str) and isinstance(job[7], str):
+                time_diff = datetime.strptime(job[7], "%H:%M:%S") - \
+                            datetime.strptime(job[6], "%H:%M:%S")
+                hours = round(time_diff.total_seconds() / 3600, 2)
+        except (ValueError, TypeError, AttributeError) as e:
+            print(f"Ошибка обработки времени: {e}")
+
         jobs_json.append({
             "job_id": job[0],
             "title": job[1],
@@ -74,8 +113,7 @@ def filter_jobs():
             "description": job[3],
             "salary": job[4],
             "date": job[5].isoformat() if job[5] else None,
-            "time_start": job[6].isoformat() if job[6] else None,
-            "time_end": job[7].isoformat() if job[7] else None,
+            "hours": hours,
             "address": job[8],
             "is_urgent": job[9],
             "organization_name": job[10],

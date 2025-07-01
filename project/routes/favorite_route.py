@@ -74,8 +74,8 @@ def get_favorites():
                 time_diff = fav[5] - fav[4]
                 hours = round(time_diff.total_seconds() / 3600, 2)
             elif isinstance(fav[4], str) and isinstance(fav[5], str):
-                time_diff = datetime.strptime(fav[4], "%a, %d %b %Y %H:%M:%S %Z") - \
-                            datetime.strptime(fav[3], "%a, %d %b %Y %H:%M:%S %Z")
+                time_diff = datetime.strptime(fav[4], "%H:%M:%S") - \
+                            datetime.strptime(fav[3], "%H:%M:%S")
                 hours = round(time_diff.total_seconds() / 3600, 2)
         except (ValueError, TypeError, AttributeError) as e:
             print(f"Ошибка обработки времени: {e}")
