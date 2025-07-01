@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
-#from project.models.profile import ProfileInitRequest, ProfileInitResponse
+
 from project.DAL.auth_dal import AuthDAL
 from project.BL.auth_bl import validate_register, get_user_data
 
@@ -28,11 +28,16 @@ def register():
     #return jsonify(response.model_dump()), 201
 
     access_token = create_access_token(identity=str(data["tg"]))
-    return jsonify({"message": "Вы успешно зарегистрированы"}), 200
+    return jsonify({
+        "message": "Вы успешно зарегистрированы",
+        "access_token": access_token
+    }), 200
 
 @auth_router.route("/profile/login", methods=["POST"])
 def login():
     data = request.get_json()
-
     access_token = create_access_token(identity=str(data["tg"]))
-    return jsonify(access_token=access_token), 200
+    return jsonify({
+        "message": "Вы успешно авторизовались",
+        "access_token": access_token
+    }), 200

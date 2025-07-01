@@ -16,7 +16,6 @@ def create_resume():
         return jsonify({"error": "Пользователь не найден"}), 404
 
     data = request.get_json()
-    #resume_data = ResumeCreate(**data)
 
     resume = ResumeDAL.create_resume(curr_id, data["job_title"], data["education"], data["work_xp"], data["skills"])
     print(resume)

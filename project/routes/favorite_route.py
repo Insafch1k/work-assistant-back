@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from datetime import datetime
 
 from project.DAL.favorite_dal import FavoriteDAL
 
@@ -21,26 +22,30 @@ def add_favorite(job_id):
     #     return jsonify({"error": "Работа не найдена"}), 404
 
     # data = request.get_json()
-    favorite_by = FavoriteDAL.add_job_favorite(curr_id, job_id)
-    print("ПОЛУЧЕННЫЕ ДАННЫЕ", favorite_by, "\n\n\n")
-    return jsonify({
-        "favorite_id": favorite_by[0],
-        "finder_id": favorite_by[1],
-        "job_id": favorite_by[2],
-        "created_at": favorite_by[3],
-    }), 200
+
+    favorite = FavoriteDAL.add_job_favorite(curr_id, job_id)
+    print("ПОЛУЧЕННЫЕ ДАННЫЕ", favorite, "\n\n\n")
+    if not favorite:
+        return jsonify({"error": "Вакансия уже в списке избранных"}), 401
+    else:
+        return jsonify({
+            "favorite_id": favorite[0],
+            "finder_id": favorite[1],
+            "job_id": favorite[2],
+            "created_at": favorite[3],
+        }), 200
 
 
-@favorite_router.route("/jobs/remove_favorite/<int:favorite_id>", methods=["DELETE"])
+@favorite_router.route("/jobs/<int:job_id>/remove_favorite", methods=["DELETE"])
 @jwt_required()
-def remove_favorite(favorite_id):
+def remove_favorite(job_id):
     """Удаление вакансии из избранного"""
     current_user_tg = get_jwt_identity()
     curr_id = FavoriteDAL.get_finder_id_by_tg(current_user_tg)
     if not curr_id:
         return jsonify({"error": "Пользователь не найден"}), 404
 
-    favorite = FavoriteDAL.delete_favorite_job(current_user_tg, favorite_id)
+    favorite = FavoriteDAL.delete_favorite_job(curr_id, job_id)
     if not favorite:
         return jsonify({"error": "Работа не найдена"}), 404
 
@@ -56,20 +61,34 @@ def get_favorites():
     if not curr_id:
         return jsonify({"error": "Пользователь не найден"}), 404
 
-    favorites = FavoriteDAL.get_favorite_list(current_user_tg)
+    favorite = FavoriteDAL.get_favorite_list(curr_id)
+    if not favorite:
+        return jsonify({"error": "Избранные не найдены"}), 404
 
     favorite_json = []
-    for fav in favorites:
+    for fav in favorite:
+        hours = None
+
+        try:
+            if isinstance(fav[4], datetime) and isinstance(fav[5], datetime):
+                time_diff = fav[5] - fav[4]
+                hours = round(time_diff.total_seconds() / 3600, 2)
+            elif isinstance(fav[4], str) and isinstance(fav[5], str):
+                time_diff = datetime.strptime(fav[4], "%a, %d %b %Y %H:%M:%S %Z") - \
+                            datetime.strptime(fav[3], "%a, %d %b %Y %H:%M:%S %Z")
+                hours = round(time_diff.total_seconds() / 3600, 2)
+        except (ValueError, TypeError, AttributeError) as e:
+            print(f"Ошибка обработки времени: {e}")
+
         favorite_json.append({
-            "favorite_id": fav[8],
-            "job_id": fav[0],
-            "title": fav[1],
-            "salary": fav[2],
-            "address": fav[3],
-            "date": fav[4].isoformat() if fav[4] else None,
-            "time_start": fav[5].isoformat() if fav[5] else None,
-            "time_end": fav[6].isoformat() if fav[6] else None,
-            "organization": fav[7]
+            "favorite_id": fav[0],
+            "job_id": fav[1],
+            "title": fav[2].strip() if isinstance(fav[2], str) else fav[2],
+            "salary": fav[3],
+            "hours": hours,
+            "address": fav[6].strip() if isinstance(fav[6], str) else fav[6],
+            "rating": fav[7],
+            "photo": fav[8]
         })
 
-    return jsonify(favorites), 200
+    return jsonify(favorite_json), 200

@@ -216,7 +216,6 @@ def get_jobs_for_finders():
     for job in jobs:
         if len(job) >= 5:
             try:
-                #ДОБАВИТЬ В ДРУГИЕ РОУТЫ ФОРМУЛУ
                 if isinstance(job[4], datetime) and isinstance(job[5], datetime):
                     time_diff = job[5] - job[4]
                 elif isinstance(job[4], str) and isinstance(job[5], str):

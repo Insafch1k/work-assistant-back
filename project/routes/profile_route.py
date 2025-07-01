@@ -17,10 +17,11 @@ def update_profile():
     curr_id = ProfileDAL.get_user_id_by_tg(current_tg)
 
     if "user_id" in data and data["user_id"] != curr_id:
-        return jsonify({"error": "Forbidden"}), 403
+        return jsonify({"error": "Нет доступа"}), 403
 
     role = ProfileDAL.get_user_role(curr_id)
 
+    #В ЗАВИСИМОСТИ ОТ ФРОНТА, НУЖНО БУДЕТ РАСПИСАТЬ ЭТИ ДАННЫЕ КАК НЕОБЯЗАТЕЛЬНЫЕ (КАК В filter_dal)
     if role == "finder":
         ProfileDAL.update_profile(data["user_name"], data["email"], data["phone"], data["photo"], curr_id)
         ProfileDAL.update_finder_profile(data["age"], curr_id)
@@ -46,7 +47,6 @@ def get_profile(profile_id):
         return jsonify({"error": "Профиль не найден"}), 404
 
     response_data = form_response(data)
-    #response = ProfileResponse(**response_data)
     return jsonify(response_data), 200
 
 
