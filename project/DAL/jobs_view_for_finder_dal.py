@@ -1,6 +1,7 @@
 from project.utils.db_connection import DBConnection
 from psycopg2 import Error
 
+
 class Finder_Jobs(DBConnection):
     @staticmethod
     def get_finder_id_by_tg(tg):
@@ -13,7 +14,8 @@ class Finder_Jobs(DBConnection):
                           WHERE u.tg = %s"""
                 cur.execute(stat, (tg,))
                 conn.commit()
-                return cur.fetchone()[0]
+                result = cur.fetchone()
+                return result[0] if result else None
         except Error as e:
             print(f"Ошибка при получении id соискателя: {e}")
             conn.rollback()
@@ -25,11 +27,15 @@ class Finder_Jobs(DBConnection):
         conn = Finder_Jobs.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """
-                    SELECT j.job_id, j.title, j.salary, j.address, j.time_start, j.time_end
-                    FROM jobs j
-                    ORDER BY j.created_at"""
-                cur.execute(stat, (employer_id, ))
+                stat = """SELECT j.job_id, j.title, j.salary, j.address, j.time_start, j.time_end,
+                   EXISTS (
+                        SELECT 1 FROM job_favorites f 
+                        WHERE f.job_id = j.job_id 
+                        AND f.finder_id = %s
+                   ) AS is_favorite
+                   FROM jobs j
+                   ORDER BY j.created_at"""
+                cur.execute(stat, (employer_id,))
                 conn.commit()
                 return cur.fetchall()
         except Error as e:
@@ -50,7 +56,7 @@ class Finder_Jobs(DBConnection):
                     FROM jobs j
                     WHERE j.job_id = %s
                     """
-                cur.execute(stat, (job_id, ))
+                cur.execute(stat, (job_id,))
                 conn.commit()
                 return cur.fetchall()
         except Error as e:

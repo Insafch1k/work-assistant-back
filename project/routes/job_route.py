@@ -13,8 +13,8 @@ job_router = Blueprint("job_router", __name__)
 filter_router = Blueprint("filter_router", __name__)
 history_router = Blueprint("history_router", __name__)
 jobs_seeAll = Blueprint("jobs_see_All_route", __name__)
-employer_jobs = Blueprint("employer_jobs_router", __name__)
-finder_jobs = Blueprint("finder_jobs_router", __name__)
+employer_jobs_router = Blueprint("employer_jobs_router", __name__)
+finder_jobs_router = Blueprint("finder_jobs_router", __name__)
 
 
 @job_router.route("/jobs", methods=["POST"])
@@ -122,7 +122,7 @@ def filter_jobs():
 
     return jsonify(jobs_json), 200
 
-
+#Тестировать
 @history_router.route("/jobs/<int:job_id>/view", methods=["POST"])
 @jwt_required()
 def add_job_view(job_id):
@@ -143,7 +143,7 @@ def add_job_view(job_id):
         "viewed_at": result[3].isoformat() if result[3] else None
     }), 200
 
-
+#Тестировать
 @history_router.route("/jobs/history", methods=["GET"])
 @jwt_required()
 def get_view_history():
@@ -167,7 +167,7 @@ def get_view_history():
 
     return jsonify(history_list), 200
 
-
+#Тестировать
 @jobs_seeAll.route("/jobs/<int:job_id>/seeall", methods=["GET"])
 @jwt_required()
 def get_job_seeAll_finders(job_id):
@@ -213,8 +213,8 @@ def get_job_seeAll_finders(job_id):
 
     return jsonify(job_json), 200
 
-
-@employer_jobs.route("/jobs/employers", methods=["GET"])
+#Тестировать
+@employer_jobs_router.route("/jobs/employers", methods=["GET"])
 @jwt_required()
 def get_jobs_for_employers():
     """Получение списка вакансий для работодателя"""
@@ -240,7 +240,7 @@ def get_jobs_for_employers():
     return jsonify(jobs), 200
 
 
-@finder_jobs.route("/jobs/finders", methods=["GET"])
+@finder_jobs_router.route("/jobs/finders", methods=["GET"])
 @jwt_required()
 def get_jobs_for_finders():
     """Получение списка вакансий для соискателя"""
@@ -250,6 +250,9 @@ def get_jobs_for_finders():
         return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
     jobs = Finder_Jobs.get_all_jobs(curr_id)
+    if not jobs or not jobs[0]:
+        return jsonify({"error": "Работа не найдена"}), 404
+
     jobs_list = []
     for job in jobs:
         if len(job) >= 5:
@@ -274,7 +277,8 @@ def get_jobs_for_finders():
             "title": job[1],
             "salary": job[2],
             "address": job[3],
-            "time_hours": hours
+            "time_hours": hours,
+            "is_favorite": job[6]
         })
 
     return jsonify(jobs_list), 200

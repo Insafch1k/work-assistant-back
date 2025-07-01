@@ -17,7 +17,7 @@ class FilterDAL(DBConnection):
                 result = cur.fetchone()
                 return result[0] if result else None
         except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+            print(f"Ошибка при получении id соискателя: {e}")
             conn.rollback()
         finally:
             conn.close()
