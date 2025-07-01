@@ -26,8 +26,7 @@ class Jobs(DBConnection):
         try:
             with conn.cursor() as cur:
                 stat = """
-                    SELECT j.title, j.salary, j.address, j.time_start, j.time_end, j.is_urgent,
-                    j.work_xp, j.age_dis
+                    SELECT j.title, j.salary, j.address, j.time_start, j.time_end, j.is_urgent, j.xp, j.age
                     FROM jobs j
                     WHERE j.job_id = %s
                     """

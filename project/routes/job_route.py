@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from datetime import datetime
+from datetime import datetime, time, timedelta
 
 from project.DAL.job_dal import JobDAL
 from project.DAL.filter_dal import FilterDAL
@@ -12,7 +12,7 @@ from project.DAL.jobs_view_for_finder_dal import Finder_Jobs
 job_router = Blueprint("job_router", __name__)
 filter_router = Blueprint("filter_router", __name__)
 history_router = Blueprint("history_router", __name__)
-jobs_seeAll = Blueprint("jobs_see_All_route", __name__)
+jobs_see_All_route = Blueprint("jobs_see_All_route", __name__)
 employer_jobs_router = Blueprint("employer_jobs_router", __name__)
 finder_jobs_router = Blueprint("finder_jobs_router", __name__)
 
@@ -85,7 +85,8 @@ def filter_jobs():
 
     jobs = FilterDAL.get_filtered_jobs(wanted_job=temp_json["wanted_job"], address=temp_json["address"],
                                        time_start=temp_json["time_start"], time_end=temp_json["time_end"],
-                                       date=temp_json["date"], salary=temp_json["salary"], is_urgent=temp_json["is_urgent"],
+                                       date=temp_json["date"], salary=temp_json["salary"],
+                                       is_urgent=temp_json["is_urgent"],
                                        xp=temp_json["xp"], age=temp_json["age"])
 
     if not jobs or not jobs[0]:
@@ -100,8 +101,7 @@ def filter_jobs():
                 time_diff = job[7] - job[6]
                 hours = round(time_diff.total_seconds() / 3600, 2)
             elif isinstance(job[6], str) and isinstance(job[7], str):
-                time_diff = datetime.strptime(job[7], "%H:%M:%S") - \
-                            datetime.strptime(job[6], "%H:%M:%S")
+                time_diff = datetime.strptime(job[7], "%H:%M:%S") - datetime.strptime(job[6], "%H:%M:%S")
                 hours = round(time_diff.total_seconds() / 3600, 2)
         except (ValueError, TypeError, AttributeError) as e:
             print(f"Ошибка обработки времени: {e}")
@@ -122,7 +122,7 @@ def filter_jobs():
 
     return jsonify(jobs_json), 200
 
-#Тестировать
+
 @history_router.route("/jobs/<int:job_id>/view", methods=["POST"])
 @jwt_required()
 def add_job_view(job_id):
@@ -143,7 +143,7 @@ def add_job_view(job_id):
         "viewed_at": result[3].isoformat() if result[3] else None
     }), 200
 
-#Тестировать
+
 @history_router.route("/jobs/history", methods=["GET"])
 @jwt_required()
 def get_view_history():
@@ -167,39 +167,34 @@ def get_view_history():
 
     return jsonify(history_list), 200
 
-#Тестировать
-@jobs_seeAll.route("/jobs/<int:job_id>/seeall", methods=["GET"])
+
+@jobs_see_All_route.route("/jobs/<int:job_id>/seeall", methods=["GET"])
 @jwt_required()
 def get_job_seeAll_finders(job_id):
-    """Получение общих данных"""
-    # Проверка авторизации пользователя
+    """Подробное описание объявления"""
     current_user_tg = get_jwt_identity()
     curr_id = Jobs.get_finder_id_by_tg(current_user_tg)
     if not curr_id:
         return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
-    # Получение данных о работе
     job_data = Jobs.get_job_seeAll(job_id)
     if not job_data or not job_data[0]:
         return jsonify({"error": "Работа не найдена"}), 404
 
-    job = job_data[0]  # Получаем первую (и единственную) запись
+    job = job_data[0]
 
-    # Вычисление продолжительности работы
-    hours = None  # Инициализируем переменную
+    hours = None
 
     try:
         if isinstance(job[3], datetime) and isinstance(job[4], datetime):
             time_diff = job[4] - job[3]
             hours = round(time_diff.total_seconds() / 3600, 2)
         elif isinstance(job[3], str) and isinstance(job[4], str):
-            time_diff = datetime.strptime(job[4], "%a, %d %b %Y %H:%M:%S %Z") - \
-                        datetime.strptime(job[3], "%a, %d %b %Y %H:%M:%S %Z")
+            time_diff = datetime.strptime(job[4], "%H:%M:%S") - datetime.strptime(job[3], "%H:%M:%S")
             hours = round(time_diff.total_seconds() / 3600, 2)
     except (ValueError, TypeError, AttributeError) as e:
         print(f"Ошибка обработки времени: {e}")
 
-    # Формирование ответа
     job_json = {
         "title": job[0].strip() if isinstance(job[0], str) else job[0],
         "salary": job[1],
@@ -213,7 +208,7 @@ def get_job_seeAll_finders(job_id):
 
     return jsonify(job_json), 200
 
-#Тестировать
+
 @employer_jobs_router.route("/jobs/employers", methods=["GET"])
 @jwt_required()
 def get_jobs_for_employers():
@@ -224,20 +219,54 @@ def get_jobs_for_employers():
         return jsonify({"error": "Пользователь не найден или не существует"})
 
     jobs = Emplyers_Jobs.get_all_jobs(curr_id)
-    jobs_list = []
+    jobs_json = []
+
     for job in jobs:
-        jobs_list.append({
+        if len(job) >= 9:
+            try:
+                if isinstance(job[5], str) and isinstance(job[6], str):
+                    try:
+                        t_start = datetime.strptime(job[5], "%H:%M:%S").time()
+                        t_end = datetime.strptime(job[6], "%H:%M:%S").time()
+
+                        dt_start = datetime.combine(datetime.today(), t_start)
+                        dt_end = datetime.combine(datetime.today(), t_end)
+
+                        time_diff = dt_end - dt_start
+                        hours = round(time_diff.total_seconds() / 3600, 2)
+                    except ValueError:
+                        hours = None
+
+                elif isinstance(job[5], time) and isinstance(job[6], time):
+                    dt_start = datetime.combine(datetime.today(), job[5])
+                    dt_end = datetime.combine(datetime.today(), job[6])
+                    time_diff = dt_end - dt_start
+                    hours = round(time_diff.total_seconds() / 3600, 2)
+
+                elif isinstance(job[5], datetime) and isinstance(job[6], datetime):
+                    time_diff = job[6] - job[5]
+                    hours = round(time_diff.total_seconds() / 3600, 2)
+
+                else:
+                    hours = None
+            except (ValueError, TypeError, AttributeError) as e:
+                print(f"Ошибка обработки времени: {e}")
+                hours = None
+        else:
+            hours = None
+
+        jobs_json.append({
             "job_id": job[0],
             "employer_id": job[1],
             "title": job[2],
             "salary": job[3],
             "address": job[4],
-            "time_start": job[5].isoformat() if job[5] else None,
-            "time_end": job[6].isoformat() if job[6] else None,
-            "created_at": job[7].isoformat()
+            "time_hours": hours,
+            "is_favorite": job[7],
+            "created_at": job[8].isoformat()
         })
 
-    return jsonify(jobs), 200
+    return jsonify(jobs_json), 200
 
 
 @finder_jobs_router.route("/jobs/finders", methods=["GET"])

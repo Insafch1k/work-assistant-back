@@ -49,7 +49,7 @@ class HistoryDAL(DBConnection):
                     FROM job_view_history h
                     JOIN jobs j ON h.job_id = j.job_id
                     JOIN employers e ON j.employer_id = e.profile_id
-                    WHERE h.finder_id = %s AND j.status = 'active'
+                    WHERE h.finder_id = %s AND j.status = true
                     ORDER BY h.viewed_at DESC
                     """
                 cur.execute(stat, (finder_id, ))

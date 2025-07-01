@@ -26,9 +26,14 @@ class Emplyers_Jobs(DBConnection):
         try:
             with conn.cursor() as cur:
                 stat = """
-                    SELECT j.job_id, j.employer_id, j.title, j.salary, j.address, j.time_start, j.time_end, j.created_at
-                    FROM jobs j
-                    ORDER BY j.created_at"""
+                   SELECT j.job_id, j.employer_id, j.title, j.salary, j.address, j.time_start, j.time_end,
+                   EXISTS (
+                        SELECT 1 FROM job_favorites f 
+                        WHERE f.job_id = j.job_id 
+                        AND f.finder_id = %s
+                   ) AS is_favorite, j.created_at
+                   FROM jobs j
+                   ORDER BY j.created_at"""
                 cur.execute(stat, (employer_id, ))
                 conn.commit()
                 return cur.fetchall()
