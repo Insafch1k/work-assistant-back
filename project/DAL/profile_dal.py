@@ -23,7 +23,7 @@ class ProfileDAL(DBConnection):
         conn = ProfileDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                if any([user_name, email, phone, photo, user_id]):
+                if any([user_name, email, phone, photo]):
                     stat = """UPDATE users SET """
 
                     conditions = []

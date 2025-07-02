@@ -78,7 +78,8 @@ def get_favorites():
             "address": fav[6].strip() if isinstance(fav[6], str) else fav[6],
             "rating": fav[7],
             "photo": fav[8],
-            "is_favorite": fav[9]
+            "is_favorite": True,
+            "is_urgent": fav[9]
         })
 
     return jsonify(favorite_json), 200

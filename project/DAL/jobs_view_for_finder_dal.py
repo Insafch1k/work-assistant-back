@@ -36,7 +36,7 @@ class Finder_Jobs(DBConnection):
                    FROM jobs j
                    JOIN employers e ON e.profile_id = j.employer_id
                    JOIN users u ON u.user_id = e.user_id
-                   ORDER BY j.created_at"""
+                   ORDER BY j.created_at DESC"""
                 cur.execute(stat, (finder_id,))
                 conn.commit()
                 return cur.fetchall()
@@ -57,6 +57,7 @@ class Finder_Jobs(DBConnection):
                     j.work_xp, j.age_restrict
                     FROM jobs j
                     WHERE j.job_id = %s
+                    ORDER BY j.created_at DESC
                     """
                 cur.execute(stat, (job_id,))
                 conn.commit()

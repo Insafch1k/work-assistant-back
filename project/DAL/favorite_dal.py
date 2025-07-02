@@ -27,7 +27,7 @@ class FavoriteDAL(DBConnection):
         try:
             with conn.cursor() as cur:
                 stat = """SELECT f.favorite_id, j.job_id, j.title, j.salary, j.time_start, j.time_end, 
-                            j.address, u.rating, u.photo, 
+                            j.address, u.rating, u.photo, j.is_urgent
                           FROM job_favorites f
                           JOIN jobs j ON f.job_id = j.job_id
                           JOIN employers e ON j.employer_id = e.profile_id

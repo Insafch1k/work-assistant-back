@@ -1,3 +1,5 @@
+from tarfile import data_filter
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from datetime import datetime, time
@@ -29,7 +31,7 @@ def create_job():
 
     data = request.get_json()
     fields = ["title", "wanted_job", "description", "salary", "date", "time_start", "time_end", "address",
-              "is_urgent", "xp", "age"]
+              "xp", "age"]
     if any(field not in data or not data[field] for field in fields):
         return jsonify({"error": "Неправильно заполнены поля"}), 400
 
@@ -39,7 +41,6 @@ def create_job():
     if data["xp"] not in valid_xp:
         return jsonify({"error": "Недопустимое значение для опыта работы. "
                                  "Допустимые значения: нет опыта, от 1 года, от 3 лет"}), 400
-
     if data["age"] not in valid_age:
         return jsonify({"error": "Недопустимое значение для возраста. "
                                  "Допустимые значения: старше 14 лет, старше 16 лет, старше 18 лет"}), 400
@@ -271,7 +272,7 @@ def get_jobs_for_finders():
     return jsonify(jobs_list), 200
 
 
-@finder_jobs_router.route("/jobs/me", methods=["GET"])
+@employer_jobs_router.route("/jobs/me", methods=["GET"])
 @jwt_required()
 def get_my_jobs():
     """Получение своего списка вакансий для работодателя"""
@@ -303,3 +304,31 @@ def get_my_jobs():
         })
 
     return jsonify(jobs_list), 200
+
+@employer_jobs_router.route('/jobs/me/<int:job_id>', methods=["PATCH"])
+@jwt_required()
+def update_my_job(job_id):
+    """Редактирование объявление"""
+    current_user_tg = get_jwt_identity()
+    curr_id = Emplyers_Jobs.get_employer_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден или не существует"}), 404
+
+    data = request.get_json()
+
+    temp_json = {"title": None, "wanted_job": None, "description": None, "salary": None, "date": None,
+                 "time_start": None, "time_end": None, "address": None, "is_urgent": None,
+                 "xp": None, "age": None, "status": None}
+
+    for temp in temp_json:
+        if temp in data:
+            temp_json[temp] = data[temp]
+
+    is_urgent = False if (temp_json["is_urgent"] is None) else data["is_urgent"]
+    job = Emplyers_Jobs.update_my_employer_job(job_id, title=temp_json["title"], wanted_job=temp_json["wanted_job"],
+                                               description=temp_json["description"], salary=temp_json["salary"], date=temp_json["date"],
+                                               time_start=temp_json["time_start"], time_end=temp_json["time_end"], address=temp_json["address"],
+                                               is_urgent=is_urgent, xp=temp_json["xp"], age=temp_json["age"], status=temp_json["status"])
+    if job:
+        return jsonify({"message": "Профиль обновлён"}), 200
+    return jsonify({"error": "Профиль не получилось обновить"})
