@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from datetime import datetime
 
+from project.BL.job_bl import time_calculate
 from project.DAL.favorite_dal import FavoriteDAL
 
 favorite_router = Blueprint("favorite_router", __name__)
@@ -67,19 +68,7 @@ def get_favorites():
 
     favorite_json = []
     for fav in favorite:
-        hours = None
-
-        try:
-            if isinstance(fav[4], datetime) and isinstance(fav[5], datetime):
-                time_diff = fav[5] - fav[4]
-                hours = round(time_diff.total_seconds() / 3600, 2)
-            elif isinstance(fav[4], str) and isinstance(fav[5], str):
-                time_diff = datetime.strptime(fav[4], "%H:%M:%S") - \
-                            datetime.strptime(fav[3], "%H:%M:%S")
-                hours = round(time_diff.total_seconds() / 3600, 2)
-        except (ValueError, TypeError, AttributeError) as e:
-            print(f"Ошибка обработки времени: {e}")
-
+        hours = time_calculate(fav[4], fav[5])
         favorite_json.append({
             "favorite_id": fav[0],
             "job_id": fav[1],

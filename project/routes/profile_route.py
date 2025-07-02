@@ -21,13 +21,14 @@ def update_profile():
 
     role = ProfileDAL.get_user_role(curr_id)
 
-    #В ЗАВИСИМОСТИ ОТ ФРОНТА, НУЖНО БУДЕТ РАСПИСАТЬ ЭТИ ДАННЫЕ КАК НЕОБЯЗАТЕЛЬНЫЕ (КАК В filter_dal)
     if role == "finder":
-        ProfileDAL.update_profile(data["user_name"], data["email"], data["phone"], data["photo"], curr_id)
-        ProfileDAL.update_finder_profile(data["age"], curr_id)
+        ProfileDAL.update_profile(curr_id, data["user_name"], data["email"], data["phone"], data["photo"])
+        if data["age"]:
+            ProfileDAL.update_finder_profile(data["age"], curr_id)
     if role == "employer":
-        ProfileDAL.update_profile(data["user_name"], data["email"], data["phone"], data["photo"], curr_id)
-        ProfileDAL.update_employer_profile(data["organization_name"], curr_id)
+        ProfileDAL.update_profile(curr_id, data["user_name"], data["email"], data["phone"], data["photo"])
+        if data["organization_name"]:
+            ProfileDAL.update_employer_profile(data["organization_name"], curr_id)
 
     return jsonify({"message": "Профиль обновлён"}), 200
 

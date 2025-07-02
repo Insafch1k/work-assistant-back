@@ -19,14 +19,41 @@ class ProfileDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def update_profile(user_name, email, phone, photo, user_id):
+    def update_profile(user_id, user_name=None, email=None, phone=None, photo=None):
         conn = ProfileDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """UPDATE users SET user_name = %s, email = %s, phone = %s, photo = %s WHERE user_id = %s"""
-                cur.execute(stat, (user_name, email, phone, photo, user_id,))
-                conn.commit()
-                print(f"Данные пользователя успешно обновлены!")
+                if any([user_name, email, phone, photo, user_id]):
+                    stat = """UPDATE users SET """
+
+                    conditions = []
+                    params = []
+
+                    if user_name:
+                        conditions.append("email = %s")
+                        params.append(user_name)
+
+                    if email:
+                        conditions.append("email = %s")
+                        params.append(email)
+
+                    if phone:
+                        conditions.append("phone = %s")
+                        params.append(phone)
+
+                    if photo:
+                        conditions.append("photo = %s")
+                        params.append(photo)
+
+                    if conditions:
+                        stat += ", ".join(conditions)
+
+                    stat += " WHERE user_id = %s"
+                    params.append(user_id)
+
+                    cur.execute(stat, params)
+                    conn.commit()
+                    print(f"Данные пользователя успешно обновлены!")
         except Error as e:
             print(f"Ошибка при обновлении данных пользователя: {e}")
             conn.rollback()
