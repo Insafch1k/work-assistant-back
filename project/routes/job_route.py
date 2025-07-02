@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from datetime import datetime, time
 
+from project.BL.job_bl import time_calculate
 from project.DAL.job_dal import JobDAL
 from project.DAL.filter_dal import FilterDAL
 from project.DAL.history_dal import HistoryDAL
@@ -94,18 +95,7 @@ def filter_jobs():
 
     jobs_json = []
     for job in jobs:
-        hours = None
-
-        try:
-            if isinstance(job[6], datetime) and isinstance(job[7], datetime):
-                time_diff = job[7] - job[6]
-                hours = round(time_diff.total_seconds() / 3600, 2)
-            elif isinstance(job[6], str) and isinstance(job[7], str):
-                time_diff = datetime.strptime(job[7], "%H:%M:%S") - datetime.strptime(job[6], "%H:%M:%S")
-                hours = round(time_diff.total_seconds() / 3600, 2)
-        except (ValueError, TypeError, AttributeError) as e:
-            print(f"Ошибка обработки времени: {e}")
-
+        hours = time_calculate(job[6], job[7])
         jobs_json.append({
             "job_id": job[0],
             "title": job[1],
@@ -182,38 +172,13 @@ def get_job_seeAll_finders(job_id):
         return jsonify({"error": "Работа не найдена"}), 404
 
     job = job_data[0]
-
-    try:
-        if isinstance(job[4], datetime) and isinstance(job[5], datetime):
-            time_diff = job[5] - job[4]
-
-        elif isinstance(job[4], str) and isinstance(job[5], str):
-            t_start = datetime.strptime(job[4], "%H:%M:%S").time()
-            t_end = datetime.strptime(job[5], "%H:%M:%S").time()
-
-            dt_start = datetime.combine(datetime.today(), t_start)
-            dt_end = datetime.combine(datetime.today(), t_end)
-
-            time_diff = dt_end - dt_start
-
-        elif isinstance(job[4], time) and isinstance(job[5], time):
-            dt_start = datetime.combine(datetime.today(), job[4])
-            dt_end = datetime.combine(datetime.today(), job[5])
-            time_diff = dt_end - dt_start
-        else:
-            time_diff = None
-
-        hours = round(time_diff.total_seconds() / 3600, 2) if time_diff else None
-    except (ValueError, TypeError, AttributeError) as e:
-        print(f"Ошибка обработки времени: {e}")
-        hours = None
-
     job_json = {
         "title": job[0].strip() if isinstance(job[0], str) else job[0],
         "salary": job[1],
         "address": job[2].strip() if isinstance(job[2], str) else job[2],
         "date": job[3].isoformat() if isinstance(job[3], datetime) else job[3],
-        "hours": hours,
+        "time_start": job[4],
+        "time_end": job[5],
         "is_urgent": job[6],
         "xp": job[7],
         "age": job[8],
@@ -238,31 +203,7 @@ def get_jobs_for_employers():
 
     for job in jobs:
         if len(job) >= 9:
-            #Добавить это в BL
-            try:
-                if isinstance(job[5], str) and isinstance(job[6], str):
-                    t_start = datetime.strptime(job[5], "%H:%M:%S").time()
-                    t_end = datetime.strptime(job[6], "%H:%M:%S").time()
-
-                    dt_start = datetime.combine(datetime.today(), t_start)
-                    dt_end = datetime.combine(datetime.today(), t_end)
-
-                    time_diff = dt_end - dt_start
-
-                elif isinstance(job[5], time) and isinstance(job[6], time):
-                    dt_start = datetime.combine(datetime.today(), job[5])
-                    dt_end = datetime.combine(datetime.today(), job[6])
-                    time_diff = dt_end - dt_start
-
-                elif isinstance(job[5], datetime) and isinstance(job[6], datetime):
-                    time_diff = job[6] - job[5]
-                else:
-                    time_diff = None
-
-                hours = round(time_diff.total_seconds() / 3600, 2) if time_diff else None
-            except (ValueError, TypeError, AttributeError) as e:
-                print(f"Ошибка обработки времени: {e}")
-                hours = None
+            hours = time_calculate(job[5], job[6])
         else:
             hours = None
 
@@ -299,30 +240,7 @@ def get_jobs_for_finders():
     jobs_list = []
     for job in jobs:
         if len(job) >= 6:
-            try:
-                if isinstance(job[5], datetime) and isinstance(job[6], datetime):
-                    time_diff = job[6] - job[5]
-
-                elif isinstance(job[5], str) and isinstance(job[6], str):
-                    t_start = datetime.strptime(job[5], "%H:%M:%S").time()
-                    t_end = datetime.strptime(job[6], "%H:%M:%S").time()
-
-                    dt_start = datetime.combine(datetime.today(), t_start)
-                    dt_end = datetime.combine(datetime.today(), t_end)
-
-                    time_diff = dt_end - dt_start
-
-                elif isinstance(job[5], time) and isinstance(job[6], time):
-                    dt_start = datetime.combine(datetime.today(), job[5])
-                    dt_end = datetime.combine(datetime.today(), job[6])
-                    time_diff = dt_end - dt_start
-                else:
-                    time_diff = None
-
-                hours = round(time_diff.total_seconds() / 3600, 2) if time_diff else None
-            except (ValueError, TypeError, AttributeError) as e:
-                print(f"Ошибка обработки времени: {e}")
-                hours = None
+            hours = time_calculate(job[5], job[6])
         else:
             hours = None
 
