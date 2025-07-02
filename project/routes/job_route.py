@@ -146,13 +146,23 @@ def get_view_history():
     history = HistoryDAL.get_view_history(curr_id)
     history_list = []
     for job in history:
+        if len(job) >= 9:
+            hours = time_calculate(job[5], job[6])
+        else:
+            hours = None
+
         history_list.append({
             "job_id": job[0],
-            "title": job[1],
-            "salary": job[2],
-            "address": job[3],
-            "time_start": job[4].isoformat() if job[4] else None,
-            "time_end": job[5].isoformat() if job[5] else None
+            "employer_id": job[1],
+            "title": job[2],
+            "salary": job[3],
+            "address": job[4],
+            "time_hours": hours,
+            "is_favorite": job[7],
+            "is_urgent": job[8],
+            "created_at": job[9].isoformat(),
+            "photo": job[10],
+            "rating": job[11]
         })
 
     return jsonify(history_list), 200

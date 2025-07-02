@@ -45,14 +45,20 @@ class HistoryDAL(DBConnection):
         try:
             with conn.cursor() as cur:
                 stat = """
-                    SELECT j.job_id, j.title, j.salary, j.address, j.time_start, j.time_end
+                    SELECT j.job_id, j.employer_id, j.title, j.salary, j.address, j.time_start, j.time_end,
+                        EXISTS (
+                            SELECT 1 FROM job_favorites f 
+                            WHERE f.job_id = j.job_id 
+                            AND f.finder_id = %s
+                        ) AS is_favorite, j.is_urgent, j.created_at, u.photo, u.rating
                     FROM job_view_history h
                     JOIN jobs j ON h.job_id = j.job_id
                     JOIN employers e ON j.employer_id = e.profile_id
+                    JOIN users u ON u.user_id = e.user_id
                     WHERE h.finder_id = %s AND j.status = true
                     ORDER BY h.viewed_at DESC
                     """
-                cur.execute(stat, (finder_id, ))
+                cur.execute(stat, (finder_id, finder_id,))
                 conn.commit()
                 return cur.fetchall()
         except Error as e:
