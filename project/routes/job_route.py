@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from datetime import datetime, time, timedelta
+from datetime import datetime, time
 
 from project.DAL.job_dal import JobDAL
 from project.DAL.filter_dal import FilterDAL
@@ -177,23 +177,36 @@ def get_job_seeAll_finders(job_id):
     if not curr_id:
         return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
-    job_data = Jobs.get_job_seeAll(job_id)
-    if not job_data or not job_data[0]:
+    job_data = Jobs.get_job_seeAll(curr_id, job_id)
+    if not job_data:
         return jsonify({"error": "Работа не найдена"}), 404
 
     job = job_data[0]
 
-    hours = None
-
     try:
-        if isinstance(job[3], datetime) and isinstance(job[4], datetime):
-            time_diff = job[4] - job[3]
-            hours = round(time_diff.total_seconds() / 3600, 2)
-        elif isinstance(job[3], str) and isinstance(job[4], str):
-            time_diff = datetime.strptime(job[4], "%H:%M:%S") - datetime.strptime(job[3], "%H:%M:%S")
-            hours = round(time_diff.total_seconds() / 3600, 2)
+        if isinstance(job[4], datetime) and isinstance(job[5], datetime):
+            time_diff = job[5] - job[4]
+
+        elif isinstance(job[4], str) and isinstance(job[5], str):
+            t_start = datetime.strptime(job[4], "%H:%M:%S").time()
+            t_end = datetime.strptime(job[5], "%H:%M:%S").time()
+
+            dt_start = datetime.combine(datetime.today(), t_start)
+            dt_end = datetime.combine(datetime.today(), t_end)
+
+            time_diff = dt_end - dt_start
+
+        elif isinstance(job[4], time) and isinstance(job[5], time):
+            dt_start = datetime.combine(datetime.today(), job[4])
+            dt_end = datetime.combine(datetime.today(), job[5])
+            time_diff = dt_end - dt_start
+        else:
+            time_diff = None
+
+        hours = round(time_diff.total_seconds() / 3600, 2) if time_diff else None
     except (ValueError, TypeError, AttributeError) as e:
         print(f"Ошибка обработки времени: {e}")
+        hours = None
 
     job_json = {
         "title": job[0].strip() if isinstance(job[0], str) else job[0],
@@ -201,9 +214,11 @@ def get_job_seeAll_finders(job_id):
         "address": job[2].strip() if isinstance(job[2], str) else job[2],
         "date": job[3].isoformat() if isinstance(job[3], datetime) else job[3],
         "hours": hours,
-        "is_urgent": job[5],
-        "work_xp": job[6],
-        "age_restrict": job[7]
+        "is_urgent": job[6],
+        "xp": job[7],
+        "age": job[8],
+        "description": job[9],
+        "is_favorite": job[10]
     }
 
     return jsonify(job_json), 200
@@ -214,7 +229,7 @@ def get_job_seeAll_finders(job_id):
 def get_jobs_for_employers():
     """Получение списка вакансий для работодателя"""
     current_user_tg = get_jwt_identity()
-    curr_id = Emplyers_Jobs.get_finder_id_by_tg(current_user_tg)
+    curr_id = Emplyers_Jobs.get_employer_id_by_tg(current_user_tg)
     if not curr_id:
         return jsonify({"error": "Пользователь не найден или не существует"})
 
@@ -223,32 +238,28 @@ def get_jobs_for_employers():
 
     for job in jobs:
         if len(job) >= 9:
+            #Добавить это в BL
             try:
                 if isinstance(job[5], str) and isinstance(job[6], str):
-                    try:
-                        t_start = datetime.strptime(job[5], "%H:%M:%S").time()
-                        t_end = datetime.strptime(job[6], "%H:%M:%S").time()
+                    t_start = datetime.strptime(job[5], "%H:%M:%S").time()
+                    t_end = datetime.strptime(job[6], "%H:%M:%S").time()
 
-                        dt_start = datetime.combine(datetime.today(), t_start)
-                        dt_end = datetime.combine(datetime.today(), t_end)
+                    dt_start = datetime.combine(datetime.today(), t_start)
+                    dt_end = datetime.combine(datetime.today(), t_end)
 
-                        time_diff = dt_end - dt_start
-                        hours = round(time_diff.total_seconds() / 3600, 2)
-                    except ValueError:
-                        hours = None
+                    time_diff = dt_end - dt_start
 
                 elif isinstance(job[5], time) and isinstance(job[6], time):
                     dt_start = datetime.combine(datetime.today(), job[5])
                     dt_end = datetime.combine(datetime.today(), job[6])
                     time_diff = dt_end - dt_start
-                    hours = round(time_diff.total_seconds() / 3600, 2)
 
                 elif isinstance(job[5], datetime) and isinstance(job[6], datetime):
                     time_diff = job[6] - job[5]
-                    hours = round(time_diff.total_seconds() / 3600, 2)
-
                 else:
-                    hours = None
+                    time_diff = None
+
+                hours = round(time_diff.total_seconds() / 3600, 2) if time_diff else None
             except (ValueError, TypeError, AttributeError) as e:
                 print(f"Ошибка обработки времени: {e}")
                 hours = None
@@ -263,7 +274,10 @@ def get_jobs_for_employers():
             "address": job[4],
             "time_hours": hours,
             "is_favorite": job[7],
-            "created_at": job[8].isoformat()
+            "is_urgent": job[8],
+            "created_at": job[9].isoformat(),
+            "photo": job[10],
+            "rating": job[11]
         })
 
     return jsonify(jobs_json), 200
@@ -284,13 +298,24 @@ def get_jobs_for_finders():
 
     jobs_list = []
     for job in jobs:
-        if len(job) >= 5:
+        if len(job) >= 6:
             try:
-                if isinstance(job[4], datetime) and isinstance(job[5], datetime):
-                    time_diff = job[5] - job[4]
-                elif isinstance(job[4], str) and isinstance(job[5], str):
-                    time_diff = datetime.strptime(job[5], "%a, %d %b %Y %H:%M:%S %Z") - \
-                                datetime.strptime(job[4], "%a, %d %b %Y %H:%M:%S %Z")
+                if isinstance(job[5], datetime) and isinstance(job[6], datetime):
+                    time_diff = job[6] - job[5]
+
+                elif isinstance(job[5], str) and isinstance(job[6], str):
+                    t_start = datetime.strptime(job[5], "%H:%M:%S").time()
+                    t_end = datetime.strptime(job[6], "%H:%M:%S").time()
+
+                    dt_start = datetime.combine(datetime.today(), t_start)
+                    dt_end = datetime.combine(datetime.today(), t_end)
+
+                    time_diff = dt_end - dt_start
+
+                elif isinstance(job[5], time) and isinstance(job[6], time):
+                    dt_start = datetime.combine(datetime.today(), job[5])
+                    dt_end = datetime.combine(datetime.today(), job[6])
+                    time_diff = dt_end - dt_start
                 else:
                     time_diff = None
 
@@ -303,11 +328,16 @@ def get_jobs_for_finders():
 
         jobs_list.append({
             "job_id": job[0],
-            "title": job[1],
-            "salary": job[2],
-            "address": job[3],
+            "employer_id": job[1],
+            "title": job[2],
+            "salary": job[3],
+            "address": job[4],
             "time_hours": hours,
-            "is_favorite": job[6]
+            "is_favorite": job[7],
+            "is_urgent": job[8],
+            "created_at": job[9],
+            "photo": job[10],
+            "rating": job[11]
         })
 
     return jsonify(jobs_list), 200

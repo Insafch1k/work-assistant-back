@@ -3,7 +3,7 @@ from psycopg2 import Error
 
 class Emplyers_Jobs(DBConnection):
     @staticmethod
-    def get_finder_id_by_tg(tg):
+    def get_employer_id_by_tg(tg):
         conn = Emplyers_Jobs.connect_db()
         try:
             with conn.cursor() as cur:
@@ -31,8 +31,10 @@ class Emplyers_Jobs(DBConnection):
                         SELECT 1 FROM job_favorites f 
                         WHERE f.job_id = j.job_id 
                         AND f.finder_id = %s
-                   ) AS is_favorite, j.created_at
+                   ) AS is_favorite, j.is_urgent, j.created_at, u.photo, u.rating
                    FROM jobs j
+                   JOIN employers e ON e.profile_id = j.employer_id
+                   JOIN users u ON u.user_id = e.user_id
                    ORDER BY j.created_at"""
                 cur.execute(stat, (employer_id, ))
                 conn.commit()

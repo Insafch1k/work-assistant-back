@@ -23,19 +23,21 @@ class Finder_Jobs(DBConnection):
             conn.close()
 
     @staticmethod
-    def get_all_jobs(employer_id):
+    def get_all_jobs(finder_id):
         conn = Finder_Jobs.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT j.job_id, j.title, j.salary, j.address, j.time_start, j.time_end,
+                stat = """SELECT j.job_id, j.employer_id, j.title, j.salary, j.address, j.time_start, j.time_end,
                    EXISTS (
                         SELECT 1 FROM job_favorites f 
                         WHERE f.job_id = j.job_id 
                         AND f.finder_id = %s
-                   ) AS is_favorite
+                   ) AS is_favorite, j.is_urgent, j.created_at, u.photo, u.rating
                    FROM jobs j
+                   JOIN employers e ON e.profile_id = j.employer_id
+                   JOIN users u ON u.user_id = e.user_id
                    ORDER BY j.created_at"""
-                cur.execute(stat, (employer_id,))
+                cur.execute(stat, (finder_id,))
                 conn.commit()
                 return cur.fetchall()
         except Error as e:
