@@ -269,3 +269,37 @@ def get_jobs_for_finders():
         })
 
     return jsonify(jobs_list), 200
+
+
+@finder_jobs_router.route("/jobs/me", methods=["GET"])
+@jwt_required()
+def get_my_jobs():
+    """Получение своего списка вакансий для работодателя"""
+    current_user_tg = get_jwt_identity()
+    curr_id = Emplyers_Jobs.get_employer_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден или не существует"}), 404
+
+    jobs = Emplyers_Jobs.get_my_employer_jobs(curr_id)
+    if not jobs:
+        return jsonify({"error": "Работа не найдена"}), 404
+
+    jobs_list = []
+    for job in jobs:
+        if len(job) >= 9:
+            hours = time_calculate(job[5], job[6])
+        else:
+            hours = None
+
+        jobs_list.append({
+            "job_id": job[0],
+            "employer_id": job[1],
+            "title": job[2],
+            "salary": job[3],
+            "address": job[4],
+            "time_hours": hours,
+            "is_urgent": job[7],
+            "created_at": job[8].isoformat()
+        })
+
+    return jsonify(jobs_list), 200

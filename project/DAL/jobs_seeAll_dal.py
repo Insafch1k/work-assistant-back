@@ -28,7 +28,7 @@ class Jobs(DBConnection):
             with conn.cursor() as cur:
                 stat = """
                     SELECT j.title, j.salary, j.address, j.date, j.time_start, j.time_end, j.is_urgent, 
-                    j.xp, j.age, j.description
+                    j.xp, j.age, j.description,
                     EXISTS (
                         SELECT 1 FROM job_favorites f 
                         WHERE f.job_id = j.job_id 
