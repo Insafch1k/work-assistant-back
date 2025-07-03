@@ -35,9 +35,12 @@ def create_resume():
 def delete_resume(resume_id):
     """Удаление резюме"""
     current_user_tg = get_jwt_identity()
-    resume = ResumeDAL.check_resume(resume_id, current_user_tg)
+    curr_id = ResumeDAL.get_finder_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
-    if not resume:
+    resume_id = ResumeDAL.get_resume_id_by_finder(curr_id)
+    if not resume_id:
         return jsonify({"error": "Резюме не найдено или доступ запрещён"}), 404
 
     ResumeDAL.delete_resume(resume_id)
@@ -54,7 +57,6 @@ def update_resume():
         return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
     resume_id = ResumeDAL.get_resume_id_by_finder(curr_id)
-    print(resume_id)
     if not resume_id:
         return jsonify({"error": "Резюме не найдено"}), 404
 
@@ -79,8 +81,8 @@ def update_resume():
     })
 
     if resume:
-        return jsonify({"message": "Профиль обновлён"}), 200
-    return jsonify({"error": "Профиль не получилось обновить"})
+        return jsonify({"message": "Резюме обновлёно"}), 200
+    return jsonify({"error": "Резюме не получилось обновить"})
 
 
 @resume_router.route('/resumes', methods=["GET"])

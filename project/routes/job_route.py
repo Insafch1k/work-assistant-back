@@ -1,8 +1,6 @@
-from tarfile import data_filter
-
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from datetime import datetime, time
+from datetime import datetime
 
 from project.BL.job_bl import time_calculate
 from project.DAL.job_dal import JobDAL
@@ -73,9 +71,18 @@ def filter_jobs():
 
     data = request.get_json()
     temp_json = {"wanted_job": None, "address": None, "time_start": None, "time_end": None, "date": None,
-                 "salary": None, "is_urgent": None, "xp": None, "age": None}
+                 "salary_from": None, "salary_to": None, "xp": None, "age": None}
 
-    for temp in temp_json:
+    valid_xp = ["нет опыта", "от 1 года", "от 3 лет"]
+    valid_age = ["старше 14 лет", "старше 16 лет", "старше 18 лет"]
+
+    if data["xp"] not in valid_xp:
+        return jsonify({"error": "Недопустимое значение для опыта работы. "
+                                 "Допустимые значения: нет опыта, от 1 года, от 3 лет"}), 400
+    if data["age"] not in valid_age:
+        return jsonify({"error": "Недопустимое значение для возраста. "
+                                 "Допустимые значения: старше 14 лет, старше 16 лет, старше 18 лет"}), 400
+    for temp in list(temp_json.keys()):
         if temp in data:
             temp_json[temp] = data[temp]
 
@@ -85,12 +92,15 @@ def filter_jobs():
         except ValueError:
             return jsonify({"error": "Неверный формат даты. Используйте YYYY-MM-DD"}), 400
 
+    if all((field is None) for field in temp_json.values()):
+        return jsonify({"error": "Неправильно заполнены поля"}), 400
+
+    is_urgent = False if (data["is_urgent"] is None) else data["is_urgent"]
+
     jobs = FilterDAL.get_filtered_jobs(wanted_job=temp_json["wanted_job"], address=temp_json["address"],
                                        time_start=temp_json["time_start"], time_end=temp_json["time_end"],
-                                       date=temp_json["date"], salary=temp_json["salary"],
-                                       is_urgent=temp_json["is_urgent"],
-                                       xp=temp_json["xp"], age=temp_json["age"])
-
+                                       date=temp_json["date"], salary_from=temp_json["salary_from"], salary_to=temp_json["salary_to"],
+                                       is_urgent=is_urgent, xp=temp_json["xp"], age=temp_json["age"])
     if not jobs or not jobs[0]:
         return jsonify({"error": "Работа не найдена"}), 404
 

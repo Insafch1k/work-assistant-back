@@ -24,7 +24,7 @@ class FilterDAL(DBConnection):
 
     @staticmethod
     def get_filtered_jobs(wanted_job=None, address=None, time_start=None, time_end=None,
-                          date=None, salary=None, is_urgent=None, xp=None, age=None):
+                          date=None, salary_from=None, salary_to=None, is_urgent=None, xp=None, age=None):
         conn = FilterDAL.connect_db()
         try:
             with conn.cursor() as cur:
@@ -59,11 +59,15 @@ class FilterDAL(DBConnection):
                     conditions.append("j.date::date = %s::date")
                     params.append(date)
 
-                if salary is not None:
+                if salary_from is not None:
                     conditions.append("j.salary >= %s")
-                    params.append(salary)
+                    params.append(salary_from)
 
-                if is_urgent is not None:
+                if salary_to is not None:
+                    conditions.append("j.salary <= %s")
+                    params.append(salary_to)
+
+                if is_urgent:
                     conditions.append("j.is_urgent = %s")
                     params.append(is_urgent)
 
@@ -71,13 +75,13 @@ class FilterDAL(DBConnection):
                     conditions.append("j.xp = %s")
                     params.append(xp)
 
-                if age:
-                    if age == "Старше 14 лет":
-                        conditions.append("j.age >= 14 AND j.age = 'Старше 16 лет' AND j.age = 'Старше 18 лет'")
-                    elif age == "Старше 16 лет":
-                        conditions.append("j.age >= 16 AND j.age = 'Старше 18 лет'")
-                    elif age == "Старше 18 лет":
-                        conditions.append("j.age = %s")
+                if age is not None:
+                    if age == "cтарше 14 лет":
+                        conditions.append("(j.age = 'старше 14 лет' OR j.age = 'старше 16 лет' OR j.age = 'старше 18 лет')")
+                    elif age == "cтарше 16 лет":
+                        conditions.append("(j.age = 'старше 16 лет' OR j.age = 'старше 18 лет')")
+                    elif age == "cтарше 18 лет":
+                        conditions.append("j.age = 'старше 18 лет'")
 
                 if conditions:
                     base_query += " AND " + " AND ".join(conditions)
