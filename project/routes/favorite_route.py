@@ -87,7 +87,7 @@ def get_favorites():
                 "job_id": fav[1],
                 "title": fav[2].strip() if isinstance(fav[2], str) else fav[2],
                 "salary": fav[3],
-                "hours": hours,
+                "time_hours": hours,
                 "address": fav[6].strip() if isinstance(fav[6], str) else fav[6],
                 "rating": fav[7],
                 "photo": fav[8],
