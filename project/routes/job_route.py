@@ -1,7 +1,7 @@
 from project.utils.logger import Logger
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from datetime import datetime
+from datetime import datetime, time
 
 from project.BL.job_bl import time_calculate
 from project.DAL.job_dal import JobDAL
@@ -203,43 +203,36 @@ def get_view_history():
             "message": f"Error get view history {str(e)}"
         }), 500
 
-
 @jobs_see_All_route.route("/jobs/<int:job_id>/seeall", methods=["GET"])
 @jwt_required()
 def get_job_seeAll_finders(job_id):
     """Подробное описание объявления"""
-    try:
-        current_user_tg = get_jwt_identity()
-        curr_id = Jobs.get_finder_id_by_tg(current_user_tg)
-        if not curr_id:
-            return jsonify({"error": "Пользователь не найден или не существует"}), 404
+    current_user_tg = get_jwt_identity()
+    curr_id = Jobs.get_finder_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
-        job_data = Jobs.get_job_seeAll(curr_id, job_id)
-        if not job_data:
-            return jsonify({"error": "Работа не найдена"}), 404
+    job_data = Jobs.get_job_seeAll(curr_id, job_id)
+    if not job_data:
+        return jsonify({"error": "Работа не найдена"}), 404
 
-        job = job_data[0]
-        job_json = {
-            "title": job[0].strip() if isinstance(job[0], str) else job[0],
-            "salary": job[1],
-            "address": job[2].strip() if isinstance(job[2], str) else job[2],
-            "date": job[3].isoformat() if isinstance(job[3], datetime) else job[3],
-            "time_start": job[4],
-            "time_end": job[5],
-            "is_urgent": job[6],
-            "xp": job[7],
-            "age": job[8],
-            "description": job[9],
-            "is_favorite": job[10]
-        }
+    job = job_data[0]
+    job_json = {
+        "title": job[0].strip() if isinstance(job[0], str) else job[0],
+        "salary": job[1],
+        "address": job[2].strip() if isinstance(job[2], str) else job[2],
+        "date": job[3].isoformat() if isinstance(job[3], datetime) else job[3],
+        "time_start": job[4].strftime("%H:%M:%S") if isinstance(job[4], time) else job[4],  # Преобразование в строку
+        "time_end": job[5].strftime("%H:%M:%S") if isinstance(job[5], time) else job[5],    # Преобразование в строку
+        "is_urgent": job[6],
+        "xp": job[7],
+        "age": job[8],
+        "description": job[9],
+        "is_favorite": job[10],
+        "hours": time_calculate(job[4], job[5]) if job[4] and job[5] else None
+    }
 
-        return jsonify(job_json), 200
-    except Exception as e:
-        Logger.error(f"Error get job seeAll {str(e)}")
-        return jsonify({
-            "message": f"Error get job seeAll {str(e)}"
-        }), 500
-
+    return jsonify(job_json), 200
 
 @employer_jobs_router.route("/jobs/employers", methods=["GET"])
 @jwt_required()
