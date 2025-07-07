@@ -1,3 +1,4 @@
+from project.utils.logger import Logger
 from datetime import datetime, time
 
 def time_calculate(time_start, time_end):
@@ -23,5 +24,5 @@ def time_calculate(time_start, time_end):
 
         return round(time_diff.total_seconds() / 3600, 2) if time_diff else None
     except (ValueError, TypeError, AttributeError) as e:
-        print(f"Ошибка обработки времени: {e}")
+        Logger.error(f"Error time calculate {str(e)}")
         return None

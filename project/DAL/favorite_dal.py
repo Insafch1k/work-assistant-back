@@ -1,5 +1,5 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
 
 
 class FavoriteDAL(DBConnection):
@@ -15,9 +15,10 @@ class FavoriteDAL(DBConnection):
                 cur.execute(stat, (tg,))
                 conn.commit()
                 return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении id соискателя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get finder_id by tg {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()
 
@@ -37,9 +38,10 @@ class FavoriteDAL(DBConnection):
                 cur.execute(stat, (finder_id,))
                 conn.commit()
                 return cur.fetchall()
-        except Error as e:
-            print(f"Ошибка при проверке существования вакансии: {e}")
+        except Exception as e:
+            Logger.error(f"Error get favorite list {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()
 
@@ -55,9 +57,10 @@ class FavoriteDAL(DBConnection):
                 cur.execute(stat, (curr_id, job_id,))
                 conn.commit()
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при проверке существования вакансии: {e}")
+        except Exception as e:
+            Logger.error(f"Error add job favorite {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()
 
@@ -72,8 +75,9 @@ class FavoriteDAL(DBConnection):
                 cur.execute(stat, (finder_id, job_id))
                 conn.commit()
                 return cur.fetchall()
-        except Error as e:
-            print(f"Ошибка при удалении из избранного: {e}")
+        except Exception as e:
+            Logger.error(f"Error add job favorite {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()

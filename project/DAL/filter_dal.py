@@ -1,5 +1,5 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
 
 
 class FilterDAL(DBConnection):
@@ -16,9 +16,10 @@ class FilterDAL(DBConnection):
                 conn.commit()
                 result = cur.fetchone()
                 return result[0] if result else None
-        except Error as e:
-            print(f"Ошибка при получении id соискателя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get finder_id by tg {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()
 
@@ -90,8 +91,9 @@ class FilterDAL(DBConnection):
 
                 cur.execute(base_query, params)
                 return cur.fetchall()
-        except Error as e:
-            print(f"Ошибка при фильтрации объявлений: {e}")
+        except Exception as e:
+            Logger.error(f"Error get filtered jobs {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()

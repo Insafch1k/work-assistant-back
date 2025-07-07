@@ -1,5 +1,5 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
 
 
 class JobDAL(DBConnection):
@@ -16,9 +16,10 @@ class JobDAL(DBConnection):
                 conn.commit()
                 result = cur.fetchone()
                 return result[0] if result else None
-        except Error as e:
-            print(f"Ошибка при получении id работодателя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get employer_id by tg {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -38,8 +39,9 @@ class JobDAL(DBConnection):
                                     address, is_urgent, xp, age,))
                 conn.commit()
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при добавлении объявления: {e}")
+        except Exception as e:
+            Logger.error(f"Error add job {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()

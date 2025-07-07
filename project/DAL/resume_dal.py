@@ -1,5 +1,5 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
 
 
 class ResumeDAL(DBConnection):
@@ -12,9 +12,10 @@ class ResumeDAL(DBConnection):
                 cur.execute(stat, (tg,))
                 conn.commit()
                 return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get user_id by tg {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -31,9 +32,10 @@ class ResumeDAL(DBConnection):
                 conn.commit()
                 result = cur.fetchone()
                 return result[0] if result else None
-        except Error as e:
-            print(f"Ошибка при получении id соискателя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get finder_id by tg {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -49,9 +51,10 @@ class ResumeDAL(DBConnection):
                 conn.commit()
                 print(f"Резюме пользователя успешно добавлено!")
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при создании резюме пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error create resume {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -67,9 +70,10 @@ class ResumeDAL(DBConnection):
                 cur.execute(stat, (profile_id,))
                 conn.commit()
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при проверке существования резюме: {e}")
+        except Exception as e:
+            Logger.error(f"Error get resume_id by finder {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -83,9 +87,10 @@ class ResumeDAL(DBConnection):
                 conn.commit()
                 print(f"Резюме пользователя успешно удалено!")
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при удалении резюме пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error delete resume {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -120,8 +125,9 @@ class ResumeDAL(DBConnection):
                     cur.execute(stat, cur_params)
                     conn.commit()
                     return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка получения подробнее обьявления из БД {e}")
+        except Exception as e:
+            Logger.error(f"Error update resume {str(e)}")
+            conn.rollback()
             return None
         finally:
             conn.close()
@@ -138,8 +144,9 @@ class ResumeDAL(DBConnection):
                 cur.execute(stat, (current_user_tg,))
                 conn.commit()
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при получении резюме пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get resume data {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()

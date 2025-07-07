@@ -1,5 +1,5 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
 
 class Emplyers_Jobs(DBConnection):
     @staticmethod
@@ -14,9 +14,10 @@ class Emplyers_Jobs(DBConnection):
                 cur.execute(stat, (tg,))
                 conn.commit()
                 return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении id соискателя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get employer_id by tg {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -39,8 +40,8 @@ class Emplyers_Jobs(DBConnection):
                 cur.execute(stat, (employer_id, ))
                 conn.commit()
                 return cur.fetchall()
-        except Error as e:
-            print(f"Ошибка получения обьявлений из БД {e}")
+        except Exception as e:
+            Logger.error(f"Error get all jobs {str(e)}")
             conn.rollback()
             return []
         finally:
@@ -62,8 +63,9 @@ class Emplyers_Jobs(DBConnection):
                 cur.execute(stat, (employer_id,))
                 conn.commit()
                 return cur.fetchall()
-        except Error as e:
-            print(f"Ошибка получения подробнее обьявления из БД {e}")
+        except Exception as e:
+            Logger.error(f"Error get my employer jobs {str(e)}")
+            conn.rollback()
             return None
         finally:
             conn.close()
@@ -98,8 +100,9 @@ class Emplyers_Jobs(DBConnection):
                     cur.execute(stat, cur_params)
                     conn.commit()
                     return True
-        except Error as e:
-            print(f"Ошибка получения подробнее обьявления из БД {e}")
+        except Exception as e:
+            Logger.error(f"Error update my employer job {str(e)}")
+            conn.rollback()
             return None
         finally:
             conn.close()

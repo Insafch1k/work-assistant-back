@@ -1,5 +1,5 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
 
 
 class AuthDAL(DBConnection):
@@ -15,9 +15,10 @@ class AuthDAL(DBConnection):
                 conn.commit()
                 print(f"Пользователь {user_name} успешно добавлен!")
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при внесении в базу данных: {e}")
+        except Exception as e:
+            Logger.error(f"Error add user {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()
 
@@ -30,9 +31,10 @@ class AuthDAL(DBConnection):
                 cur.execute(stat, (user_id, ))
                 conn.commit()
                 print(f"Соискатель успешно добавлен!")
-        except Error as e:
-            print(f"Ошибка при внесении в базу данных: {e}")
+        except Exception as e:
+            Logger.error(f"Error add finder {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()
 
@@ -45,9 +47,10 @@ class AuthDAL(DBConnection):
                 cur.execute(stat, (user_id, ))
                 conn.commit()
                 print(f"Работодатель успешно добавлен!")
-        except Error as e:
-            print(f"Ошибка при внесении в базу данных: {e}")
+        except Exception as e:
+            Logger.error(f"Error add employer {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()
 
@@ -59,8 +62,9 @@ class AuthDAL(DBConnection):
                 stat = """SELECT EXISTS(SELECT user_id FROM users WHERE tg = %s)"""
                 cur.execute(stat, (tg, ))
                 return cur.fetchone()[0]
-        except Error as e:
-            print("Ошибка при проверке существования пользователя!")
+        except Exception as e:
+            Logger.error(f"Error check user {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()

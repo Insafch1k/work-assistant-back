@@ -1,5 +1,5 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
 
 
 class ProfileDAL(DBConnection):
@@ -12,9 +12,10 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (user_id,))
                 conn.commit()
                 return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении роли пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get user role {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -54,8 +55,8 @@ class ProfileDAL(DBConnection):
                     cur.execute(stat, params)
                     conn.commit()
                     print(f"Данные пользователя успешно обновлены!")
-        except Error as e:
-            print(f"Ошибка при обновлении данных пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error update profile {str(e)}")
             conn.rollback()
         finally:
             conn.close()
@@ -69,8 +70,8 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (organization_name, user_id,))
                 conn.commit()
                 print(f"Данные работодателя успешно обновлены!")
-        except Error as e:
-            print(f"Ошибка при обновлении данных работодателя: {e}")
+        except Exception as e:
+            Logger.error(f"Error update employer profile {str(e)}")
             conn.rollback()
         finally:
             conn.close()
@@ -84,9 +85,10 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (age, user_id,))
                 conn.commit()
                 print(f"Данные соискателя успешно обновлены!")
-        except Error as e:
-            print(f"Ошибка при обновлении данных соискателя: {e}")
+        except Exception as e:
+            Logger.error(f"Error update finder profile {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -103,9 +105,10 @@ class ProfileDAL(DBConnection):
                         WHERE u.user_id = %s"""
                 cur.execute(stat, (profile_id,))
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при получении данных профиля: {e}")
+        except Exception as e:
+            Logger.error(f"Error get profile data {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -118,9 +121,10 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (tg,))
                 conn.commit()
                 return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get user_id by tg {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -138,9 +142,10 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (employer_id,))
                 conn.commit()
                 return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get employer profile data {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -158,9 +163,10 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (employer_id,))
                 conn.commit()
                 return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get employer jobs {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -177,9 +183,10 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (current_user_tg,))
                 conn.commit()
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error check finder {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -193,9 +200,10 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (employer_id,))
                 conn.commit()
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error check employer exist {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -210,9 +218,10 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (employer_id, user_id,))
                 conn.commit()
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error check review {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -227,9 +236,10 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (employer_id, user_id, rating, comment,))
                 conn.commit()
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error add review {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -246,9 +256,10 @@ class ProfileDAL(DBConnection):
                 cur.execute(stat, (rating, comment, review_id,))
                 conn.commit()
                 return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error update review {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -267,8 +278,9 @@ class ProfileDAL(DBConnection):
                           WHERE u.user_id = e.user_id AND e.profile_id = %s"""
                 cur.execute(stat, (employer_id,))
                 conn.commit()
-        except Error as e:
-            print(f"Ошибка при получении id пользователя: {e}")
+        except Exception as e:
+            Logger.error(f"Error update rating {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()

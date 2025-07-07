@@ -1,5 +1,5 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
 
 
 class Finder_Jobs(DBConnection):
@@ -16,9 +16,10 @@ class Finder_Jobs(DBConnection):
                 conn.commit()
                 result = cur.fetchone()
                 return result[0] if result else None
-        except Error as e:
-            print(f"Ошибка при получении id соискателя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get finder_id by tg {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
@@ -40,8 +41,8 @@ class Finder_Jobs(DBConnection):
                 cur.execute(stat, (finder_id,))
                 conn.commit()
                 return cur.fetchall()
-        except Error as e:
-            print(f"Ошибка получения обьявлений из БД {e}")
+        except Exception as e:
+            Logger.error(f"Error get all jobs {str(e)}")
             conn.rollback()
             return []
         finally:
@@ -62,8 +63,9 @@ class Finder_Jobs(DBConnection):
                 cur.execute(stat, (job_id,))
                 conn.commit()
                 return cur.fetchall()
-        except Error as e:
-            print(f"Ошибка получения подробнее обьявления из БД {e}")
+        except Exception as e:
+            Logger.error(f"Error get job seeAll {str(e)}")
+            conn.rollback()
             return None
         finally:
             conn.close()
