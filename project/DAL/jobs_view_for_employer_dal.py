@@ -54,7 +54,7 @@ class Emplyers_Jobs(DBConnection):
             with conn.cursor() as cur:
                 stat = """
                    SELECT j.job_id, j.employer_id, j.title, j.salary, j.address, j.time_start, j.time_end,
-                   j.is_urgent, j.created_at
+                   j.is_urgent, j.created_at, j.wanted_job, j.date, j.xp, j.age, j.description
                    FROM jobs j
                    JOIN employers e ON e.profile_id = j.employer_id
                    JOIN users u ON u.user_id = e.user_id

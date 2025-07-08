@@ -43,7 +43,7 @@ def update_profile():
 @profile_router.route('/profile/<int:profile_id>', methods=["GET"])
 @jwt_required(optional=True)
 def get_profile(profile_id):
-    """Получение данных профиля"""
+    """Получение данных своего профиля"""
     try:
         current_tg = get_jwt_identity()
         curr_id = int(ProfileDAL.get_user_id_by_tg(current_tg))
@@ -64,7 +64,7 @@ def get_profile(profile_id):
         }), 500
 
 
-@employer_profile_router.route('/employers/<int:employer_id>', methods=["GET"])
+@employer_profile_router.route("/employers/<int:employer_id>", methods=["GET"])
 @jwt_required(optional=True)
 def get_employer_profile(employer_id):
     """Получение основной информации о работодателе"""
@@ -83,7 +83,6 @@ def get_employer_profile(employer_id):
                 "salary": job[2],
                 "address": job[3],
             })
-
         return jsonify({
             "profile": {
                 "user_name": profile[0],

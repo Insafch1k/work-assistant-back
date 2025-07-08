@@ -1,1 +1,104 @@
 2025-07-07T12:13:11.119595+0300 | INFO | auth_route.py:52 | Вы успешно авторизовались
+2025-07-08T10:03:45.481748+0300 | ERROR | resume_route.py:121 | Error get user resume 'NoneType' object is not subscriptable
+2025-07-08T10:04:25.022663+0300 | ERROR | resume_route.py:121 | Error get user resume 'NoneType' object is not subscriptable
+2025-07-08T10:25:29.572889+0300 | ERROR | profile_route.py:97 | Error get employer profile 'int' object is not subscriptable
+2025-07-08T10:27:15.168000+0300 | ERROR | profile_route.py:97 | Error get employer profile 'int' object is not subscriptable
+2025-07-08T10:27:28.971042+0300 | ERROR | profile_route.py:97 | Error get employer profile 'int' object is not subscriptable
+2025-07-08T10:27:40.831039+0300 | ERROR | profile_route.py:97 | Error get employer profile 'int' object is not subscriptable
+2025-07-08T10:28:52.817243+0300 | ERROR | profile_route.py:97 | Error get employer profile 'int' object is not subscriptable
+2025-07-08T10:29:28.274834+0300 | ERROR | profile_route.py:97 | Error get employer profile 'int' object is not subscriptable
+2025-07-08T10:39:53.430678+0300 | ERROR | job_route.py:134 | Error filter jobs 'xp'
+2025-07-08T10:40:07.099079+0300 | ERROR | job_route.py:134 | Error filter jobs 'age'
+2025-07-08T10:41:20.938498+0300 | ERROR | job_route.py:134 | Error filter jobs 'xp'
+2025-07-08T10:42:34.574527+0300 | ERROR | job_route.py:136 | Error filter jobs 'xp'
+2025-07-08T10:42:51.094084+0300 | ERROR | job_route.py:136 | Error filter jobs 'age'
+2025-07-08T10:44:32.336411+0300 | ERROR | job_route.py:135 | Error filter jobs 'xp'
+2025-07-08T10:45:51.578180+0300 | ERROR | job_route.py:136 | Error filter jobs 'xp'
+2025-07-08T10:46:49.127518+0300 | ERROR | job_route.py:137 | Error filter jobs 'xp'
+2025-07-08T10:47:27.191740+0300 | ERROR | job_route.py:137 | Error filter jobs 'xp'
+2025-07-08T10:50:00.402658+0300 | ERROR | job_route.py:139 | Error filter jobs 'xp'
+2025-07-08T10:53:30.271666+0300 | ERROR | job_route.py:137 | Error filter jobs 'xp'
+2025-07-08T10:54:57.836244+0300 | ERROR | job_route.py:137 | Error filter jobs 'xp'
+2025-07-08T10:58:15.461733+0300 | ERROR | job_route.py:137 | Error filter jobs 'xp'
+2025-07-08T11:00:33.310692+0300 | ERROR | job_route.py:137 | Error filter jobs 'xp'
+2025-07-08T11:03:01.319652+0300 | ERROR | job_route.py:137 | Error filter jobs 'xp'
+2025-07-08T11:03:37.372317+0300 | ERROR | job_route.py:139 | Error filter jobs 'xp'
+2025-07-08T11:16:51.047059+0300 | ERROR | filter_dal.py:95 | Error get filtered jobs ОШИБКА:  столбец "rating" не существует
+LINE 3: ..., j.is_urgent, e.organization_name, j.created_at, rating, ph...
+                                                             ^
+
+2025-07-08T11:16:59.695653+0300 | ERROR | filter_dal.py:95 | Error get filtered jobs ОШИБКА:  столбец "rating" не существует
+LINE 3: ..., j.is_urgent, e.organization_name, j.created_at, rating, ph...
+                                                             ^
+
+2025-07-08T11:17:07.479250+0300 | ERROR | filter_dal.py:95 | Error get filtered jobs ОШИБКА:  столбец "rating" не существует
+LINE 3: ..., j.is_urgent, e.organization_name, j.created_at, rating, ph...
+                                                             ^
+
+2025-07-08T11:17:10.113691+0300 | ERROR | filter_dal.py:95 | Error get filtered jobs ОШИБКА:  столбец "rating" не существует
+LINE 3: ..., j.is_urgent, e.organization_name, j.created_at, rating, ph...
+                                                             ^
+
+2025-07-08T12:39:12.837064+0300 | ERROR | resume_dal.py:91 | Error delete resume no results to fetch
+2025-07-08T12:40:09.224414+0300 | ERROR | resume_dal.py:91 | Error delete resume no results to fetch
+2025-07-08T12:41:55.115127+0300 | ERROR | resume_dal.py:91 | Error delete resume no results to fetch
+2025-07-08T12:42:45.041422+0300 | ERROR | resume_dal.py:91 | Error delete resume no results to fetch
+2025-07-08T12:43:04.765362+0300 | ERROR | resume_dal.py:91 | Error delete resume no results to fetch
+2025-07-08T12:44:43.800303+0300 | ERROR | resume_dal.py:91 | Error delete resume no results to fetch
+2025-07-08T17:08:50.195572+0300 | ERROR | filter_dal.py:96 | Error get filtered jobs ОШИБКА:  неверный синтаксис для типа date: "NaN.NaN.NaN 00:00:00"
+LINE 8:                  AND j.date::date = 'NaN.NaN.NaN 00:00:00'::...
+                                            ^
+
+2025-07-08T17:17:35.532573+0300 | ERROR | filter_dal.py:96 | Error get filtered jobs ОШИБКА:  значение поля типа date/time вне диапазона: "43:32"
+LINE 8: ...    AND j.time_start >= '12:32' AND j.time_end <= '43:32' AN...
+                                                             ^
+
+2025-07-08T17:19:31.384500+0300 | ERROR | filter_dal.py:96 | Error get filtered jobs ОШИБКА:  значение поля типа date/time вне диапазона: "40.30.7006 00:00:00"
+LINE 8:                  AND j.date::date = '40.30.7006 00:00:00'::d...
+                                            ^
+HINT:  Возможно, вам нужно изменить настройку "datestyle".
+
+2025-07-08T17:23:19.192549+0300 | ERROR | job_dal.py:43 | Error add job ОШИБКА:  значение поля типа date/time вне диапазона: "30.02.2026"
+LINE 5: ...(12, 'ывваыва', 'ываываываываыва', 'кпеук', 5000, '30.02.202...
+                                                             ^
+
+2025-07-08T17:23:19.193551+0300 | ERROR | job_route.py:64 | Error create job 'NoneType' object is not subscriptable
+2025-07-08T17:23:22.363512+0300 | ERROR | job_dal.py:43 | Error add job ОШИБКА:  значение поля типа date/time вне диапазона: "30.02.2026"
+LINE 5: ...(12, 'ывваыва', 'ываываываываыва', 'кпеук', 5000, '30.02.202...
+                                                             ^
+
+2025-07-08T17:23:22.364257+0300 | ERROR | job_route.py:64 | Error create job 'NoneType' object is not subscriptable
+2025-07-08T17:56:00.017406+0300 | ERROR | job_route.py:369 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T17:56:14.590776+0300 | ERROR | job_route.py:369 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T17:56:17.963934+0300 | ERROR | job_route.py:369 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T17:56:19.670851+0300 | ERROR | job_route.py:369 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T17:56:53.626357+0300 | ERROR | job_route.py:369 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T17:57:10.393620+0300 | ERROR | job_route.py:369 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T17:57:45.054541+0300 | ERROR | job_route.py:369 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:00:04.641665+0300 | ERROR | job_route.py:369 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:00:10.606733+0300 | ERROR | job_route.py:369 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:01:07.611333+0300 | ERROR | job_route.py:369 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:05:11.668500+0300 | ERROR | jobs_view_for_employer_dal.py:18 | Error get employer_id by tg 'NoneType' object is not subscriptable
+2025-07-08T18:05:55.902808+0300 | ERROR | jobs_view_for_employer_dal.py:18 | Error get employer_id by tg 'NoneType' object is not subscriptable
+2025-07-08T18:06:52.911491+0300 | ERROR | jobs_view_for_employer_dal.py:18 | Error get employer_id by tg 'NoneType' object is not subscriptable
+2025-07-08T18:08:30.913841+0300 | ERROR | jobs_view_for_employer_dal.py:18 | Error get employer_id by tg 'NoneType' object is not subscriptable
+2025-07-08T18:14:34.711287+0300 | ERROR | job_route.py:370 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:14:38.275289+0300 | ERROR | job_route.py:370 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:15:09.009876+0300 | ERROR | job_route.py:370 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:16:53.795611+0300 | ERROR | job_route.py:370 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:18:19.704025+0300 | ERROR | job_route.py:370 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:18:27.699557+0300 | ERROR | job_route.py:370 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:18:31.520670+0300 | ERROR | job_route.py:370 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:19:14.724961+0300 | ERROR | job_route.py:370 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:19:26.597283+0300 | ERROR | job_route.py:370 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:19:40.138303+0300 | ERROR | jobs_view_for_employer_dal.py:18 | Error get employer_id by tg 'NoneType' object is not subscriptable
+2025-07-08T18:19:59.824485+0300 | ERROR | jobs_view_for_employer_dal.py:18 | Error get employer_id by tg 'NoneType' object is not subscriptable
+2025-07-08T18:20:04.439951+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:20:12.195874+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:20:27.607378+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:20:32.548999+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:21:02.327997+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:21:20.738044+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:21:32.315135+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:21:46.655312+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
+2025-07-08T18:24:36.210101+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable

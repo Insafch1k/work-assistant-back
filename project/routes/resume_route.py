@@ -111,12 +111,15 @@ def get_user_resumes():
         current_user_tg = get_jwt_identity()
 
         resume = ResumeDAL.get_resume_data(current_user_tg)
+        if not resume:
+            return jsonify({"message": "Резюме не найдено"}), 404
         return jsonify({
                     "job_title": resume[0],
                     "education": resume[1],
                     "work_xp": resume[2],
                     "skills": resume[3]
                 }), 200
+
     except Exception as e:
         Logger.error(f"Error get user resume {str(e)}")
         return jsonify({

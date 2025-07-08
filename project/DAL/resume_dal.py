@@ -86,7 +86,6 @@ class ResumeDAL(DBConnection):
                 cur.execute(stat, (resume_id,))
                 conn.commit()
                 print(f"Резюме пользователя успешно удалено!")
-                return cur.fetchone()
         except Exception as e:
             Logger.error(f"Error delete resume {str(e)}")
             conn.rollback()

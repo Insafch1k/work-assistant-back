@@ -141,7 +141,7 @@ class ProfileDAL(DBConnection):
                           GROUP BY u.user_id, e.profile_id"""
                 cur.execute(stat, (employer_id,))
                 conn.commit()
-                return cur.fetchone()[0]
+                return cur.fetchone()
         except Exception as e:
             Logger.error(f"Error get employer profile data {str(e)}")
             conn.rollback()
@@ -155,14 +155,14 @@ class ProfileDAL(DBConnection):
         conn = ProfileDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT job_id, title, salary, address, created_at
+                stat = """SELECT job_id, title, salary, address
                           FROM jobs
-                          WHERE employer_id = %s AND status = 'open'
-                          ORDER BY created_at DESC
-                          LIMIT 10"""
+                          WHERE employer_id = %s AND status = true
+                          ORDER BY created_at DESC"""
                 cur.execute(stat, (employer_id,))
                 conn.commit()
-                return cur.fetchone()[0]
+                result = cur.fetchall()
+                return result
         except Exception as e:
             Logger.error(f"Error get employer jobs {str(e)}")
             conn.rollback()
