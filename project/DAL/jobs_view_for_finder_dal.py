@@ -33,7 +33,7 @@ class Finder_Jobs(DBConnection):
                         SELECT 1 FROM job_favorites f 
                         WHERE f.job_id = j.job_id 
                         AND f.finder_id = %s
-                   ) AS is_favorite, j.is_urgent, j.created_at, u.photo, u.rating
+                   ) AS is_favorite, j.is_urgent, j.created_at, u.photo, u.rating, j.car
                    FROM jobs j
                    JOIN employers e ON e.profile_id = j.employer_id
                    JOIN users u ON u.user_id = e.user_id
@@ -55,7 +55,7 @@ class Finder_Jobs(DBConnection):
             with conn.cursor() as cur:
                 stat = """
                     SELECT j.title, j.salary, j.address, j.time_start, j.time_end, j.is_urgent,
-                    j.work_xp, j.age_restrict
+                    j.work_xp, j.age_restrict, j.car
                     FROM jobs j
                     WHERE j.job_id = %s
                     ORDER BY j.created_at DESC

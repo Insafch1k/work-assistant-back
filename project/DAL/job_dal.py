@@ -25,18 +25,18 @@ class JobDAL(DBConnection):
 
     @staticmethod
     def add_job(employer_id, title, wanted_job, description, salary, date, time_start, time_end, address,
-                is_urgent, xp, age):
+                is_urgent, xp, age, car):
         conn = JobDAL.connect_db()
         try:
             with conn.cursor() as cur:
                 stat = """INSERT INTO jobs (
                                 employer_id, title, wanted_job, description, salary,
-                                date, time_start, time_end, address, is_urgent, xp, age, status
+                                date, time_start, time_end, address, is_urgent, xp, age, car, status
                           )
-                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, true)
-                          RETURNING job_id, title, wanted_job, salary, time_start, time_end, created_at, address"""
+                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, true)
+                          RETURNING job_id, title, wanted_job, salary, time_start, time_end, created_at, address, car"""
                 cur.execute(stat, (employer_id, title, wanted_job, description, salary, date, time_start, time_end,
-                                    address, is_urgent, xp, age,))
+                                  address, is_urgent, xp, age, car))
                 conn.commit()
                 return cur.fetchone()
         except Exception as e:

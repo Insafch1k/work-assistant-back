@@ -18,7 +18,6 @@ jobs_see_All_route = Blueprint("jobs_see_All_route", __name__)
 employer_jobs_router = Blueprint("employer_jobs_router", __name__)
 finder_jobs_router = Blueprint("finder_jobs_router", __name__)
 
-
 @job_router.route("/jobs", methods=["POST"])
 @jwt_required()
 def create_job():
@@ -31,8 +30,8 @@ def create_job():
 
         data = request.get_json()
         fields = ["title", "wanted_job", "description", "salary", "date", "time_start", "time_end", "address",
-                  "xp", "age"]
-        if any(field not in data or not data[field] for field in fields):
+                  "xp", "age", "car"]
+        if any(field not in data or data[field] is None for field in fields):
             return jsonify({"error": "Неправильно заполнены поля"}), 400
 
         valid_xp = ["нет опыта", "от 1 года", "от 3 лет"]
@@ -44,12 +43,14 @@ def create_job():
         if data["age"] not in valid_age:
             return jsonify({"error": "Недопустимое значение для возраста. "
                                      "Допустимые значения: старше 14 лет, старше 16 лет, старше 18 лет"}), 400
+        if not isinstance(data["car"], bool):
+            return jsonify({"error": "Поле car должно быть булевым (true/false)"}), 400
 
         new_job = JobDAL.add_job(curr_id, data["title"], data["wanted_job"], data["description"],
                                  data["salary"], data["date"], data["time_start"], data["time_end"], data["address"],
-                                 data["is_urgent"], data["xp"], data["age"])
+                                 data["is_urgent"], data["xp"], data["age"], data["car"])
 
-        print({
+        return jsonify({
             "job_id": new_job[0],
             "title": new_job[1],
             "wanted_job": new_job[2],
@@ -57,15 +58,15 @@ def create_job():
             "time_start": new_job[4],
             "time_end": new_job[5],
             "created_at": new_job[6].isoformat(),
-            "address": new_job[7]
-        })
-        return jsonify({"message": "Объявление успешно создано"}), 200
+            "address": new_job[7],
+            "car": new_job[8],
+            "message": "Объявление успешно создано"
+        }), 200
     except Exception as e:
         Logger.error(f"Error create job {str(e)}")
         return jsonify({
             "message": f"Error create job {str(e)}"
         }), 500
-
 
 @filter_router.route("/jobs/filter", methods=["POST"])
 @jwt_required()
@@ -76,7 +77,7 @@ def filter_jobs():
 
         data = request.get_json()
         temp_json = {"wanted_job": None, "address": None, "time_start": None, "time_end": None, "date": None,
-                     "salary": None, "salary_to": None, "xp": None, "age": None}
+                     "salary": None, "salary_to": None, "xp": None, "age": None, "car": None}
 
         valid_xp = ["нет опыта", "от 1 года", "от 3 лет"]
         valid_age = ["старше 14 лет", "старше 16 лет", "старше 18 лет"]
@@ -90,6 +91,10 @@ def filter_jobs():
             if data["age"] not in valid_age:
                 return jsonify({"error": "Недопустимое значение для возраста. "
                                          "Допустимые значения: старше 14 лет, старше 16 лет, старше 18 лет"}), 400
+
+        if "car" in data and data["car"] is not None:
+            if not isinstance(data["car"], bool):
+                return jsonify({"error": "Поле car должно быть булевым (true/false)"}), 400
 
         for field, value in temp_json.items():
             if field in data:
@@ -109,7 +114,7 @@ def filter_jobs():
         jobs = FilterDAL.get_filtered_jobs(wanted_job=temp_json["wanted_job"], address=temp_json["address"],
                                            time_start=temp_json["time_start"], time_end=temp_json["time_end"],
                                            date=temp_json["date"], salary=temp_json["salary"], salary_to=temp_json["salary_to"],
-                                           is_urgent=is_urgent, xp=temp_json["xp"], age=temp_json["age"])
+                                           is_urgent=is_urgent, xp=temp_json["xp"], age=temp_json["age"], car=temp_json["car"])
 
         if not jobs or not jobs[0]:
             return jsonify({"error": "Работа не найдена"}), 404
@@ -132,16 +137,15 @@ def filter_jobs():
                 "rating": job[12],
                 "photo": job[13],
                 "xp": job[14],
-                "age": job[15]
+                "age": job[15],
+                "car": job[16]
             })
-        print(jobs_json)
         return jsonify(jobs_json), 200
     except Exception as e:
         Logger.error(f"Error filter jobs {str(e)}")
         return jsonify({
             "message": f"Error filter jobs {str(e)}"
         }), 500
-
 
 @history_router.route("/jobs/<int:job_id>/view", methods=["POST"])
 @jwt_required()
@@ -168,7 +172,6 @@ def add_job_view(job_id):
         return jsonify({
             "message": f"Error add job view {str(e)}"
         }), 500
-
 
 @history_router.route("/jobs/history", methods=["GET"])
 @jwt_required()
@@ -199,7 +202,8 @@ def get_view_history():
                 "is_urgent": job[8],
                 "created_at": job[9].isoformat(),
                 "photo": job[10],
-                "rating": job[11]
+                "rating": job[11],
+                "car": job[12]
             })
 
         if not history_list:
@@ -230,13 +234,14 @@ def get_job_seeAll_finders(job_id):
         "salary": job[1],
         "address": job[2].strip() if isinstance(job[2], str) else job[2],
         "date": job[3].isoformat() if isinstance(job[3], datetime) else job[3],
-        "time_start": job[4].strftime("%H:%M") if isinstance(job[4], time) else job[4],  # Преобразование в строку
-        "time_end": job[5].strftime("%H:%M") if isinstance(job[5], time) else job[5],    # Преобразование в строку
+        "time_start": job[4].strftime("%H:%M") if isinstance(job[4], time) else job[4],
+        "time_end": job[5].strftime("%H:%M") if isinstance(job[5], time) else job[5],
         "is_urgent": job[6],
         "xp": job[7],
         "age": job[8],
         "description": job[9],
-        "is_favorite": job[10],
+        "car": job[10],
+        "is_favorite": job[11],
         "hours": time_calculate(job[4], job[5]) if job[4] and job[5] else None
     }
 
@@ -272,7 +277,8 @@ def get_jobs_for_employers():
                 "is_urgent": job[8],
                 "created_at": job[9].isoformat(),
                 "photo": job[10],
-                "rating": job[11]
+                "rating": job[11],
+                "car": job[12]
             })
 
         return jsonify(jobs_json), 200
@@ -281,7 +287,6 @@ def get_jobs_for_employers():
         return jsonify({
             "message": f"Error get jobs for employers {str(e)}"
         }), 500
-
 
 @finder_jobs_router.route("/jobs/finders", methods=["GET"])
 @jwt_required()
@@ -315,7 +320,8 @@ def get_jobs_for_finders():
                 "is_urgent": job[8],
                 "created_at": job[9],
                 "photo": job[10],
-                "rating": job[11]
+                "rating": job[11],
+                "car": job[12]
             })
 
         return jsonify(jobs_list), 200
@@ -324,7 +330,6 @@ def get_jobs_for_finders():
         return jsonify({
             "message": f"Error get jobs for finders {str(e)}"
         }), 500
-
 
 @employer_jobs_router.route("/jobs/me", methods=["GET"])
 @jwt_required()
@@ -339,7 +344,7 @@ def get_my_jobs():
         jobs = Emplyers_Jobs.get_my_employer_jobs(curr_id)
         if not jobs:
             return jsonify({"error": "Работа не найдена"}), 404
-        print(jobs)
+
         jobs_list = []
         for job in jobs:
             if len(job) >= 9:
@@ -362,7 +367,8 @@ def get_my_jobs():
                 "date": job[10].strftime("%d.%m.%Y") if job[10] else None,
                 "xp": job[11],
                 "age": job[12],
-                "description": job[13]
+                "description": job[13],
+                "car": job[14]
             })
 
         return jsonify(jobs_list), 200
@@ -375,7 +381,7 @@ def get_my_jobs():
 @employer_jobs_router.route('/jobs/me/<int:job_id>', methods=["PATCH"])
 @jwt_required()
 def update_my_job(job_id):
-    """Редактирование объявление"""
+    """Редактирование объявления"""
     try:
         current_user_tg = get_jwt_identity()
         curr_id = Emplyers_Jobs.get_employer_id_by_tg(current_user_tg)
@@ -386,7 +392,7 @@ def update_my_job(job_id):
 
         temp_json = {"title": None, "wanted_job": None, "description": None, "salary": None, "date": None,
                      "time_start": None, "time_end": None, "address": None, "is_urgent": None,
-                     "xp": None, "age": None, "status": None}
+                     "xp": None, "age": None, "status": None, "car": None}
 
         for temp in temp_json:
             if temp in data:
@@ -396,7 +402,7 @@ def update_my_job(job_id):
         job = Emplyers_Jobs.update_my_employer_job(job_id, title=temp_json["title"], wanted_job=temp_json["wanted_job"],
                                                    description=temp_json["description"], salary=temp_json["salary"], date=temp_json["date"],
                                                    time_start=temp_json["time_start"], time_end=temp_json["time_end"], address=temp_json["address"],
-                                                   is_urgent=is_urgent, xp=temp_json["xp"], age=temp_json["age"], status=temp_json["status"])
+                                                   is_urgent=is_urgent, xp=temp_json["xp"], age=temp_json["age"], status=temp_json["status"], car=temp_json["car"])
         if job:
             return jsonify({"message": "Профиль обновлён"}), 200
         return jsonify({"error": "Профиль не получилось обновить"})

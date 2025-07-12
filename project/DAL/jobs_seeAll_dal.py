@@ -29,7 +29,7 @@ class Jobs(DBConnection):
             with conn.cursor() as cur:
                 stat = """
                     SELECT j.title, j.salary, j.address, j.date, j.time_start, j.time_end, j.is_urgent, 
-                    j.xp, j.age, j.description,
+                    j.xp, j.age, j.description, j.car,
                     EXISTS (
                         SELECT 1 FROM job_favorites f 
                         WHERE f.job_id = j.job_id 
@@ -38,7 +38,7 @@ class Jobs(DBConnection):
                     FROM jobs j
                     WHERE j.job_id = %s
                     """
-                cur.execute(stat, (finder_id, job_id, ))
+                cur.execute(stat, (finder_id, job_id,))
                 conn.commit()
                 return cur.fetchall()
         except Exception as e:
