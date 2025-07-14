@@ -255,38 +255,40 @@ def get_jobs_for_employers():
         current_user_tg = get_jwt_identity()
         curr_id = Emplyers_Jobs.get_employer_id_by_tg(current_user_tg)
         if not curr_id:
-            return jsonify({"error": "Пользователь не найден или не существует"})
+            return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
         jobs = Emplyers_Jobs.get_all_jobs(curr_id)
+        if not jobs:
+            return jsonify({"error": "Вакансии не найдены"}), 404
+
         jobs_json = []
-
         for job in jobs:
-            if len(job) >= 9:
-                hours = time_calculate(job[5], job[6])
-            else:
-                hours = None
-
-            jobs_json.append({
-                "job_id": job[0],
-                "employer_id": job[1],
-                "title": job[2],
-                "salary": job[3],
-                "address": job[4],
-                "time_hours": hours,
-                "is_favorite": job[7],
-                "is_urgent": job[8],
-                "created_at": job[9].isoformat(),
-                "photo": job[10],
-                "rating": job[11],
-                "car": job[12]
-            })
+            try:
+                hours = time_calculate(job[5], job[6]) if len(job) > 6 and job[5] and job[6] else None
+                
+                job_data = {
+                    "job_id": job[0],
+                    "employer_id": job[1],
+                    "title": job[2],
+                    "salary": job[3],
+                    "address": job[4],
+                    "time_hours": hours,
+                    "is_favorite": job[7] if len(job) > 7 else False,
+                    "is_urgent": job[8] if len(job) > 8 else False,
+                    "created_at": job[9].isoformat() if len(job) > 9 and job[9] else None,
+                    "photo": job[10] if len(job) > 10 else None,
+                    "rating": job[11] if len(job) > 11 else None,
+                    "car": job[12] if len(job) > 12 else None
+                }
+                jobs_json.append(job_data)
+            except IndexError as ie:
+                Logger.error(f"Ошибка обработки вакансии: {str(ie)}")
+                continue
 
         return jsonify(jobs_json), 200
     except Exception as e:
-        Logger.error(f"Error get jobs for employers {str(e)}")
-        return jsonify({
-            "message": f"Error get jobs for employers {str(e)}"
-        }), 500
+        Logger.error(f"Ошибка при получении вакансий для работодателя: {str(e)}")
+        return jsonify({"message": f"Ошибка при получении вакансий для работодателя: {str(e)}"}), 500
 
 @finder_jobs_router.route("/jobs/finders", methods=["GET"])
 @jwt_required()
@@ -343,40 +345,41 @@ def get_my_jobs():
 
         jobs = Emplyers_Jobs.get_my_employer_jobs(curr_id)
         if not jobs:
-            return jsonify({"error": "Работа не найдена"}), 404
+            return jsonify({"error": "Вакансии не найдены"}), 404
 
         jobs_list = []
         for job in jobs:
-            if len(job) >= 9:
-                hours = time_calculate(job[5], job[6])
-            else:
-                hours = None
-
-            jobs_list.append({
-                "job_id": job[0],
-                "employer_id": job[1],
-                "title": job[2],
-                "salary": job[3],
-                "address": job[4],
-                "time_hours": hours,
-                "is_urgent": job[7],
-                "created_at": job[8].isoformat(),
-                "wanted_job": job[9],
-                "time_start": job[5].strftime("%H:%M") if isinstance(job[5], time) else job[5],
-                "time_end": job[6].strftime("%H:%M") if isinstance(job[6], time) else job[6],
-                "date": job[10].strftime("%d.%m.%Y") if job[10] else None,
-                "xp": job[11],
-                "age": job[12],
-                "description": job[13],
-                "car": job[14]
-            })
+            try:
+                hours = time_calculate(job[5], job[6]) if len(job) > 6 and job[5] and job[6] else None
+                
+                job_data = {
+                    "job_id": job[0],
+                    "employer_id": job[1],
+                    "title": job[2],
+                    "salary": job[3],
+                    "address": job[4],
+                    "time_hours": hours,
+                    "is_urgent": job[7] if len(job) > 7 else False,
+                    "created_at": job[8].isoformat() if len(job) > 8 and job[8] else None,
+                    "wanted_job": job[9] if len(job) > 9 else None,
+                    "time_start": job[5].strftime("%H:%M") if len(job) > 5 and isinstance(job[5], time) else None,
+                    "time_end": job[6].strftime("%H:%M") if len(job) > 6 and isinstance(job[6], time) else None,
+                    "date": job[10].strftime("%d.%m.%Y") if len(job) > 10 and job[10] else None,
+                    "xp": job[11] if len(job) > 11 else None,
+                    "age": job[12] if len(job) > 12 else None,
+                    "description": job[13] if len(job) > 13 else None,
+                    "car": job[14] if len(job) > 14 else None
+                }
+                jobs_list.append(job_data)
+            except IndexError as ie:
+                Logger.error(f"Ошибка обработки вакансии: {str(ie)}")
+                continue
 
         return jsonify(jobs_list), 200
     except Exception as e:
-        Logger.error(f"Error get my jobs {str(e)}")
-        return jsonify({
-            "message": f"Error get my jobs {str(e)}"
-        }), 500
+        Logger.error(f"Ошибка при получении моих вакансий: {str(e)}")
+        return jsonify({"message": f"Ошибка при получении моих вакансий: {str(e)}"}), 500
+
 
 @employer_jobs_router.route('/jobs/me/<int:job_id>', methods=["PATCH"])
 @jwt_required()
