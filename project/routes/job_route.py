@@ -184,35 +184,38 @@ def get_view_history():
             return jsonify({"error": "Пользователь не найден"}), 404
 
         history = HistoryDAL.get_view_history(curr_id)
+        if not history:
+            return jsonify({"message": "Нет просмотренных вакансий"}), 404
+
         history_list = []
         for job in history:
-            if len(job) >= 9:
-                hours = time_calculate(job[5], job[6])
-            else:
-                hours = None
+            try:
+                hours = time_calculate(job[5], job[6]) if len(job) > 6 and job[5] and job[6] else None
+                
+                job_data = {
+                    "job_id": job[0],
+                    "employer_id": job[1],
+                    "title": job[2],
+                    "salary": job[3],
+                    "address": job[4],
+                    "time_hours": hours,
+                    "is_favorite": job[7] if len(job) > 7 else False,
+                    "is_urgent": job[8] if len(job) > 8 else False,
+                    "created_at": job[9].isoformat() if len(job) > 9 and job[9] else None,
+                    "photo": job[10] if len(job) > 10 else None,
+                    "rating": job[11] if len(job) > 11 else None,
+                    "car": job[12] if len(job) > 12 else None
+                }
+                history_list.append(job_data)
+            except IndexError as ie:
+                Logger.error(f"Ошибка обработки вакансии в истории: {str(ie)}")
+                continue
 
-            history_list.append({
-                "job_id": job[0],
-                "employer_id": job[1],
-                "title": job[2],
-                "salary": job[3],
-                "address": job[4],
-                "time_hours": hours,
-                "is_favorite": job[7],
-                "is_urgent": job[8],
-                "created_at": job[9].isoformat(),
-                "photo": job[10],
-                "rating": job[11],
-                "car": job[12]
-            })
-
-        if not history_list:
-            return jsonify({"message": "Нет просмотренных вакансий"}), 404
         return jsonify(history_list), 200
     except Exception as e:
-        Logger.error(f"Error get view history {str(e)}")
+        Logger.error(f"Ошибка при получении истории просмотров: {str(e)}")
         return jsonify({
-            "message": f"Error get view history {str(e)}"
+            "message": f"Ошибка при получении истории просмотров: {str(e)}"
         }), 500
 
 @jobs_see_All_route.route("/jobs/<int:job_id>/seeall", methods=["GET"])
