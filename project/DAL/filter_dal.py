@@ -25,13 +25,15 @@ class FilterDAL(DBConnection):
 
     @staticmethod
     def get_filtered_jobs(wanted_job=None, address=None, time_start=None, time_end=None,
-                          date=None, salary=None, salary_to=None, is_urgent=None, xp=None, age=None):
+                        date=None, salary=None, salary_to=None, is_urgent=None, 
+                        xp=None, age=None, car=None):  # Добавили параметр car
         conn = FilterDAL.connect_db()
         try:
             with conn.cursor() as cur:
                 base_query = """
-                    SELECT j.job_id, j.title, j.wanted_job, j.description, j.salary, j.date, j.time_start, j.time_end, 
-                        j.address, j.is_urgent, e.organization_name, j.created_at, u.rating, u.photo, j.xp, j.age
+                    SELECT j.job_id, j.title, j.wanted_job, j.description, j.salary, j.date, 
+                        j.time_start, j.time_end, j.address, j.is_urgent, e.organization_name, 
+                        j.created_at, u.rating, u.photo, j.xp, j.age, j.car
                     FROM jobs j
                     JOIN employers e ON j.employer_id = e.profile_id
                     JOIN users u ON e.user_id = u.user_id
@@ -69,7 +71,7 @@ class FilterDAL(DBConnection):
                     conditions.append("j.salary <= %s")
                     params.append(salary_to)
 
-                if is_urgent:
+                if is_urgent is not None:
                     conditions.append("j.is_urgent = %s")
                     params.append(is_urgent)
 
@@ -84,6 +86,10 @@ class FilterDAL(DBConnection):
                         conditions.append("(j.age = 'старше 16 лет' OR j.age = 'старше 18 лет')")
                     elif age == "старше 14 лет":
                         conditions.append("(j.age = 'старше 14 лет' OR j.age = 'старше 16 лет' OR j.age = 'старше 18 лет')")
+
+                if car is not None:  # Добавили условие для фильтрации по car
+                    conditions.append("j.car = %s")
+                    params.append(car)
 
                 if conditions:
                     base_query += " AND " + " AND ".join(conditions)
