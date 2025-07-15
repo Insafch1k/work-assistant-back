@@ -72,36 +72,51 @@ class Emplyers_Jobs(DBConnection):
 
     @staticmethod
     def update_my_employer_job(job_id, title=None, wanted_job=None, description=None, salary=None, date=None,
-                               time_start=None, time_end=None, address=None, is_urgent=None,
-                               xp=None, age=None, status=None):
+                            time_start=None, time_end=None, address=None, is_urgent=None,
+                            xp=None, age=None, status=None, car=None):  # Добавили параметр car
         conn = Emplyers_Jobs.connect_db()
         try:
             with conn.cursor() as cur:
-                args = {"title": title, "wanted_job": wanted_job, "description": description, "salary": salary,
-                        "date": date, "time_start": time_start, "time_end": time_end, "address": address,
-                        "xp": xp, "age": age, "status": status}
-                if any(list(args.values())):
-                    stat = """UPDATE jobs SET is_urgent = %s"""
-                    conditions = []
-                    cur_params = [is_urgent]
+                args = {
+                    "title": title, 
+                    "wanted_job": wanted_job, 
+                    "description": description, 
+                    "salary": salary,
+                    "date": date, 
+                    "time_start": time_start, 
+                    "time_end": time_end, 
+                    "address": address,
+                    "xp": xp, 
+                    "age": age, 
+                    "status": status,
+                    "car": car  # Добавили car в список параметров
+                }
+                
+                if any(value is not None for value in args.values()):
+                    stat = """UPDATE jobs SET """
+                    updates = []
+                    params = []
+
+                    if is_urgent is not None:
+                        updates.append("is_urgent = %s")
+                        params.append(is_urgent)
 
                     for field, value in args.items():
                         if value is not None:
-                            print(field, value)
-                            conditions.append(f"{field} = %s")
-                            cur_params.append(value)
+                            updates.append(f"{field} = %s")
+                            params.append(value)
 
-                    if conditions:
-                        stat += ", " + ", ".join(conditions)
+                    if updates:
+                        stat += ", ".join(updates)
+                        stat += " WHERE job_id = %s"
+                        params.append(job_id)
 
-                    stat += " WHERE job_id = %s"
-                    cur_params.append(job_id)
-
-                    cur.execute(stat, cur_params)
-                    conn.commit()
-                    return True
+                        cur.execute(stat, params)
+                        conn.commit()
+                        return True
+            return False
         except Exception as e:
-            Logger.error(f"Error update my employer job {str(e)}")
+            Logger.error(f"Error update my employer job: {str(e)}")
             conn.rollback()
             return None
         finally:

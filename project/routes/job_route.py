@@ -422,7 +422,6 @@ def get_my_jobs():
         Logger.error(f"Ошибка при получении моих вакансий: {str(e)}")
         return jsonify({"message": f"Ошибка при получении моих вакансий: {str(e)}"}), 500
 
-
 @employer_jobs_router.route('/jobs/me/<int:job_id>', methods=["PATCH"])
 @jwt_required()
 def update_my_job(job_id):
@@ -434,25 +433,61 @@ def update_my_job(job_id):
             return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
         data = request.get_json()
+        Logger.info(f"Updating job {job_id} with data: {data}")  # Логируем входящие данные
 
-        temp_json = {"title": None, "wanted_job": None, "description": None, "salary": None, "date": None,
-                     "time_start": None, "time_end": None, "address": None, "is_urgent": None,
-                     "xp": None, "age": None, "status": None, "car": None}
+        # Подготавливаем параметры для обновления
+        update_data = {
+            "title": data.get("title"),
+            "wanted_job": data.get("wanted_job"),
+            "description": data.get("description"),
+            "salary": data.get("salary"),
+            "date": data.get("date"),
+            "time_start": data.get("time_start"),
+            "time_end": data.get("time_end"),
+            "address": data.get("address"),
+            "is_urgent": data.get("is_urgent"),
+            "xp": data.get("xp"),
+            "age": data.get("age"),
+            "status": data.get("status"),
+            "car": data.get("car")  # Добавляем параметр car
+        }
 
-        for temp in temp_json:
-            if temp in data:
-                temp_json[temp] = data[temp]
+        # Проверяем, что хотя бы одно поле для обновления указано
+        if all(value is None for value in update_data.values()):
+            return jsonify({"error": "Не указаны поля для обновления"}), 400
 
-        is_urgent = False if (temp_json["is_urgent"] is None) else data["is_urgent"]
-        job = Emplyers_Jobs.update_my_employer_job(job_id, title=temp_json["title"], wanted_job=temp_json["wanted_job"],
-                                                   description=temp_json["description"], salary=temp_json["salary"], date=temp_json["date"],
-                                                   time_start=temp_json["time_start"], time_end=temp_json["time_end"], address=temp_json["address"],
-                                                   is_urgent=is_urgent, xp=temp_json["xp"], age=temp_json["age"], status=temp_json["status"], car=temp_json["car"])
-        if job:
-            return jsonify({"message": "Профиль обновлён"}), 200
-        return jsonify({"error": "Профиль не получилось обновить"})
+        # Преобразуем дату при необходимости
+        if update_data["date"] and '.' in update_data["date"]:
+            try:
+                day, month, year = update_data["date"].split('.')
+                update_data["date"] = f"{year}-{month}-{day}"
+            except ValueError:
+                return jsonify({"error": "Неверный формат даты. Используйте DD.MM.YYYY"}), 400
+
+        result = Emplyers_Jobs.update_my_employer_job(
+            job_id,
+            title=update_data["title"],
+            wanted_job=update_data["wanted_job"],
+            description=update_data["description"],
+            salary=update_data["salary"],
+            date=update_data["date"],
+            time_start=update_data["time_start"],
+            time_end=update_data["time_end"],
+            address=update_data["address"],
+            is_urgent=update_data["is_urgent"],
+            xp=update_data["xp"],
+            age=update_data["age"],
+            status=update_data["status"],
+            car=update_data["car"]  # Передаем параметр car
+        )
+
+        if result is None:
+            return jsonify({"error": "Ошибка при обновлении вакансии"}), 500
+        elif result:
+            return jsonify({"message": "Вакансия успешно обновлена"}), 200
+        else:
+            return jsonify({"error": "Не удалось обновить вакансию"}), 400
+
     except Exception as e:
-        Logger.error(f"Error update my job {str(e)}")
-        return jsonify({
-            "message": f"Error update my job {str(e)}"
-        }), 500
+        Logger.error(f"Error updating job: {str(e)}")
+        return jsonify({"error": f"Ошибка при обновлении вакансии: {str(e)}"}), 500
