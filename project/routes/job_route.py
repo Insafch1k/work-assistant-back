@@ -29,44 +29,60 @@ def create_job():
             return jsonify({"error": "Только работодатели могут создавать объявления"}), 403
 
         data = request.get_json()
-        fields = ["title", "wanted_job", "description", "salary", "date", "time_start", "time_end", "address",
-                  "xp", "age", "car"]
-        if any(field not in data or data[field] is None for field in fields):
+        Logger.info(f"Received data: {data}")  # Логируем входящие данные
+
+        # Проверка обязательных полей
+        required_fields = ["title", "wanted_job", "description", "salary", "date", 
+                         "time_start", "time_end", "address", "xp", "age", "car"]
+        if any(field not in data or data[field] is None for field in required_fields):
             return jsonify({"error": "Неправильно заполнены поля"}), 400
 
-        valid_xp = ["нет опыта", "от 1 года", "от 3 лет"]
-        valid_age = ["старше 14 лет", "старше 16 лет", "старше 18 лет"]
+        # Преобразуем дату в правильный формат (если нужно)
+        try:
+            if '.' in data['date']:
+                day, month, year = data['date'].split('.')
+                data['date'] = f"{year}-{month}-{day}"
+        except Exception as e:
+            Logger.error(f"Error parsing date: {str(e)}")
+            return jsonify({"error": "Неверный формат даты. Используйте DD.MM.YYYY или YYYY-MM-DD"}), 400
 
-        if data["xp"] not in valid_xp:
-            return jsonify({"error": "Недопустимое значение для опыта работы. "
-                                     "Допустимые значения: нет опыта, от 1 года, от 3 лет"}), 400
-        if data["age"] not in valid_age:
-            return jsonify({"error": "Недопустимое значение для возраста. "
-                                     "Допустимые значения: старше 14 лет, старше 16 лет, старше 18 лет"}), 400
-        if not isinstance(data["car"], bool):
-            return jsonify({"error": "Поле car должно быть булевым (true/false)"}), 400
+        new_job = JobDAL.add_job(
+            curr_id, 
+            data["title"], 
+            data["wanted_job"], 
+            data["description"],
+            data["salary"], 
+            data["date"], 
+            data["time_start"], 
+            data["time_end"], 
+            data["address"],
+            data.get("is_urgent", False),
+            data["xp"], 
+            data["age"], 
+            data["car"]
+        )
 
-        new_job = JobDAL.add_job(curr_id, data["title"], data["wanted_job"], data["description"],
-                                 data["salary"], data["date"], data["time_start"], data["time_end"], data["address"],
-                                 data["is_urgent"], data["xp"], data["age"], data["car"])
+        if not new_job:
+            return jsonify({"error": "Не удалось создать вакансию"}), 500
 
-        return jsonify({
+        # Преобразуем время в строку для JSON
+        response_data = {
             "job_id": new_job[0],
             "title": new_job[1],
             "wanted_job": new_job[2],
             "salary": new_job[3],
-            "time_start": new_job[4],
-            "time_end": new_job[5],
-            "created_at": new_job[6].isoformat(),
+            "time_start": str(new_job[4]) if new_job[4] else None,
+            "time_end": str(new_job[5]) if new_job[5] else None,
+            "created_at": new_job[6].isoformat() if new_job[6] else None,
             "address": new_job[7],
             "car": new_job[8],
             "message": "Объявление успешно создано"
-        }), 200
+        }
+
+        return jsonify(response_data), 200
     except Exception as e:
-        Logger.error(f"Error create job {str(e)}")
-        return jsonify({
-            "message": f"Error create job {str(e)}"
-        }), 500
+        Logger.error(f"Error creating job: {str(e)}")
+        return jsonify({"error": f"Ошибка при создании вакансии: {str(e)}"}), 500
 
 @filter_router.route("/jobs/filter", methods=["POST"])
 @jwt_required()
