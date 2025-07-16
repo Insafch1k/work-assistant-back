@@ -37,18 +37,15 @@ def update_profile():
         }), 500
 
 
-@profile_router.route('/profile/<int:profile_id>', methods=["GET"])
-@jwt_required(optional=True)
-def get_profile(profile_id):
+@profile_router.route('/profile/me', methods=["GET"])
+@jwt_required()
+def get_profile():
     """Получение данных своего профиля"""
     try:
         current_tg = get_jwt_identity()
-        curr_id = int(ProfileDAL.get_user_id_by_tg(current_tg))
+        curr_id = ProfileDAL.get_user_id_by_tg(current_tg)
 
-        if curr_id and curr_id != profile_id:
-            return jsonify({"message": "Нет доступа"}), 403
-
-        data = ProfileDAL.get_profile_data(profile_id)
+        data = ProfileDAL.get_profile_data(curr_id)
         if not data:
             return jsonify({"error": "Профиль не найден"}), 404
 

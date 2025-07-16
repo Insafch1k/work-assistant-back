@@ -93,12 +93,12 @@ class ProfileDAL(DBConnection):
         conn = ProfileDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT u.user_role, u.user_name, u.email, u.phone, u.photo, u.rating,
-                                f.age, e.organization_name
-                        FROM users u
-                        LEFT JOIN finders f ON u.user_id = f.user_id
-                        LEFT JOIN employers e ON u.user_id = e.user_id
-                        WHERE u.user_id = %s"""
+                stat = """SELECT u.user_role, u.user_name, u.tg_username, u.phone, u.photo, u.rating, 
+                          COUNT(r.review_id) as review_count
+                          FROM users
+                          JOIN employers e ON u.user_id = e.user_id
+                          LEFT JOIN reviews r ON r.employer_id = e.profile_id
+                          WHERE user_id = %s"""
                 cur.execute(stat, (profile_id,))
                 return cur.fetchone()
         except Exception as e:
