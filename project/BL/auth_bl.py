@@ -27,7 +27,8 @@ def get_user_data(temp_data):
     return {
         "user_id": temp_data[0],
         "tg": temp_data[1],
-        "user_role": temp_data[2],
-        "user_name": temp_data[3],
-        "rating": float(temp_data[4])
+        "tg_username": temp_data[2],
+        "user_role": temp_data[3],
+        "user_name": temp_data[4],
+        "rating": float(temp_data[5])
     }

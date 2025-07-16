@@ -102,3 +102,20 @@ LINE 5: ...(12, 'ывваыва', 'ываываываываыва', 'кпеук'
 2025-07-08T18:21:32.315135+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
 2025-07-08T18:21:46.655312+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
 2025-07-08T18:24:36.210101+0300 | ERROR | job_route.py:371 | Error get my jobs Object of type time is not JSON serializable
+2025-07-16T11:43:30.755335+0300 | ERROR | auth_dal.py:19 | Error add user tuple index out of range
+2025-07-16T11:43:30.755335+0300 | ERROR | auth_route.py:38 | Error register 'bool' object is not subscriptable
+2025-07-16T11:44:08.213378+0300 | ERROR | auth_dal.py:19 | Error add user ОШИБКА:  столбец "tg_username" в таблице "users" не существует
+LINE 1: INSERT INTO users (tg, tg_username, user_role, user_name, ra...
+                               ^
+
+2025-07-16T11:44:08.214541+0300 | ERROR | auth_route.py:38 | Error register 'bool' object is not subscriptable
+2025-07-16T11:45:13.650645+0300 | ERROR | auth_dal.py:19 | Error add user ОШИБКА:  столбец "tg_username" в таблице "users" не существует
+LINE 1: INSERT INTO users (tg, tg_username, user_role, user_name, ra...
+                               ^
+
+2025-07-16T11:45:13.650645+0300 | ERROR | auth_route.py:38 | Error register 'bool' object is not subscriptable
+2025-07-16T11:47:08.839700+0300 | ERROR | auth_dal.py:19 | Error add user ОШИБКА:  столбец "tg_username" в таблице "users" не существует
+LINE 1: INSERT INTO users (tg, tg_username, user_role, user_name, ra...
+                               ^
+
+2025-07-16T11:47:08.839700+0300 | ERROR | auth_route.py:38 | Error register 'bool' object is not subscriptable

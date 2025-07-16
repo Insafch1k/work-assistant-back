@@ -21,7 +21,7 @@ def register():
         if result["status"] == "error":
             return jsonify(result), 400
 
-        temp_data = AuthDAL.add_user(data["tg"], data["user_role"], data["user_name"])
+        temp_data = AuthDAL.add_user(data["tg"], data["tg_username"], data["user_role"], data["user_name"])
         user = get_user_data(temp_data)
         if data["user_role"] == "finder":
             AuthDAL.add_finder(list(user.values())[0])
@@ -40,7 +40,7 @@ def register():
             "message": f"Error register {str(e)}"
         }), 500
 
-@auth_router.route("/profile/login", methods=["POST"])
+@auth_router.route("/profile/login", methods=["GET"])
 def login():
     """
     Авторизация пользователей

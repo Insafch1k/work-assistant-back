@@ -4,14 +4,14 @@ from project.utils.logger import Logger
 
 class AuthDAL(DBConnection):
     @staticmethod
-    def add_user(tg, user_role, user_name):
+    def add_user(tg, tg_username, user_role, user_name):
         conn = AuthDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """INSERT INTO users (tg, user_role, user_name, rating)
-                          VALUES (%s, %s, %s, 0.0)
-                          RETURNING user_id, tg, user_role, user_name, rating"""
-                cur.execute(stat, (tg, user_role, user_name, ))
+                stat = """INSERT INTO users (tg, tg_username, user_role, user_name, rating)
+                          VALUES (%s, %s, %s, %s, 0.0)
+                          RETURNING user_id, tg, tg_username, user_role, user_name, rating"""
+                cur.execute(stat, (tg, tg_username, user_role, user_name, ))
                 conn.commit()
                 print(f"Пользователь {user_name} успешно добавлен!")
                 return cur.fetchone()
