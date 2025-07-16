@@ -33,7 +33,7 @@ class Finder_Jobs(DBConnection):
                         SELECT 1 FROM job_favorites f 
                         WHERE f.job_id = j.job_id 
                         AND f.finder_id = %s
-                   ) AS is_favorite, j.is_urgent, j.created_at, u.photo, u.rating, j.car
+                   ) AS is_favorite, j.is_urgent, j.created_at, u.photo, u.rating, j.car, u.phone, u.tg_username
                    FROM jobs j
                    JOIN employers e ON e.profile_id = j.employer_id
                    JOIN users u ON u.user_id = e.user_id

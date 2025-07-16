@@ -59,7 +59,7 @@ def create_job():
             data.get("is_urgent", False),
             data["xp"], 
             data["age"], 
-            data["car"]
+            data.get("car", False)
         )
 
         if not new_job:
@@ -306,21 +306,23 @@ def get_jobs_for_employers():
         jobs_json = []
         for job in jobs:
             try:
-                hours = time_calculate(job[5], job[6]) if len(job) > 6 and job[5] and job[6] else None
+                hours = time_calculate(job[7], job[8]) if len(job) > 8 and job[7] and job[8] else None
                 
                 job_data = {
                     "job_id": job[0],
                     "employer_id": job[1],
-                    "title": job[2],
-                    "salary": job[3],
-                    "address": job[4],
+                    "tg_username": job[2],
+                    "phone": job[3],
+                    "title": job[4],
+                    "salary": job[5],
+                    "address": job[6],
                     "time_hours": hours,
-                    "is_favorite": job[7] if len(job) > 7 else False,
-                    "is_urgent": job[8] if len(job) > 8 else False,
-                    "created_at": job[9].isoformat() if len(job) > 9 and job[9] else None,
-                    "photo": job[10] if len(job) > 10 else None,
-                    "rating": job[11] if len(job) > 11 else None,
-                    "car": job[12] if len(job) > 12 else None
+                    "is_favorite": job[9] if len(job) > 9 else False,
+                    "is_urgent": job[10] if len(job) > 10 else False,
+                    "created_at": job[11].isoformat() if len(job) > 11 and job[11] else None,
+                    "photo": job[12] if len(job) > 12 else None,
+                    "rating": job[13] if len(job) > 13 else None,
+                    "car": job[14] if len(job) > 14 else False
                 }
                 jobs_json.append(job_data)
             except IndexError as ie:
@@ -365,7 +367,9 @@ def get_jobs_for_finders():
                 "created_at": job[9],
                 "photo": job[10],
                 "rating": job[11],
-                "car": job[12]
+                "car": job[12],
+                "phone": job[13],
+                "tg_username": job[14]
             })
 
         return jsonify(jobs_list), 200
