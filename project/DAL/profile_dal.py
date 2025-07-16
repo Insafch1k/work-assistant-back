@@ -89,17 +89,18 @@ class ProfileDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def get_profile_data(profile_id):
+    def get_profile_data(user_id):
         conn = ProfileDAL.connect_db()
         try:
             with conn.cursor() as cur:
                 stat = """SELECT u.user_role, u.user_name, u.tg_username, u.phone, u.photo, u.rating, 
                           COUNT(r.review_id) as review_count
-                          FROM users
+                          FROM users u
                           JOIN employers e ON u.user_id = e.user_id
                           LEFT JOIN reviews r ON r.employer_id = e.profile_id
-                          WHERE user_id = %s"""
-                cur.execute(stat, (profile_id,))
+                          WHERE u.user_id = %s
+                          GROUP BY u.user_role, u.user_name, u.tg_username, u.phone, u.photo, u.rating"""
+                cur.execute(stat, (user_id,))
                 return cur.fetchone()
         except Exception as e:
             Logger.error(f"Error get profile data {str(e)}")
