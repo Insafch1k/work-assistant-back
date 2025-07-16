@@ -20,23 +20,19 @@ class ProfileDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def update_profile(user_id, user_name=None, email=None, phone=None, photo=None):
+    def update_profile(user_id, user_name=None, phone=None, photo=None):
         conn = ProfileDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                if any([user_name, email, phone, photo]):
+                if any([user_name, phone, photo]):
                     stat = """UPDATE users SET """
 
                     conditions = []
                     params = []
 
-                    if user_name:
-                        conditions.append("email = %s")
+                    if user_name is not None:
+                        conditions.append("user_name = %s")
                         params.append(user_name)
-
-                    if email:
-                        conditions.append("email = %s")
-                        params.append(email)
 
                     if phone:
                         conditions.append("phone = %s")
@@ -133,7 +129,7 @@ class ProfileDAL(DBConnection):
         conn = ProfileDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT u.user_name, u.rating, u.photo, COUNT(r.review_id) as review_count
+                stat = """SELECT u.user_name, u.rating, u.tg_username, u.phone, u.photo, COUNT(r.review_id) as review_count
                           FROM users u
                           JOIN employers e ON u.user_id = e.user_id
                           LEFT JOIN reviews r ON r.employer_id = e.profile_id

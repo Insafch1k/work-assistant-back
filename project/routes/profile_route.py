@@ -18,19 +18,16 @@ def update_profile():
         data = request.get_json()
         curr_id = ProfileDAL.get_user_id_by_tg(current_tg)
 
-        if "user_id" in data and data["user_id"] != curr_id:
-            return jsonify({"error": "Нет доступа"}), 403
-
         role = ProfileDAL.get_user_role(curr_id)
 
         if role == "finder":
-            ProfileDAL.update_profile(curr_id, data["user_name"], data["email"], data["phone"], data["photo"])
-            if data["age"]:
-                ProfileDAL.update_finder_profile(data["age"], curr_id)
+            ProfileDAL.update_profile(curr_id, user_name=data.get("user_name"), phone=data.get("phone"), photo=data.get("photo"))
+            if "age" in data:
+                ProfileDAL.update_finder_profile(data.get("age"), curr_id)
         if role == "employer":
-            ProfileDAL.update_profile(curr_id, data["user_name"], data["email"], data["phone"], data["photo"])
-            if data["organization_name"]:
-                ProfileDAL.update_employer_profile(data["organization_name"], curr_id)
+            ProfileDAL.update_profile(curr_id, user_name=data.get("user_name"), phone=data.get("phone"), photo=data.get("photo"))
+            if "organization_name" in data:
+                ProfileDAL.update_employer_profile(data.get("organization_name"), curr_id)
 
         return jsonify({"message": "Профиль обновлён"}), 200
     except Exception as e:
@@ -87,8 +84,10 @@ def get_employer_profile(employer_id):
             "profile": {
                 "user_name": profile[0],
                 "rating": float(profile[1]),
-                "photo": profile[2],
-                "review_count": profile[3]
+                "tg_username": profile[2],
+                "phone": profile[3],
+                "photo": profile[4],
+                "review_count": profile[5]
             },
             "vacancies": jobs_json
         }), 200
