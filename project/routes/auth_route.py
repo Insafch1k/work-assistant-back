@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token
 
 from project.DAL.auth_dal import AuthDAL
 from project.BL.auth_bl import validate_register, get_user_data
+from project.utils.photo_transform import download_photo_to_base64
 
 auth_router = Blueprint("auth_router", __name__)
 
@@ -16,12 +17,13 @@ def register():
     """
     try:
         data = request.get_json()
+        photo = download_photo_to_base64(data["photo"])
         result = validate_register(data)
 
         if result["status"] == "error":
             return jsonify(result), 400
 
-        temp_data = AuthDAL.add_user(data["tg"], data["tg_username"], data["user_role"], data["user_name"])
+        temp_data = AuthDAL.add_user(data["tg"], data["tg_username"], data["user_role"], data["user_name"], photo)
         user = get_user_data(temp_data)
         AuthDAL.add_finder(list(user.values())[0])
         AuthDAL.add_employer(list(user.values())[0])
@@ -45,12 +47,13 @@ def login():
     """
     try:
         data = request.get_json()
+        photo = download_photo_to_base64(data["photo"])
         if not AuthDAL.check_user(data["tg"]):
             return jsonify({"message": "Пользователь не найден"}), 404
 
         if AuthDAL.check_user_role(data["tg"]) != data["user_role"]:
-            user_role = AuthDAL.change_user_role(data["user_role"], data["tg"])
-            print(user_role)
+            user_data = AuthDAL.change_user_data(data["user_role"], data["tg"], photo, data["tg_username"])
+            print({"user_role": user_data[0], "tg_username": user_data[1]})
 
         access_token = create_access_token(identity=str(data["tg"]))
         return jsonify({
