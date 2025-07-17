@@ -30,7 +30,6 @@ class AuthDAL(DBConnection):
                 stat = """INSERT INTO finders (user_id) VALUES (%s)"""
                 cur.execute(stat, (user_id, ))
                 conn.commit()
-                print(f"Соискатель успешно добавлен!")
         except Exception as e:
             Logger.error(f"Error add finder {str(e)}")
             conn.rollback()
@@ -46,7 +45,6 @@ class AuthDAL(DBConnection):
                 stat = """INSERT INTO employers (user_id) VALUES (%s)"""
                 cur.execute(stat, (user_id, ))
                 conn.commit()
-                print(f"Работодатель успешно добавлен!")
         except Exception as e:
             Logger.error(f"Error add employer {str(e)}")
             conn.rollback()
@@ -61,6 +59,38 @@ class AuthDAL(DBConnection):
             with conn.cursor() as cur:
                 stat = """SELECT EXISTS(SELECT user_id FROM users WHERE tg = %s)"""
                 cur.execute(stat, (tg, ))
+                return cur.fetchone()[0]
+        except Exception as e:
+            Logger.error(f"Error check user {str(e)}")
+            conn.rollback()
+            return False
+        finally:
+            conn.close()
+
+    @staticmethod
+    def check_user_role(tg):
+        conn = AuthDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """SELECT user_role FROM users WHERE tg = %s"""
+                cur.execute(stat, (tg,))
+                return cur.fetchone()[0]
+        except Exception as e:
+            Logger.error(f"Error check user {str(e)}")
+            conn.rollback()
+            return False
+        finally:
+            conn.close()
+
+    @staticmethod
+    def change_user_role(user_role, tg):
+        conn = AuthDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """UPDATE users SET user_role = %s WHERE tg = %s
+                          RETURNING user_role"""
+                cur.execute(stat, (user_role, tg,))
+                conn.commit()
                 return cur.fetchone()[0]
         except Exception as e:
             Logger.error(f"Error check user {str(e)}")

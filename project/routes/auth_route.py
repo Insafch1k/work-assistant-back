@@ -23,11 +23,8 @@ def register():
 
         temp_data = AuthDAL.add_user(data["tg"], data["tg_username"], data["user_role"], data["user_name"])
         user = get_user_data(temp_data)
-        if data["user_role"] == "finder":
-            AuthDAL.add_finder(list(user.values())[0])
-        if data["user_role"] == "employer":
-            AuthDAL.add_employer(list(user.values())[0])
-
+        AuthDAL.add_finder(list(user.values())[0])
+        AuthDAL.add_employer(list(user.values())[0])
 
         access_token = create_access_token(identity=str(data["tg"]))
         return jsonify({
@@ -40,7 +37,7 @@ def register():
             "message": f"Error register {str(e)}"
         }), 500
 
-@auth_router.route("/profile/login", methods=["GET"])
+@auth_router.route("/profile/login", methods=["PATCH"])
 def login():
     """
     Авторизация пользователей
@@ -48,6 +45,13 @@ def login():
     """
     try:
         data = request.get_json()
+        if not AuthDAL.check_user(data["tg"]):
+            return jsonify({"message": "Пользователь не найден"}), 404
+
+        if AuthDAL.check_user_role(data["tg"]) != data["user_role"]:
+            user_role = AuthDAL.change_user_role(data["user_role"], data["tg"])
+            print(user_role)
+
         access_token = create_access_token(identity=str(data["tg"]))
         return jsonify({
             "message": "Вы успешно авторизовались",
