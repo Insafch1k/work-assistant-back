@@ -4,7 +4,7 @@ from flask_jwt_extended import create_access_token
 
 from project.DAL.auth_dal import AuthDAL
 from project.BL.auth_bl import validate_register, get_user_data
-from project.utils.photo_transform import download_photo_to_base64
+from project.utils.photo_transform import save_image
 
 auth_router = Blueprint("auth_router", __name__)
 
@@ -17,13 +17,16 @@ def register():
     """
     try:
         data = request.get_json()
-        photo = download_photo_to_base64(data["photo"])
+        #photo = save_image("user_avatar", url=data["photo"])
+        #if not photo:
+        #    return jsonify({"message": "Ошибка при сохранении фото"}), 400
+
         result = validate_register(data)
 
         if result["status"] == "error":
             return jsonify(result), 400
 
-        temp_data = AuthDAL.add_user(data["tg"], data["tg_username"], data["user_role"], data["user_name"], photo)
+        temp_data = AuthDAL.add_user(data["tg"], data["tg_username"], data["user_role"], data["user_name"], data["photo"])
         user = get_user_data(temp_data)
         AuthDAL.add_finder(list(user.values())[0])
         AuthDAL.add_employer(list(user.values())[0])
@@ -47,13 +50,31 @@ def login():
     """
     try:
         data = request.get_json()
-        photo = download_photo_to_base64(data["photo"])
-        if not AuthDAL.check_user(data["tg"]):
+
+        user = AuthDAL.get_user_by_tg(data["tg"])
+        if not user:
             return jsonify({"message": "Пользователь не найден"}), 404
 
-        if AuthDAL.check_user_role(data["tg"]) != data["user_role"]:
-            user_data = AuthDAL.change_user_data(data["user_role"], data["tg"], photo, data["tg_username"])
-            print({"user_role": user_data[0], "tg_username": user_data[1]})
+        need_update = False
+        update_data = {}
+
+        if user[3] != data["user_role"]:
+            update_data["user_role"] = data["user_role"]
+            need_update = True
+
+        if user[2] != data["tg_username"]:
+            update_data["tg_username"] = data["tg_username"]
+            need_update = True
+
+        #if "photo" in data and data["photo"]:
+        #    photo_path = save_image("user_avatar", url=data["photo"])
+        #    if photo_path:
+        #        update_data["photo"] = photo_path
+        #        need_update = True
+
+        if need_update:
+            AuthDAL.update_user(data["tg"], **update_data)
+            print(update_data)
 
         access_token = create_access_token(identity=str(data["tg"]))
         return jsonify({

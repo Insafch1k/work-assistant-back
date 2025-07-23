@@ -106,7 +106,7 @@ def update_resume():
 @resume_router.route('/resumes', methods=["GET"])
 @jwt_required()
 def get_user_resumes():
-    """Получение всех активных резюме пользователя"""
+    """Получение резюме пользователя"""
     try:
         current_user_tg = get_jwt_identity()
 

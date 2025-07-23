@@ -54,7 +54,7 @@ class Emplyers_Jobs(DBConnection):
             with conn.cursor() as cur:
                 stat = """
                    SELECT j.job_id, j.employer_id, j.title, j.salary, j.address, j.time_start, j.time_end,
-                   j.is_urgent, j.created_at, j.wanted_job, j.date, j.xp, j.age, j.description
+                   j.is_urgent, j.created_at, j.wanted_job, j.date, j.xp, j.age, j.description, j.car
                    FROM jobs j
                    JOIN employers e ON e.profile_id = j.employer_id
                    JOIN users u ON u.user_id = e.user_id
@@ -88,8 +88,7 @@ class Emplyers_Jobs(DBConnection):
                     "address": address,
                     "xp": xp, 
                     "age": age, 
-                    "status": status,
-                    "car": car  # Добавили car в список параметров
+                    "status": status
                 }
                 
                 if any(value is not None for value in args.values()):
@@ -97,9 +96,13 @@ class Emplyers_Jobs(DBConnection):
                     updates = []
                     params = []
 
-                    if is_urgent is not None:
+                    if is_urgent is not None or isinstance(is_urgent, bool):
                         updates.append("is_urgent = %s")
                         params.append(is_urgent)
+
+                    if car is not None or isinstance(car, bool):
+                        updates.append("car = %s")
+                        params.append(car)
 
                     for field, value in args.items():
                         if value is not None:

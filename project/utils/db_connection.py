@@ -9,7 +9,7 @@ class DBConnection:
     def connect_db():
         try:
             conn = psycopg2.connect(
-                user=settings.USER,
+                user='postgres',
                 password=settings.PASSWORD,
                 database=settings.DB_NAME,
                 host=settings.HOST_NAME,

@@ -1,4 +1,5 @@
 from project.utils.logger import Logger
+from project.utils.photo_transform import photo_url_convert
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from datetime import datetime, time
@@ -230,7 +231,8 @@ def get_view_history():
         for job in history:
             try:
                 hours = time_calculate(job[5], job[6]) if len(job) > 6 and job[5] and job[6] else None
-                
+                #photo_url = photo_url_convert(job[10])
+
                 job_data = {
                     "job_id": job[0],
                     "employer_id": job[1],
@@ -241,7 +243,7 @@ def get_view_history():
                     "is_favorite": job[7] if len(job) > 7 else False,
                     "is_urgent": job[8] if len(job) > 8 else False,
                     "created_at": job[9].isoformat() if len(job) > 9 and job[9] else None,
-                    "photo": job[10] if len(job) > 10 else None,
+                    #"photo": job[10],
                     "rating": job[11] if len(job) > 11 else None,
                     "car": job[12] if len(job) > 12 else None
                 }
@@ -307,7 +309,8 @@ def get_jobs_for_employers():
         for job in jobs:
             try:
                 hours = time_calculate(job[7], job[8]) if len(job) > 8 and job[7] and job[8] else None
-                
+                #photo_url = photo_url_convert(job[12])
+
                 job_data = {
                     "job_id": job[0],
                     "employer_id": job[1],
@@ -317,12 +320,12 @@ def get_jobs_for_employers():
                     "salary": job[5],
                     "address": job[6],
                     "time_hours": hours,
-                    "is_favorite": job[9] if len(job) > 9 else False,
-                    "is_urgent": job[10] if len(job) > 10 else False,
+                    "is_favorite": job[9] if job[9] else False,
+                    "is_urgent": job[10] if job[10] else False,
                     "created_at": job[11].isoformat() if len(job) > 11 and job[11] else None,
-                    "photo": job[12] if len(job) > 12 else None,
+                    #"photo": job[12],
                     "rating": job[13] if len(job) > 13 else None,
-                    "car": job[14] if len(job) > 14 else False
+                    "car": job[14] if job[14] else False
                 }
                 jobs_json.append(job_data)
             except IndexError as ie:
@@ -355,6 +358,8 @@ def get_jobs_for_finders():
             else:
                 hours = None
 
+            #photo_url = photo_url_convert(job[10])
+
             jobs_list.append({
                 "job_id": job[0],
                 "employer_id": job[1],
@@ -365,7 +370,7 @@ def get_jobs_for_finders():
                 "is_favorite": job[7],
                 "is_urgent": job[8],
                 "created_at": job[9],
-                "photo": job[10],
+                #"photo": job[10],
                 "rating": job[11],
                 "car": job[12],
                 "phone": job[13],
@@ -405,7 +410,7 @@ def get_my_jobs():
                     "salary": job[3],
                     "address": job[4],
                     "time_hours": hours,
-                    "is_urgent": job[7] if len(job) > 7 else False,
+                    "is_urgent": job[7] if job[7] else False,
                     "created_at": job[8].isoformat() if len(job) > 8 and job[8] else None,
                     "wanted_job": job[9] if len(job) > 9 else None,
                     "time_start": job[5].strftime("%H:%M") if len(job) > 5 and isinstance(job[5], time) else None,
@@ -414,7 +419,7 @@ def get_my_jobs():
                     "xp": job[11] if len(job) > 11 else None,
                     "age": job[12] if len(job) > 12 else None,
                     "description": job[13] if len(job) > 13 else None,
-                    "car": job[14] if len(job) > 14 else None
+                    "car": job[14] if job[14] else False
                 }
                 jobs_list.append(job_data)
             except IndexError as ie:
