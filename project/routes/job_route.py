@@ -286,7 +286,11 @@ def get_job_seeAll_finders(job_id):
         "description": job[9],
         "car": job[10],
         "is_favorite": job[11],
-        "hours": time_calculate(job[4], job[5]) if job[4] and job[5] else None
+        "hours": time_calculate(job[4], job[5]) if job[4] and job[5] else None,
+        "wanted_job": job[12],
+        "user_name": job[13],
+        "phone": job[14],
+        "tg_username": job[15]
     }
 
     return jsonify(job_json), 200
