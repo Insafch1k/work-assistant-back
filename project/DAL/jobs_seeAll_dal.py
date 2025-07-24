@@ -38,7 +38,7 @@ class Jobs(DBConnection):
                     j.wanted_job,
                     u.user_name,
                     u.phone,
-                    u.tg as tg_username
+                    u.tg_username
                     FROM jobs j
                     JOIN employers e ON e.profile_id = j.employer_id
                     JOIN users u ON u.user_id = e.user_id
