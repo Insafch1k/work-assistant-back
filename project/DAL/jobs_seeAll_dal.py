@@ -34,8 +34,14 @@ class Jobs(DBConnection):
                         SELECT 1 FROM job_favorites f 
                         WHERE f.job_id = j.job_id 
                         AND f.finder_id = %s
-                   ) AS is_favorite
+                    ) AS is_favorite,
+                    j.wanted_job,
+                    u.user_name,
+                    u.phone,
+                    u.tg as tg_username
                     FROM jobs j
+                    JOIN employers e ON e.profile_id = j.employer_id
+                    JOIN users u ON u.user_id = e.user_id
                     WHERE j.job_id = %s
                     """
                 cur.execute(stat, (finder_id, job_id,))
