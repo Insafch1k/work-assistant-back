@@ -4,10 +4,8 @@ from flask_jwt_extended import create_access_token
 
 from project.DAL.auth_dal import AuthDAL
 from project.BL.auth_bl import validate_register, get_user_data
-from project.utils.photo_transform import save_image
 
 auth_router = Blueprint("auth_router", __name__)
-
 
 @auth_router.route("/profile/init", methods=["POST"])
 def register():
@@ -17,16 +15,12 @@ def register():
     """
     try:
         data = request.get_json()
-        #photo = save_image("user_avatar", url=data["photo"])
-        #if not photo:
-        #    return jsonify({"message": "Ошибка при сохранении фото"}), 400
-
         result = validate_register(data)
 
         if result["status"] == "error":
             return jsonify(result), 400
 
-        temp_data = AuthDAL.add_user(data["tg"], data["tg_username"], data["user_role"], data["user_name"], data["photo"])
+        temp_data = AuthDAL.add_user(data["tg"], data["tg_username"], data["user_role"], data["user_name"])
         user = get_user_data(temp_data)
         AuthDAL.add_finder(list(user.values())[0])
         AuthDAL.add_employer(list(user.values())[0])
@@ -65,12 +59,6 @@ def login():
         if user[2] != data["tg_username"]:
             update_data["tg_username"] = data["tg_username"]
             need_update = True
-
-        #if "photo" in data and data["photo"]:
-        #    photo_path = save_image("user_avatar", url=data["photo"])
-        #    if photo_path:
-        #        update_data["photo"] = photo_path
-        #        need_update = True
 
         if need_update:
             AuthDAL.update_user(data["tg"], **update_data)

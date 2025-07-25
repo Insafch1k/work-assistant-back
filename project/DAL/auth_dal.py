@@ -8,7 +8,7 @@ class AuthDAL(DBConnection):
         conn = AuthDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT user_id, tg, tg_username, user_role, user_name, photo, rating 
+                stat = """SELECT user_id, tg, tg_username, user_role, user_name, rating 
                           FROM users WHERE tg = %s"""
                 cur.execute(stat, (tg,))
                 row = cur.fetchone()
@@ -44,14 +44,14 @@ class AuthDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def add_user(tg, tg_username, user_role, user_name, photo):
+    def add_user(tg, tg_username, user_role, user_name):
         conn = AuthDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """INSERT INTO users (tg, tg_username, user_role, user_name, photo, rating)
-                          VALUES (%s, %s, %s, %s, %s, 0.0)
+                stat = """INSERT INTO users (tg, tg_username, user_role, user_name, rating)
+                          VALUES (%s, %s, %s, %s, 0.0)
                           RETURNING user_id, tg, tg_username, user_role, user_name, rating"""
-                cur.execute(stat, (tg, tg_username, user_role, user_name, photo ))
+                cur.execute(stat, (tg, tg_username, user_role, user_name))
                 conn.commit()
                 print(f"Пользователь {user_name} успешно добавлен!")
                 return cur.fetchone()
@@ -68,7 +68,7 @@ class AuthDAL(DBConnection):
         try:
             with conn.cursor() as cur:
                 stat = """INSERT INTO finders (user_id) VALUES (%s)"""
-                cur.execute(stat, (user_id, ))
+                cur.execute(stat, (user_id,))
                 conn.commit()
         except Exception as e:
             Logger.error(f"Error add finder {str(e)}")
@@ -83,7 +83,7 @@ class AuthDAL(DBConnection):
         try:
             with conn.cursor() as cur:
                 stat = """INSERT INTO employers (user_id) VALUES (%s)"""
-                cur.execute(stat, (user_id, ))
+                cur.execute(stat, (user_id,))
                 conn.commit()
         except Exception as e:
             Logger.error(f"Error add employer {str(e)}")
@@ -98,7 +98,7 @@ class AuthDAL(DBConnection):
         try:
             with conn.cursor() as cur:
                 stat = """SELECT EXISTS(SELECT user_id FROM users WHERE tg = %s)"""
-                cur.execute(stat, (tg, ))
+                cur.execute(stat, (tg,))
                 return cur.fetchone()[0]
         except Exception as e:
             Logger.error(f"Error check user {str(e)}")
@@ -123,13 +123,13 @@ class AuthDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def change_user_data(user_role, photo, tg_username, tg):
+    def change_user_data(user_role, tg_username, tg):
         conn = AuthDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """UPDATE users SET user_role = %s, photo = %s, tg_username = %s WHERE tg = %s 
+                stat = """UPDATE users SET user_role = %s, tg_username = %s WHERE tg = %s 
                           RETURNING user_role, tg_username"""
-                cur.execute(stat, (user_role, photo, tg_username, tg,))
+                cur.execute(stat, (user_role, tg_username, tg,))
                 conn.commit()
                 return cur.fetchone()[0]
         except Exception as e:
