@@ -24,24 +24,22 @@ class JobDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def add_job(employer_id, title, wanted_job, description, salary, date, time_start, time_end, address,
-                is_urgent, xp, age, car):
+    def add_job(employer_id, title, wanted_job, description, salary, date, time_start, time_end, address, city, is_urgent, xp, age, car):
         conn = JobDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                # Преобразуем время в строку перед вставкой в БД
                 time_start_str = time_start if isinstance(time_start, str) else time_start.strftime('%H:%M')
                 time_end_str = time_end if isinstance(time_end, str) else time_end.strftime('%H:%M')
                 
                 stat = """INSERT INTO jobs (
                                 employer_id, title, wanted_job, description, salary,
-                                date, time_start, time_end, address, is_urgent, xp, age, car, status
+                                date, time_start, time_end, address, city, is_urgent, xp, age, car, status
                         )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, true)
-                        RETURNING job_id, title, wanted_job, salary, time_start, time_end, created_at, address, car"""
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, true)
+                        RETURNING job_id, title, wanted_job, salary, time_start, time_end, created_at, address, city, car"""
                 cur.execute(stat, (
                     employer_id, title, wanted_job, description, salary, 
-                    date, time_start_str, time_end_str, address, is_urgent, 
+                    date, time_start_str, time_end_str, address, city, is_urgent, 
                     xp, age, car
                 ))
                 conn.commit()

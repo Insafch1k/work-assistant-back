@@ -26,22 +26,25 @@ class FilterDAL(DBConnection):
     @staticmethod
     def get_filtered_jobs(wanted_job=None, address=None, time_start=None, time_end=None,
                         date=None, salary=None, salary_to=None, is_urgent=None, 
-                        xp=None, age=None, car=None):  # Добавили параметр car
+                        xp=None, age=None, car=None, city=None, finder_id=None):
         conn = FilterDAL.connect_db()
         try:
             with conn.cursor() as cur:
                 base_query = """
-                    SELECT j.job_id, j.title, j.wanted_job, j.description, j.salary, j.date, 
-                        j.time_start, j.time_end, j.address, j.is_urgent, e.organization_name, 
-                        j.created_at, u.rating, u.photo, j.xp, j.age, j.car
+                    SELECT j.job_id, j.employer_id, j.title, j.salary, j.address, j.time_start, j.time_end,
+                    EXISTS (
+                            SELECT 1 FROM job_favorites f 
+                            WHERE f.job_id = j.job_id 
+                            AND f.finder_id = %s
+                    ) AS is_favorite, j.is_urgent, j.created_at, u.photo, u.rating, j.car, u.phone, u.tg_username, j.city
                     FROM jobs j
-                    JOIN employers e ON j.employer_id = e.profile_id
-                    JOIN users u ON e.user_id = u.user_id
+                    JOIN employers e ON e.profile_id = j.employer_id
+                    JOIN users u ON u.user_id = e.user_id
                     WHERE j.status = true
                 """
+                params = [finder_id] if finder_id else [None]
 
                 conditions = []
-                params = []
 
                 if wanted_job is not None:
                     conditions.append("j.wanted_job ILIKE %s")
@@ -87,9 +90,13 @@ class FilterDAL(DBConnection):
                     elif age == "старше 14 лет":
                         conditions.append("(j.age = 'старше 14 лет' OR j.age = 'старше 16 лет' OR j.age = 'старше 18 лет')")
 
-                if car is not None:  # Добавили условие для фильтрации по car
+                if car is not None:
                     conditions.append("j.car = %s")
                     params.append(car)
+
+                if city is not None:
+                    conditions.append("j.city ILIKE %s")
+                    params.append(f"%{city}%")
 
                 if conditions:
                     base_query += " AND " + " AND ".join(conditions)

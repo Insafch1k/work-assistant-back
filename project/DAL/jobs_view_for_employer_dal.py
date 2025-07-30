@@ -22,22 +22,29 @@ class Emplyers_Jobs(DBConnection):
             conn.close()
 
     @staticmethod
-    def get_all_jobs(employer_id):
+    def get_all_jobs(employer_id, cities=None):
         conn = Emplyers_Jobs.connect_db()
         try:
             with conn.cursor() as cur:
                 stat = """
-                   SELECT j.job_id, j.employer_id, u.tg_username, u.phone, j.title, j.salary, j.address, j.time_start, j.time_end,
-                   EXISTS (
-                        SELECT 1 FROM job_favorites f 
-                        WHERE f.job_id = j.job_id 
-                        AND f.finder_id = %s
-                   ) AS is_favorite, j.is_urgent, j.created_at, u.photo, u.rating, j.car
-                   FROM jobs j
-                   JOIN employers e ON e.profile_id = j.employer_id
-                   JOIN users u ON u.user_id = e.user_id
-                   ORDER BY j.created_at DESC"""
-                cur.execute(stat, (employer_id, ))
+                    SELECT j.job_id, j.employer_id, u.tg_username, u.phone, j.title, j.salary, j.address, j.time_start, j.time_end,
+                    EXISTS (
+                            SELECT 1 FROM job_favorites f 
+                            WHERE f.job_id = j.job_id 
+                            AND f.finder_id = %s
+                    ) AS is_favorite, j.is_urgent, j.created_at, u.photo, u.rating, j.car, j.city
+                    FROM jobs j
+                    JOIN employers e ON e.profile_id = j.employer_id
+                    JOIN users u ON u.user_id = e.user_id
+                    WHERE j.status = true"""
+                params = [employer_id]
+
+                if cities:
+                    stat += " AND j.city = ANY(%s)"
+                    params.append(cities)
+
+                stat += " ORDER BY j.created_at DESC"
+                cur.execute(stat, params)
                 conn.commit()
                 return cur.fetchall()
         except Exception as e:
@@ -53,13 +60,13 @@ class Emplyers_Jobs(DBConnection):
         try:
             with conn.cursor() as cur:
                 stat = """
-                   SELECT j.job_id, j.employer_id, j.title, j.salary, j.address, j.time_start, j.time_end,
-                   j.is_urgent, j.created_at, j.wanted_job, j.date, j.xp, j.age, j.description, j.car
-                   FROM jobs j
-                   JOIN employers e ON e.profile_id = j.employer_id
-                   JOIN users u ON u.user_id = e.user_id
-                   WHERE j.employer_id = %s
-                   ORDER BY j.created_at DESC"""
+                SELECT j.job_id, j.employer_id, j.title, j.salary, j.address, j.time_start, j.time_end,
+                j.is_urgent, j.created_at, j.wanted_job, j.date, j.xp, j.age, j.description, j.car, j.city
+                FROM jobs j
+                JOIN employers e ON e.profile_id = j.employer_id
+                JOIN users u ON u.user_id = e.user_id
+                WHERE j.employer_id = %s
+                ORDER BY j.created_at DESC"""
                 cur.execute(stat, (employer_id,))
                 conn.commit()
                 return cur.fetchall()
@@ -73,7 +80,7 @@ class Emplyers_Jobs(DBConnection):
     @staticmethod
     def update_my_employer_job(job_id, title=None, wanted_job=None, description=None, salary=None, date=None,
                             time_start=None, time_end=None, address=None, is_urgent=None,
-                            xp=None, age=None, status=None, car=None):  # Добавили параметр car
+                            xp=None, age=None, status=None, car=None, city=None):
         conn = Emplyers_Jobs.connect_db()
         try:
             with conn.cursor() as cur:
@@ -88,7 +95,8 @@ class Emplyers_Jobs(DBConnection):
                     "address": address,
                     "xp": xp, 
                     "age": age, 
-                    "status": status
+                    "status": status,
+                    "city": city
                 }
                 
                 if any(value is not None for value in args.values()):
@@ -117,10 +125,39 @@ class Emplyers_Jobs(DBConnection):
                         cur.execute(stat, params)
                         conn.commit()
                         return True
-            return False
+                return False
         except Exception as e:
             Logger.error(f"Error update my employer job: {str(e)}")
             conn.rollback()
             return None
+        finally:
+            conn.close()
+    
+    @staticmethod
+    def delete_my_employer_job(job_id, employer_id):
+        conn = Emplyers_Jobs.connect_db()
+        try:
+            with conn.cursor() as cur:
+                # Проверяем, что вакансия принадлежит работодателю
+                check_stat = """SELECT 1 FROM jobs WHERE job_id = %s AND employer_id = %s"""
+                cur.execute(check_stat, (job_id, employer_id))
+                if not cur.fetchone():
+                    Logger.error(f"Job {job_id} not found or not owned by employer {employer_id}")
+                    return False
+
+                # Удаляем связанные записи из job_favorites
+                delete_favorites_stat = """DELETE FROM job_favorites WHERE job_id = %s"""
+                cur.execute(delete_favorites_stat, (job_id,))
+
+                # Полностью удаляем вакансию из jobs
+                delete_job_stat = """DELETE FROM jobs WHERE job_id = %s"""
+                cur.execute(delete_job_stat, (job_id,))
+
+                conn.commit()
+                return True
+        except Exception as e:
+            Logger.error(f"Error deleting job {job_id}: {str(e)}")
+            conn.rollback()
+            return False
         finally:
             conn.close()
