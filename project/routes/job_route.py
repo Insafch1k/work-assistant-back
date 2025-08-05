@@ -39,8 +39,19 @@ def create_job():
 
         try:
             if '.' in data['date']:
-                day, month, year = data['date'].split('.')
-                data['date'] = f"{year}-{month}-{day}"
+                day, month, year = data["date"].split('.')
+                data["date"] = f"{year}-{month}-{day}"
+
+            job_date = datetime.strptime(data["date"], "%Y-%m-%d").date()
+            if job_date < datetime.now().date():
+                return jsonify({"error": "Нельзя указывать прошедшую дату для вакансии"}), 400
+
+            if job_date == datetime.now().date():
+                current_time = datetime.now().time()
+                if data["time_start"]:
+                    start_time = datetime.strptime(data["time_start"], "%H:%M").time()
+                    if start_time < current_time:
+                        return jsonify({"error": "Нельзя указывать прошедшее время для вакансии на сегодня"}), 400
         except Exception as e:
             Logger.error(f"Error parsing date: {str(e)}")
             return jsonify({"error": "Неверный формат даты. Используйте DD.MM.YYYY или YYYY-MM-DD"}), 400
@@ -453,6 +464,17 @@ def update_my_job(job_id):
             try:
                 day, month, year = update_data["date"].split('.')
                 update_data["date"] = f"{year}-{month}-{day}"
+
+                job_date = datetime.strptime(update_data["date"], "%Y-%m-%d").date()
+                if job_date < datetime.now().date():
+                    return jsonify({"error": "Нельзя указывать прошедшую дату для вакансии"}), 400
+
+                if job_date == datetime.now().date():
+                    current_time = datetime.now().time()
+                    if data["time_start"]:
+                        start_time = datetime.strptime(data["time_start"], "%H:%M").time()
+                        if start_time < current_time:
+                            return jsonify({"error": "Нельзя указывать прошедшее время для вакансии на сегодня"}), 400
             except ValueError:
                 return jsonify({"error": "Неверный формат даты. Используйте DD.MM.YYYY"}), 400
 

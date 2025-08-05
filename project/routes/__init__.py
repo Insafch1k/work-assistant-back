@@ -11,42 +11,21 @@ from project.routes.job_route import (job_router, filter_router, employer_jobs_r
 
 all_routes = Blueprint("all_routes", __name__, url_prefix="/api")
 
+ROUTERS_CLEAN_LIST = [
+    job_router,
+    filter_router,
+    jobs_see_All_route,
+    history_router,
+    employer_jobs_router,
+    employer_profile_router,
+    finder_jobs_router
+]
+
 all_routes.register_blueprint(auth_router)
 all_routes.register_blueprint(profile_router)
 all_routes.register_blueprint(resume_router)
 all_routes.register_blueprint(favorite_router)
-all_routes.register_blueprint(filter_router)
-all_routes.register_blueprint(job_router)
-all_routes.register_blueprint(jobs_see_All_route)
-all_routes.register_blueprint(history_router)
-all_routes.register_blueprint(employer_jobs_router)
-all_routes.register_blueprint(employer_profile_router)
-all_routes.register_blueprint(finder_jobs_router)
 
-@job_router.before_request
-def run_cleanup():
-    AutoDeleter.delete_expired_jobs()
-
-@filter_router.before_request
-def run_cleanup():
-    AutoDeleter.delete_expired_jobs()
-
-@jobs_see_All_route.before_request
-def run_cleanup():
-    AutoDeleter.delete_expired_jobs()
-
-@history_router.before_request
-def run_cleanup():
-    AutoDeleter.delete_expired_jobs()
-
-@employer_jobs_router.before_request
-def run_cleanup():
-    AutoDeleter.delete_expired_jobs()
-
-@employer_profile_router.before_request
-def run_cleanup():
-    AutoDeleter.delete_expired_jobs()
-
-@finder_jobs_router.before_request
-def run_cleanup():
-    AutoDeleter.delete_expired_jobs()
+for router in ROUTERS_CLEAN_LIST:
+    all_routes.register_blueprint(router)
+    router.before_request(AutoDeleter.delete_expired_jobs)
