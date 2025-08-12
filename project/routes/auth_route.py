@@ -1,7 +1,8 @@
-from project.utils.logger import Logger
+from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
 
+from project.utils.logger import Logger
 from project.DAL.auth_dal import AuthDAL
 from project.BL.auth_bl import validate_register, get_user_data
 
@@ -49,18 +50,17 @@ def login():
         if not user:
             return jsonify({"message": "Пользователь не найден"}), 404
 
-        need_update = False
         update_data = {}
 
         if user[3] != data["user_role"]:
             update_data["user_role"] = data["user_role"]
-            need_update = True
 
         if user[2] != data["tg_username"]:
             update_data["tg_username"] = data["tg_username"]
-            need_update = True
 
-        if need_update:
+        update_data["last_login_at"] = datetime.now()
+
+        if update_data:
             AuthDAL.update_user(data["tg"], **update_data)
             print(update_data)
 

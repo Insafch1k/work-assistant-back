@@ -30,6 +30,14 @@ class MetricsCollector(DBConnection):
                 cur.execute(new_jobs_query, (today,))
                 new_jobs = cur.fetchone()[0]
 
+                # Подсчет уникальных пользователей за текущий день
+                unique_visitors_query = """
+                    SELECT COUNT(DISTINCT user_id) 
+                    FROM users 
+                    WHERE DATE(last_login_at) = %s"""
+                cur.execute(unique_visitors_query, (today,))
+                unique_visitors = cur.fetchone()[0]
+
                 # Проверяем, существует ли запись за текущий день
                 check_query = """
                     SELECT 1 FROM daily_metrics WHERE metric_date = %s
@@ -41,17 +49,17 @@ class MetricsCollector(DBConnection):
                     # Обновляем существующую запись
                     update_query = """
                         UPDATE daily_metrics 
-                        SET new_users = %s, new_jobs = %s
+                        SET new_users = %s, new_jobs = %s, unique_visitors = %s
                         WHERE metric_date = %s
                     """
-                    cur.execute(update_query, (new_users, new_jobs, today))
+                    cur.execute(update_query, (new_users, new_jobs, unique_visitors, today))
                 else:
                     # Создаем новую запись
                     insert_query = """
-                        INSERT INTO daily_metrics (metric_date, new_users, new_jobs)
-                        VALUES (%s, %s, %s)
+                        INSERT INTO daily_metrics (metric_date, new_users, new_jobs, unique_visitors)
+                        VALUES (%s, %s, %s, %s)
                     """
-                    cur.execute(insert_query, (today, new_users, new_jobs))
+                    cur.execute(insert_query, (today, new_users, new_jobs, unique_visitors))
 
                 conn.commit()
                 Logger.info(f"Metrics collected for {today}: {new_users} new users, {new_jobs} new jobs")
