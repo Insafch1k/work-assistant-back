@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from project.DAL.resume_dal import ResumeDAL
-from project.BL.resume_bl import form_response, get_response
+from project.BL.resume_bl import form_response
 
 resume_router = Blueprint("resume_router", __name__)
 
@@ -46,4 +46,4 @@ def get_user_resumes():
     current_user_tg = get_jwt_identity()
 
     resume = ResumeDAL.get_resume_data(current_user_tg)
-    return jsonify(get_response(resume)), 200
+    return jsonify(resume), 200

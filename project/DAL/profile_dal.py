@@ -1,4 +1,5 @@
 from project.utils.db_connection import DBConnection
+from psycopg2 import Error
 class ProfileDAL(DBConnection):
     @staticmethod
     def get_user_role(user_id):
