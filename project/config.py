@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     HOST_NAME: str
     DB_NAME: str
     PORT: str
+    BOT_TOKEN: str
+    CHANNEL_ID: str
 
     class Config:
         env_file = "../.env"

@@ -119,3 +119,157 @@ LINE 1: INSERT INTO users (tg, tg_username, user_role, user_name, ra...
                                ^
 
 2025-07-16T11:47:08.839700+0300 | ERROR | auth_route.py:38 | Error register 'bool' object is not subscriptable
+2025-09-04T21:01:43.386489+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: 'NoneType' object has no attribute 'cursor'
+2025-09-04T21:01:44.516241+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: 'NoneType' object has no attribute 'cursor'
+2025-09-04T21:11:43.533390+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:11:44.557785+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:13:39.478740+0300 | ERROR | metrics_collector.py:61 | Error collecting daily metrics: name 'unique_visitors' is not defined
+2025-09-04T21:13:40.362208+0300 | ERROR | metrics_collector.py:61 | Error collecting daily metrics: name 'unique_visitors' is not defined
+2025-09-04T21:13:56.229546+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:23:39.666340+0300 | ERROR | metrics_collector.py:61 | Error collecting daily metrics: name 'unique_visitors' is not defined
+2025-09-04T21:23:56.387172+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:29:13.592578+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:29:14.654563+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:29:33.158024+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:29:34.207909+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:30:30.916698+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:30:32.148382+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:30:38.404222+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:30:39.666554+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:34:18.860694+0300 | ERROR | auth_route.py:35 | Error register 'tg_username'
+2025-09-04T21:40:38.486857+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:40:39.743327+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "last_login_at" не существует
+LINE 4:                     WHERE DATE(last_login_at) = '2025-09-04'...
+                                       ^
+
+2025-09-04T21:43:49.982077+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "unique_visitors" в таблице "daily_metrics" не существует
+LINE 2: ... daily_metrics (metric_date, new_users, new_jobs, unique_vis...
+                                                             ^
+
+2025-09-04T21:43:50.943232+0300 | ERROR | metrics_collector.py:68 | Error collecting daily metrics: ОШИБКА:  столбец "unique_visitors" в таблице "daily_metrics" не существует
+LINE 2: ... daily_metrics (metric_date, new_users, new_jobs, unique_vis...
+                                                             ^
+
+2025-09-04T21:45:51.340105+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-04: 1 new users, 0 new jobs
+2025-09-04T21:45:52.739997+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-04: 1 new users, 0 new jobs
+2025-09-04T21:55:51.447148+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-04: 1 new users, 0 new jobs
+2025-09-04T21:55:52.828066+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-04: 1 new users, 0 new jobs
+2025-09-04T21:57:38.900857+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-04: 1 new users, 0 new jobs
+2025-09-04T21:57:39.546426+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-04: 1 new users, 0 new jobs
+2025-09-04T21:59:52.094990+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-04: 1 new users, 0 new jobs
+2025-09-04T22:03:31.339443+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-04: 1 new users, 0 new jobs
+2025-09-04T22:07:38.992004+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-04: 1 new users, 0 new jobs
+2025-09-04T22:13:31.435363+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-04: 1 new users, 0 new jobs
+2025-09-08T16:01:03.051899+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:01:04.749681+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:11:03.188128+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:11:04.878145+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:21:03.373944+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:21:05.062038+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:31:03.537179+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:31:05.229203+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:41:03.723491+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:41:05.424991+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:51:04.017203+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T16:51:05.630876+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T18:35:00.119375+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T18:35:01.745032+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T18:37:29.210131+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T18:37:30.221900+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 0 new users, 0 new jobs
+2025-09-08T18:39:57.072974+0300 | ERROR | auth_route.py:35 | Error register 415 Unsupported Media Type: Did not attempt to load JSON data because the request Content-Type was not 'application/json'.
+2025-09-08T18:47:29.376981+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T18:47:30.396361+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T18:57:29.548739+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T18:57:30.552200+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:01:39.441131+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:01:55.122586+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:07:29.711993+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:11:55.295143+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:17:29.880883+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:21:55.457621+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:27:30.055113+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:31:55.551827+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:37:30.308739+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:41:55.754324+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:47:30.529622+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T19:51:55.917343+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T20:00:07.447245+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T20:09:50.020484+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T20:09:50.908166+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 1 new users, 0 new jobs
+2025-09-08T20:19:50.099391+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 2 new users, 0 new jobs
+2025-09-08T20:19:50.996934+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 2 new users, 0 new jobs
+2025-09-08T20:29:50.202654+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 2 new users, 0 new jobs
+2025-09-08T20:29:51.097907+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 2 new users, 0 new jobs
+2025-09-08T20:36:11.179782+0300 | INFO | job_route.py:33 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и документов по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2024-01-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Санкт-Петербург', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-08T20:36:33.441158+0300 | INFO | job_route.py:33 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и документов по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Санкт-Петербург', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-08T20:39:50.314942+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 4 new users, 1 new jobs
+2025-09-08T20:39:51.210341+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 4 new users, 1 new jobs
+2025-09-08T20:41:21.211969+0300 | INFO | job_route.py:33 | Received data: {'title': 'sfdsd', 'wanted_job': 'Шабашка', 'description': 'dsgfsd', 'salary': 300, 'date': '10.09.2025', 'time_start': '12:00', 'time_end': '15:00', 'address': 'г Казань, ул Академика Кирпичникова', 'is_urgent': False, 'xp': 'Нет опыта', 'age': 'старше 18 лет', 'car': False, 'city': 'Казань'}
+2025-09-08T20:47:07.903900+0300 | INFO | job_route.py:109 | Filter request data: {'city': 'Казань'}
+2025-09-08T20:49:50.415747+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 5 new users, 2 new jobs
+2025-09-08T20:49:51.305461+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-08: 5 new users, 2 new jobs
+2025-09-09T23:17:41.261091+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:17:44.080027+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:22:01.278234+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:23:14.844685+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:23:17.990169+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:28:55.057510+0300 | ERROR | auth_dal.py:18 | Error getting user: ОШИБКА:  оператор не существует: text = bigint
+LINE 2:                           FROM users WHERE tg = 3123212344
+                                                      ^
+HINT:  Оператор с данными именем и типами аргументов не найден. Возможно, вам следует добавить явные приведения типов.
+
+2025-09-09T23:31:55.642815+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:33:14.941971+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:34:38.900727+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:35:28.168150+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:35:31.370280+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:36:37.099983+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:36:40.096291+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 0 new jobs
+2025-09-09T23:36:49.878001+0300 | INFO | job_route.py:37 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Санкт-Петербург', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-09T23:39:37.044314+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 1 new jobs
+2025-09-09T23:39:40.053358+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 1 new jobs
+2025-09-09T23:40:05.093988+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Санкт-Петербург', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-09T23:43:17.283017+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 2 new jobs
+2025-09-09T23:46:22.015706+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 2 new jobs
+2025-09-09T23:46:22.167711+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Санкт-Петербург', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-09T23:47:05.171213+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 3 new jobs
+2025-09-09T23:49:37.114638+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-09: 0 new users, 3 new jobs

@@ -1,5 +1,9 @@
+import asyncio
+from threading import Thread
+
 from project.utils.logger import Logger
 from datetime import datetime, time, timedelta
+
 
 def time_calculate(time_start, time_end):
     try:
@@ -35,3 +39,10 @@ def time_calculate(time_start, time_end):
     except (ValueError, TypeError, AttributeError) as e:
         Logger.error(f"Error time calculate {str(e)}")
         return None
+
+
+def run_async(coro):
+    def run():
+        asyncio.run(coro)
+
+    Thread(target=run).start()
