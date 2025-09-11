@@ -42,7 +42,10 @@ def time_calculate(time_start, time_end):
 
 
 def run_async(coro):
-    def run():
-        asyncio.run(coro)
-
-    Thread(target=run).start()
+    """Запуск асинхронной функции в отдельном event loop"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        return loop.run_until_complete(coro)
+    finally:
+        loop.close()

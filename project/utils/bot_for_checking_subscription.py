@@ -1,21 +1,20 @@
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.enums import ChatMemberStatus
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, WebAppInfo, InlineKeyboardMarkup, LoginUrl
 import asyncio
 from project.utils.logger import Logger
 from project.config import settings
 
 BOT_TOKEN = settings.BOT_TOKEN
-CHANNEL_ID = settings.CHANNEL_ID
+CHANNEL_ID_KAZAN = settings.CHANNEL_ID_KAZAN
+
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-
+# В отдельный файл
 def format_job_message(job_data):
-    """Форматирование данных о вакансии в HTML"""
-    # Форматируем дату для читаемости
     created_at = job_data.get('created_at', '')
     if created_at:
         try:
@@ -47,32 +46,69 @@ def format_job_message(job_data):
 
     return message
 
-async def check_user_subscription(user_id: int) -> bool:
-    try:
-        member = await bot.get_chat_member(
-            chat_id=CHANNEL_ID,
-            user_id=user_id
-        )
+# async def check_user_subscription(user_id: int) -> bool:
+#     try:
+#         member = await bot.get_chat_member(
+#             chat_id=CHANNEL_ID,
+#             user_id=user_id
+#         )
+#
+#         return member.status in [
+#             ChatMemberStatus.MEMBER,
+#             ChatMemberStatus.ADMINISTRATOR,
+#             ChatMemberStatus.CREATOR
+#         ]
+#
+#     except Exception as e:
+#         print(f"Ошибка: {e}")
+#         return False
 
-        return member.status in [
-            ChatMemberStatus.MEMBER,
-            ChatMemberStatus.ADMINISTRATOR,
-            ChatMemberStatus.CREATOR
-        ]
-
-    except Exception as e:
-        print(f"Ошибка: {e}")
-        return False
+# В отдельный файл
+def which_city_send_message(city):
+    city = city.lower().strip()
+    if city == "казань":
+        return settings.CHANNEL_ID_KAZAN
+    elif city == "набережные-челны":
+        return settings.CHANNEL_ID_CHELNY
+    else:
+        Logger.error(f"Неизвестный город: {city}")
+        return None
 
 
 async def send_to_channel(message_json):
-    """Функция для отправки сообщения в канал"""
     try:
-        await bot.send_message(chat_id=CHANNEL_ID, text=format_job_message(message_json), parse_mode="HTML")
+        # Создаем НОВОГО бота для этого вызова
+        temp_bot = Bot(token=settings.BOT_TOKEN)
+
+        web_app_button = InlineKeyboardButton(
+            text="Посмотреть объявление",
+            web_app=WebAppInfo(url="https://app.podrabot.ru/app/"),
+        )
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_button]])
+
+        if not message_json.get("city"):
+            Logger.error("Город не указан в message_json")
+            return False
+
+        channel_id = which_city_send_message(message_json["city"])
+        if not channel_id:
+            Logger.error(f"Не найден channel_id для города: {message_json['city']}")
+            return False
+
+        await temp_bot.send_message(
+            chat_id=channel_id,
+            text=format_job_message(message_json),
+            parse_mode="HTML",
+            # reply_markup=keyboard
+        )
+
+        await temp_bot.session.close()
         return True
+
     except Exception as e:
         Logger.error(f"Ошибка отправки в канал: {e}")
         return False
+
 
 
 async def main():
