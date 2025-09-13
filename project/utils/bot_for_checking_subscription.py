@@ -44,7 +44,7 @@ def format_job_message(job_data):
     # Добавляем дату
     message += f"<b>📅 Опубликовано:</b> {formatted_date_of_creation}\n\n"
 
-    message += f'<a href="https://t.me/PodrabotaiBot">Посмотреть объявления</a>'
+    message += f'<a href="https://t.me/PodrabotaiBot">Написать работодателю</a>'
 
     return message
 
