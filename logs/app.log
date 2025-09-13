@@ -321,3 +321,91 @@ HINT:  Оператор с данными именем и типами аргу�
 2025-09-12T00:26:38.366174+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-12: 0 new users, 8 new jobs
 2025-09-12T00:26:39.172618+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
 2025-09-12T00:27:01.518312+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Набережные-челны', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-12T00:35:37.563159+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-12: 0 new users, 10 new jobs
+2025-09-12T00:35:42.225039+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-12: 0 new users, 10 new jobs
+2025-09-12T00:39:46.114120+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-12: 0 new users, 10 new jobs
+2025-09-12T00:39:50.670091+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-12: 0 new users, 10 new jobs
+2025-09-13T15:45:20.260036+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 0 new jobs
+2025-09-13T15:45:23.330168+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 0 new jobs
+2025-09-13T15:47:08.139768+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T15:47:09.652803+0300 | ERROR | bot_for_checking_subscription.py:112 | Ошибка отправки в канал: Telegram server says - Bad Request: can't parse entities: Unexpected end of name token at byte offset 456
+2025-09-13T15:55:52.683075+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 1 new jobs
+2025-09-13T15:55:58.463111+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 1 new jobs
+2025-09-13T15:56:01.241821+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 1 new jobs
+2025-09-13T15:56:17.347962+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T15:57:01.540294+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 2 new jobs
+2025-09-13T15:57:04.477309+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 2 new jobs
+2025-09-13T15:57:32.481288+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Набережные-челны', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T15:57:49.900895+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T15:58:02.412269+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Москва', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T15:58:02.896311+0300 | ERROR | bot_for_checking_subscription.py:77 | Неизвестный город: москва
+2025-09-13T15:58:02.896311+0300 | ERROR | bot_for_checking_subscription.py:99 | Не найден channel_id для города: Москва
+2025-09-13T16:04:34.997386+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:07:01.633305+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:08:48.769079+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:11:03.399707+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:17:01.718353+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:21:04.010262+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:22:27.047431+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:27:01.802865+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:30:17.123934+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:32:21.166549+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:33:50.007366+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:35:51.151907+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:36:28.298466+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:36:31.285278+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 5 new jobs
+2025-09-13T16:36:58.756998+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Москва', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T16:36:59.259480+0300 | ERROR | bot_for_checking_subscription.py:82 | Неизвестный город: москва
+2025-09-13T16:36:59.259480+0300 | ERROR | bot_for_checking_subscription.py:104 | Не найден channel_id для города: Москва
+2025-09-13T16:37:14.138717+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Москва', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T16:37:14.735715+0300 | ERROR | bot_for_checking_subscription.py:82 | Неизвестный город: москва
+2025-09-13T16:37:14.735715+0300 | ERROR | bot_for_checking_subscription.py:104 | Не найден channel_id для города: Москва
+2025-09-13T16:37:22.619690+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T16:46:01.845582+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 8 new jobs
+2025-09-13T16:46:28.405549+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 8 new jobs
+2025-09-13T16:56:01.958533+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 8 new jobs
+2025-09-13T16:56:28.493189+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 8 new jobs
+2025-09-13T16:59:23.987983+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 8 new jobs
+2025-09-13T16:59:48.266794+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 8 new jobs
+2025-09-13T17:00:21.986573+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 8 new jobs
+2025-09-13T17:01:16.090006+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 8 new jobs
+2025-09-13T17:01:19.089578+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 8 new jobs
+2025-09-13T17:01:36.316583+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T17:05:27.693839+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 9 new jobs
+2025-09-13T17:05:31.071348+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 9 new jobs
+2025-09-13T17:05:31.185733+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T17:20:59.986300+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 10 new jobs
+2025-09-13T17:21:03.071513+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 10 new jobs
+2025-09-13T17:21:07.373222+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T17:22:48.033545+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 11 new jobs
+2025-09-13T17:25:15.448974+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 11 new jobs
+2025-09-13T17:25:18.798940+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 11 new jobs
+2025-09-13T17:25:25.738624+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T17:28:12.066149+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 12 new jobs
+2025-09-13T17:32:52.342879+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 12 new jobs
+2025-09-13T17:32:55.706590+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 12 new jobs
+2025-09-13T17:33:06.048247+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T17:33:06.654269+0300 | ERROR | bot_for_checking_subscription.py:136 | Ошибка отправки в канал: strptime() argument 1 must be str, not datetime.datetime
+2025-09-13T17:35:35.084697+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 13 new jobs
+2025-09-13T17:35:38.259559+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 13 new jobs
+2025-09-13T17:35:48.018043+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T17:40:37.837040+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Набережные-челны', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T20:09:34.209564+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 15 new jobs
+2025-09-13T20:09:37.395057+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 15 new jobs
+2025-09-13T20:09:51.647042+0300 | INFO | job_route.py:36 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Набережные-челны', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-13T20:19:34.295317+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T20:19:37.508843+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T20:29:34.396228+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T20:29:37.599572+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T20:39:34.478086+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T20:39:37.693040+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T20:49:34.587870+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T20:49:37.776863+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T20:52:37.536542+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T20:59:34.819107+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T21:02:37.734950+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T21:09:35.002772+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T21:12:37.920717+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T21:19:35.199927+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T21:22:38.112666+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
+2025-09-13T21:49:34.582841+0300 | INFO | metrics_collector.py:65 | Metrics collected for 2025-09-13: 0 new users, 16 new jobs
