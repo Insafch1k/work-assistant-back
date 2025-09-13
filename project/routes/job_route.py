@@ -5,7 +5,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from datetime import datetime, time
 
 from project.utils.bot_for_checking_subscription import send_to_channel
-from project.BL.job_bl import time_calculate
+from project.BL.job_bl import time_calculate, JobBL
 from project.BL.job_bl import run_async
 from project.DAL.job_dal import JobDAL
 from project.DAL.filter_dal import FilterDAL
@@ -59,42 +59,13 @@ def create_job():
             Logger.error(f"Error parsing date: {str(e)}")
             return jsonify({"error": "Неверный формат даты. Используйте DD.MM.YYYY или YYYY-MM-DD"}), 400
 
-        new_job = JobDAL.add_job(
-            curr_id,
-            data["title"],
-            data["wanted_job"],
-            data["description"],
-            data["salary"],
-            data["date"],
-            data["time_start"],
-            data["time_end"],
-            data["address"],
-            data["city"],  # Добавляем город
-            data.get("is_urgent", False),
-            data["xp"],
-            data["age"],
-            data.get("car", False)
-        )
+        new_job = JobBL.add_job(curr_id, data)
 
         if not new_job:
             return jsonify({"error": "Не удалось создать вакансию"}), 500
 
-        response_data = {
-            "job_id": new_job[0],
-            "title": new_job[1],
-            "wanted_job": new_job[2],
-            "salary": new_job[3],
-            "time_start": str(new_job[4]) if new_job[4] else None,
-            "time_end": str(new_job[5]) if new_job[5] else None,
-            "created_at": new_job[6].isoformat() if new_job[6] else None,
-            "address": new_job[7],
-            "city": new_job[8],  # Добавляем город
-            "car": new_job[9],
-            "message": "Объявление успешно создано"
-        }
-
-        run_async(send_to_channel(response_data))
-        return jsonify(response_data), 200
+        run_async(send_to_channel(new_job))
+        return jsonify(new_job), 200
     except Exception as e:
         Logger.error(f"Error creating job: {str(e)}")
         return jsonify({"error": f"Ошибка при создании вакансии: {str(e)}"}), 500

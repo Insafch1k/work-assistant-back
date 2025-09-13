@@ -36,7 +36,8 @@ class JobDAL(DBConnection):
                                 date, time_start, time_end, address, city, is_urgent, xp, age, car, status
                         )
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, true)
-                        RETURNING job_id, title, wanted_job, salary, time_start, time_end, created_at, address, city, car"""
+                        RETURNING job_id, title, wanted_job, description, salary, date, time_start, time_end, created_at, 
+                        address, city, car, is_urgent, xp, age"""
                 cur.execute(stat, (
                     employer_id, title, wanted_job, description, salary, 
                     date, time_start_str, time_end_str, address, city, is_urgent, 
@@ -47,7 +48,17 @@ class JobDAL(DBConnection):
                 if not result:
                     Logger.error("Failed to create job - no data returned")
                     return None
-                return result
+
+                columns = [desc[0] for desc in cur.description]
+                job_dict = dict(zip(columns, result))
+
+                # Дополнительная обработка полей
+                job_dict['time_start'] = str(job_dict['time_start']) if job_dict.get('time_start') else None
+                job_dict['time_end'] = str(job_dict['time_end']) if job_dict.get('time_end') else None
+                job_dict['created_at'] = job_dict['created_at'].isoformat() if job_dict.get('created_at') else None
+
+                return job_dict
+
         except Exception as e:
             Logger.error(f"Error adding job: {str(e)}")
             conn.rollback()
