@@ -26,6 +26,11 @@ class JobBL:
         )
         new_job['message'] = "Объявление успешно создано"
         return new_job
+
+# Комментарий для теста при слиянии
+def test_for_merge(number):
+    return number
+
 def time_calculate(time_start, time_end):
     try:
         if isinstance(time_start, datetime) and isinstance(time_end, datetime):
