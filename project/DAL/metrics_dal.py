@@ -39,7 +39,7 @@ class MetricsDAL(DBConnection):
 
         # Запрос для разных метрик
         metric_queries = {
-            'total_users': """
+            'registered_users': """
                     WITH periods AS (
                         SELECT generate_series(
                             date_trunc(%s, now()) - (%s || ' ' || %s)::interval,
@@ -60,7 +60,7 @@ class MetricsDAL(DBConnection):
                     ORDER BY p.period DESC
                 """,
 
-            'daily_active_users': """
+            'active_users': """
                     WITH periods AS (
                         SELECT generate_series(
                             date_trunc(%s, now()) - (%s || ' ' || %s)::interval,
@@ -116,7 +116,7 @@ class MetricsDAL(DBConnection):
                     FROM periods p
                     LEFT JOIN events e ON 
                         date_trunc(%s, e.timestamp) = p.period
-                        AND e.event_name = 'response_sent'
+                        AND e.event_name = 'vacancy_sent'
                     GROUP BY p.period
                     ORDER BY p.period DESC
                 """,
@@ -136,7 +136,7 @@ class MetricsDAL(DBConnection):
                             date_trunc(%s, e.timestamp) as period,
                             COUNT(*) as responses_count
                         FROM events e 
-                        WHERE e.event_name = 'response_sent'
+                        WHERE e.event_name = 'vacancy_sent'
                         GROUP BY date_trunc(%s, e.timestamp)
                     ),
                     users AS (

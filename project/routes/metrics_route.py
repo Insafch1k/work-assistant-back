@@ -38,9 +38,15 @@ def track_event():
 def get_metrics(metric_name: str):
     """
     Получение метрик с различной гранулярностью
+    Типы метрик: 'registered_users' - зарегестрированные,
+    'active_users' - уникальные пользователи,
+    'new_vacancies' - новые вакансии,
+    'responses_count' - отклики на вакансии,
+    'response_rate' - отношение откл/уникальный пользователей
+
     Параметры:
-        ?period=day (hour, day, month, year)
-        ?limit=30 (количество периодов)
+    ?period=day (hour, day, month, year)
+    ?limit=30 (количество периодов)
     """
     try:
         period_type = request.args.get('period', 'day')
