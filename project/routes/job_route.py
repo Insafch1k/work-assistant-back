@@ -1,4 +1,6 @@
+from project.BL.metrics_bl import MetricsBL
 from project.utils.logger import Logger
+from project.utils.metric_events import MetricEvents
 from project.utils.photo_transform import photo_url_convert
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -75,7 +77,7 @@ def create_job():
 
         if not new_job:
             return jsonify({"error": "Не удалось создать вакансию"}), 500
-
+        MetricsBL.track_metric(MetricEvents.VacancyPublished,current_user_tg)
         response_data = {
             "job_id": new_job[0],
             "title": new_job[1],

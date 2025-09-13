@@ -2,9 +2,11 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
 
+from project.BL.metrics_bl import MetricsBL
 from project.utils.logger import Logger
 from project.DAL.auth_dal import AuthDAL
 from project.BL.auth_bl import validate_register, get_user_data
+from project.utils.metric_events import MetricEvents
 
 auth_router = Blueprint("auth_router", __name__)
 
@@ -25,7 +27,7 @@ def register():
         user = get_user_data(temp_data)
         AuthDAL.add_finder(list(user.values())[0])
         AuthDAL.add_employer(list(user.values())[0])
-
+        MetricsBL.track_metric(MetricEvents.UserRegistered, data["tg"])
         access_token = create_access_token(identity=str(data["tg"]))
         return jsonify({
             "message": "Вы успешно зарегистрированы",
