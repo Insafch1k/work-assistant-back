@@ -77,7 +77,7 @@ def create_job():
 
         if not new_job:
             return jsonify({"error": "Не удалось создать вакансию"}), 500
-        MetricsBL.track_metric(MetricEvents.VacancyPublished,current_user_tg)
+        MetricsBL.track_metric(MetricEvents.VacancyPublished,curr_id)
         response_data = {
             "job_id": new_job[0],
             "title": new_job[1],
