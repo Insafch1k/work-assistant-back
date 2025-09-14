@@ -27,8 +27,8 @@ def register():
         user = get_user_data(temp_data)
         AuthDAL.add_finder(list(user.values())[0])
         AuthDAL.add_employer(list(user.values())[0])
-        MetricsBL.track_metric(MetricEvents.UserRegistered, data["tg"])
-        access_token = create_access_token(identity=str(data["tg"]))
+        MetricsBL.track_metric(MetricEvents.UserRegistered, user.id)
+        access_token = create_access_token(identity=str(data["user_id"]))
         return jsonify({
             "message": "Вы успешно зарегистрированы",
             "access_token": access_token
