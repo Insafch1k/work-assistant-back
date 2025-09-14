@@ -56,6 +56,7 @@ class JobDAL(DBConnection):
                 job_dict['time_start'] = str(job_dict['time_start']) if job_dict.get('time_start') else None
                 job_dict['time_end'] = str(job_dict['time_end']) if job_dict.get('time_end') else None
                 job_dict['created_at'] = job_dict['created_at'].isoformat() if job_dict.get('created_at') else None
+                job_dict['date'] = job_dict['date'].isoformat() if job_dict.get('date') else None
 
                 return job_dict
 

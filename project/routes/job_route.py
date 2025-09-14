@@ -1,4 +1,5 @@
 from project.BL.metrics_bl import MetricsBL
+from project.utils.bot_for_checking_subscription import send_to_channel
 from project.utils.logger import Logger
 from project.utils.metric_events import MetricEvents
 from project.utils.photo_transform import photo_url_convert
@@ -6,7 +7,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from datetime import datetime, time
 
-from project.BL.job_bl import time_calculate
+from project.BL.job_bl import time_calculate, JobBL, run_async
 from project.DAL.job_dal import JobDAL
 from project.DAL.filter_dal import FilterDAL
 from project.DAL.history_dal import HistoryDAL
@@ -21,6 +22,7 @@ jobs_see_All_route = Blueprint("jobs_see_All_route", __name__)
 employer_jobs_router = Blueprint("employer_jobs_router", __name__)
 finder_jobs_router = Blueprint("finder_jobs_router", __name__)
 
+
 @job_router.route("/jobs", methods=["POST"])
 @jwt_required()
 def create_job():
@@ -34,8 +36,8 @@ def create_job():
         data = request.get_json()
         Logger.info(f"Received data: {data}")
 
-        required_fields = ["title", "wanted_job", "description", "salary", "date", 
-                         "time_start", "time_end", "address", "city", "xp", "age", "car"]
+        required_fields = ["title", "wanted_job", "description", "salary", "date",
+                           "time_start", "time_end", "address", "city", "xp", "age", "car"]
         if any(field not in data or data[field] is None for field in required_fields):
             return jsonify({"error": "Неправильно заполнены поля"}), 400
 
@@ -58,44 +60,18 @@ def create_job():
             Logger.error(f"Error parsing date: {str(e)}")
             return jsonify({"error": "Неверный формат даты. Используйте DD.MM.YYYY или YYYY-MM-DD"}), 400
 
-        new_job = JobDAL.add_job(
-            curr_id, 
-            data["title"], 
-            data["wanted_job"], 
-            data["description"],
-            data["salary"], 
-            data["date"], 
-            data["time_start"], 
-            data["time_end"], 
-            data["address"],
-            data["city"],  # Добавляем город
-            data.get("is_urgent", False),
-            data["xp"], 
-            data["age"], 
-            data.get("car", False)
-        )
+        new_job = JobBL.add_job(curr_id, data)
+        run_async(send_to_channel(new_job))
 
         if not new_job:
             return jsonify({"error": "Не удалось создать вакансию"}), 500
-        MetricsBL.track_metric(MetricEvents.VacancyPublished,curr_id)
-        response_data = {
-            "job_id": new_job[0],
-            "title": new_job[1],
-            "wanted_job": new_job[2],
-            "salary": new_job[3],
-            "time_start": str(new_job[4]) if new_job[4] else None,
-            "time_end": str(new_job[5]) if new_job[5] else None,
-            "created_at": new_job[6].isoformat() if new_job[6] else None,
-            "address": new_job[7],
-            "city": new_job[8],  # Добавляем город
-            "car": new_job[9],
-            "message": "Объявление успешно создано"
-        }
+        MetricsBL.track_metric(MetricEvents.VacancyPublished, curr_id)
 
-        return jsonify(response_data), 200
+        return jsonify(new_job), 200
     except Exception as e:
         Logger.error(f"Error creating job: {str(e)}")
         return jsonify({"error": f"Ошибка при создании вакансии: {str(e)}"}), 500
+
 
 @filter_router.route("/jobs/filter", methods=["POST"])
 @jwt_required()
@@ -143,8 +119,8 @@ def filter_jobs():
             except ValueError:
                 return jsonify({"error": "Неверный формат даты. Используйте DD.MM.YYYY или YYYY-MM-DD"}), 400
 
-        if all(v is None for v in [wanted_job, address, time_start, time_end, date, 
-                                  salary, salary_to, is_urgent, xp, age, car, city]):
+        if all(v is None for v in [wanted_job, address, time_start, time_end, date,
+                                   salary, salary_to, is_urgent, xp, age, car, city]):
             return jsonify({"error": "Хотя бы один параметр фильтрации должен быть указан"}), 400
 
         jobs = FilterDAL.get_filtered_jobs(
@@ -169,7 +145,7 @@ def filter_jobs():
         jobs_json = []
         for job in jobs:
             hours = time_calculate(job[5], job[6]) if job[5] and job[6] else None
-            
+
             job_data = {
                 "job_id": job[0],
                 "employer_id": job[1],
@@ -192,6 +168,7 @@ def filter_jobs():
     except Exception as e:
         Logger.error(f"Error filtering jobs: {str(e)}")
         return jsonify({"error": f"Ошибка при фильтрации вакансий: {str(e)}"}), 500
+
 
 @history_router.route("/jobs/<int:job_id>/view", methods=["POST"])
 @jwt_required()
@@ -218,6 +195,7 @@ def add_job_view(job_id):
         return jsonify({
             "message": f"Error add job view {str(e)}"
         }), 500
+
 
 @history_router.route("/jobs/history", methods=["GET"])
 @jwt_required()
@@ -265,6 +243,7 @@ def get_view_history():
             "message": f"Ошибка при получении истории просмотров: {str(e)}"
         }), 500
 
+
 @jobs_see_All_route.route("/jobs/<int:job_id>/seeall", methods=["GET"])
 @jwt_required()
 def get_job_seeAll_finders(job_id):
@@ -300,6 +279,7 @@ def get_job_seeAll_finders(job_id):
     }
 
     return jsonify(job_json), 200
+
 
 @employer_jobs_router.route("/jobs/employers", methods=["GET"])
 @jwt_required()
@@ -344,6 +324,7 @@ def get_jobs_for_employers():
         Logger.error(f"Ошибка при получении вакансий для работодателя: {str(e)}")
         return jsonify({"message": f"Ошибка при получении вакансий для работодателя: {str(e)}"}), 500
 
+
 @finder_jobs_router.route("/jobs/finders", methods=["GET"])
 @jwt_required()
 def get_jobs_for_finders():
@@ -386,6 +367,7 @@ def get_jobs_for_finders():
             "message": f"Error get jobs for finders {str(e)}"
         }), 500
 
+
 @employer_jobs_router.route("/jobs/me", methods=["GET"])
 @jwt_required()
 def get_my_jobs():
@@ -402,7 +384,7 @@ def get_my_jobs():
         jobs_list = []
         for job in jobs:
             hours = time_calculate(job[5], job[6]) if len(job) > 6 and job[5] and job[6] else None
-            
+
             job_data = {
                 "job_id": job[0],
                 "employer_id": job[1],
@@ -428,6 +410,7 @@ def get_my_jobs():
     except Exception as e:
         Logger.error(f"Ошибка при получении моих вакансий: {str(e)}")
         return jsonify({"message": f"Ошибка при получении моих вакансий: {str(e)}"}), 500
+
 
 @employer_jobs_router.route('/jobs/me/<int:job_id>', methods=["PATCH"])
 @jwt_required()
@@ -508,7 +491,8 @@ def update_my_job(job_id):
     except Exception as e:
         Logger.error(f"Error updating job: {str(e)}")
         return jsonify({"error": f"Ошибка при обновлении вакансии: {str(e)}"}), 500
-    
+
+
 @employer_jobs_router.route('/jobs/me/<int:job_id>', methods=["DELETE"])
 @jwt_required()
 def delete_my_job(job_id):
