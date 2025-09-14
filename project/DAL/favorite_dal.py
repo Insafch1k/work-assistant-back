@@ -1,5 +1,6 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
+
 
 class FavoriteDAL(DBConnection):
     @staticmethod
@@ -14,57 +15,10 @@ class FavoriteDAL(DBConnection):
                 cur.execute(stat, (tg,))
                 conn.commit()
                 return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении id соискателя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get finder_id by tg {str(e)}")
             conn.rollback()
-        finally:
-            conn.close()
-
-    @staticmethod
-    def check_job(job_id):
-        conn = FavoriteDAL.connect_db()
-        try:
-            with conn.cursor() as cur:
-                stat = """SELECT 1 FROM jobs WHERE job_id = %s"""
-                cur.execute(stat, (job_id,))
-                conn.commit()
-                return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при проверке существования вакансии: {e}")
-            conn.rollback()
-        finally:
-            conn.close()
-
-    @staticmethod
-    def get_status_job(job_id):
-        conn = FavoriteDAL.connect_db()
-        try:
-            with conn.cursor() as cur:
-                stat = """SELECT favorite_by FROM jobs WHERE job_id = %s"""
-                cur.execute(stat, (job_id,))
-                conn.commit()
-                return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении статуса вакансии: {e}")
-            conn.rollback()
-        finally:
-            conn.close()
-
-    @staticmethod
-    def update_favorite_status(favorite_by, job_id):
-        conn = FavoriteDAL.connect_db()
-        try:
-            with conn.cursor() as cur:
-                stat = """UPDATE jobs 
-                          SET favorite_by = %s 
-                          WHERE job_id = %s
-                          RETURNING job_id, title, favorite_by"""
-                cur.execute(stat, (favorite_by, job_id,))
-                conn.commit()
-                return cur.fetchone()
-        except Error as e:
-            print(f"Ошибка при проверке существования вакансии: {e}")
-            conn.rollback()
+            return False
         finally:
             conn.close()
 
@@ -73,16 +27,57 @@ class FavoriteDAL(DBConnection):
         conn = FavoriteDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT j.job_id, j.title, j.salary, j.address, j.time_start, j.time_end
-                          FROM jobs j
+                stat = """SELECT f.favorite_id, j.job_id, j.title, j.salary, j.time_start, j.time_end, 
+                            j.address, u.rating, u.photo, j.is_urgent
+                          FROM job_favorites f
+                          JOIN jobs j ON f.job_id = j.job_id
                           JOIN employers e ON j.employer_id = e.profile_id
-                          WHERE j.status = 'active' AND %s = ANY(j.favorite_by)
+                          JOIN users u ON e.user_id = u.user_id
+                          WHERE f.finder_id = %s AND j.status = true
                           ORDER BY j.created_at DESC"""
                 cur.execute(stat, (finder_id,))
                 conn.commit()
                 return cur.fetchall()
-        except Error as e:
-            print(f"Ошибка при проверке существования вакансии: {e}")
+        except Exception as e:
+            Logger.error(f"Error get favorite list {str(e)}")
             conn.rollback()
+            return False
+        finally:
+            conn.close()
+
+    @staticmethod
+    def add_job_favorite(curr_id, job_id):
+        conn = FavoriteDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """INSERT INTO job_favorites (finder_id, job_id)
+                          VALUES (%s, %s)
+                          ON CONFLICT (finder_id, job_id) DO NOTHING
+                          RETURNING favorite_id, finder_id, job_id, created_at"""
+                cur.execute(stat, (curr_id, job_id,))
+                conn.commit()
+                return cur.fetchone()
+        except Exception as e:
+            Logger.error(f"Error add job favorite {str(e)}")
+            conn.rollback()
+            return False
+        finally:
+            conn.close()
+
+    @staticmethod
+    def delete_favorite_job(finder_id, job_id):
+        conn = FavoriteDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """DELETE FROM job_favorites
+                          WHERE finder_id = %s AND job_id = %s
+                          RETURNING finder_id, job_id"""
+                cur.execute(stat, (finder_id, job_id))
+                conn.commit()
+                return cur.fetchall()
+        except Exception as e:
+            Logger.error(f"Error add job favorite {str(e)}")
+            conn.rollback()
+            return False
         finally:
             conn.close()

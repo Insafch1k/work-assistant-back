@@ -1,5 +1,5 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
 
 class Jobs(DBConnection):
     @staticmethod
@@ -13,29 +13,43 @@ class Jobs(DBConnection):
                           WHERE u.tg = %s"""
                 cur.execute(stat, (tg,))
                 conn.commit()
-                return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении id соискателя: {e}")
+                result = cur.fetchone()
+                return result[0] if result else None
+        except Exception as e:
+            Logger.error(f"Error get finder_id by tg {str(e)}")
             conn.rollback()
+            return None
         finally:
             conn.close()
 
     @staticmethod
-    def get_job_seeAll(job_id):
+    def get_job_seeAll(finder_id, job_id):
         conn = Jobs.connect_db()
         try:
             with conn.cursor() as cur:
                 stat = """
-                    SELECT j.title, j.salary, j.address, j.time_start, j.time_end, j.is_urgent,
-                    j.work_xp, j.age_dis
+                    SELECT j.title, j.salary, j.address, j.date, j.time_start, j.time_end, j.is_urgent, 
+                    j.xp, j.age, j.description, j.car,
+                    EXISTS (
+                        SELECT 1 FROM job_favorites f 
+                        WHERE f.job_id = j.job_id 
+                        AND f.finder_id = %s
+                    ) AS is_favorite,
+                    j.wanted_job,
+                    u.user_name,
+                    u.phone,
+                    u.tg_username
                     FROM jobs j
+                    JOIN employers e ON e.profile_id = j.employer_id
+                    JOIN users u ON u.user_id = e.user_id
                     WHERE j.job_id = %s
                     """
-                cur.execute(stat, (job_id, ))
+                cur.execute(stat, (finder_id, job_id,))
                 conn.commit()
                 return cur.fetchall()
-        except Error as e:
-            print(f"Ошибка получения подробнее обьявления из БД {e}")
+        except Exception as e:
+            Logger.error(f"Error get job seeAll {str(e)}")
+            conn.rollback()
             return None
         finally:
             conn.close()

@@ -1,5 +1,5 @@
 from project.utils.db_connection import DBConnection
-from psycopg2 import Error
+from project.utils.logger import Logger
 
 class HistoryDAL(DBConnection):
     @staticmethod
@@ -14,9 +14,10 @@ class HistoryDAL(DBConnection):
                 cur.execute(stat, (tg,))
                 conn.commit()
                 return cur.fetchone()[0]
-        except Error as e:
-            print(f"Ошибка при получении id соискателя: {e}")
+        except Exception as e:
+            Logger.error(f"Error get finder_id by tg {str(e)}")
             conn.rollback()
+            return False
         finally:
             conn.close()
 
@@ -32,8 +33,8 @@ class HistoryDAL(DBConnection):
                 conn.commit()
                 result = cur.fetchone()
                 return result if result else None
-        except Error as e:
-            print(f"Ошибка при добавлении просмотра вакансии: {e}")
+        except Exception as e:
+            Logger.error(f"Error add job view {str(e)}")
             conn.rollback()
             return None
         finally:
@@ -45,39 +46,37 @@ class HistoryDAL(DBConnection):
         try:
             with conn.cursor() as cur:
                 stat = """
-                    SELECT j.job_id, j.title, j.salary, j.address, j.time_start, j.time_end
+                    SELECT 
+                        j.job_id, 
+                        j.employer_id, 
+                        j.title, 
+                        j.salary, 
+                        j.address, 
+                        j.time_start, 
+                        j.time_end,
+                        EXISTS (
+                            SELECT 1 FROM job_favorites f 
+                            WHERE f.job_id = j.job_id 
+                            AND f.finder_id = %s
+                        ) AS is_favorite, 
+                        j.is_urgent, 
+                        j.created_at, 
+                        u.photo, 
+                        u.rating,
+                        j.car
                     FROM job_view_history h
                     JOIN jobs j ON h.job_id = j.job_id
                     JOIN employers e ON j.employer_id = e.profile_id
-                    WHERE h.finder_id = %s AND j.status = 'active'
+                    JOIN users u ON u.user_id = e.user_id
+                    WHERE h.finder_id = %s AND j.status = true
                     ORDER BY h.viewed_at DESC
                     """
-                cur.execute(stat, (finder_id, ))
+                cur.execute(stat, (finder_id, finder_id,))
                 conn.commit()
                 return cur.fetchall()
-        except Error as e:
-            print(f"Ошибка получения списка историй {e}")
+        except Exception as e:
+            Logger.error(f"Error get view history {str(e)}")
             conn.rollback()
             return []
-        finally:
-            conn.close()
-        
-    @staticmethod
-    def check_view_exsists(finder_id, job_id):
-        conn = HistoryDAL.connect_db()
-        try:
-            with conn.cursor() as cur:
-                stat = """
-                    SELECT 1 FROM job_view_history
-                    WHERE finder_id = %s AND job_id = %s                    
-                    """
-                cur.execute(stat, (finder_id, job_id))
-                conn.commit()
-                return cur.fetchone() is not None
-        
-        except Error as e:
-            print("Ошибка при проверке просмотра {e}")
-            conn.rollback()
-            return False
         finally:
             conn.close()
