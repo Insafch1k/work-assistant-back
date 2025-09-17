@@ -16,7 +16,7 @@ dp = Dispatcher()
 
 
 # В отдельный файл
-def format_job_message(job_data):
+def format_job_message_html(job_data):
     created_at = job_data.get('created_at', '')
     date = job_data.get('date', '')
     formatted_date_of_creation = format_any_datetime(str(created_at), with_hour=True)
@@ -47,6 +47,7 @@ def format_job_message(job_data):
     message += f'<a href="https://t.me/PodrabotaiBot">Написать работодателю</a>'
 
     return message
+
 
 
 def format_any_datetime(date_string, with_hour):
@@ -124,8 +125,9 @@ async def send_to_channel(message_json):
 
         await temp_bot.send_message(
             chat_id=channel_id,
-            text=format_job_message(message_json),
+            text=format_job_message_html(message_json),
             parse_mode="HTML",
+            disable_web_page_preview=True
             # reply_markup=keyboard
         )
 
