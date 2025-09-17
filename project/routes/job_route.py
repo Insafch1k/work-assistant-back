@@ -1,4 +1,5 @@
 from project.BL.metrics_bl import MetricsBL
+from project.DAL.profile_dal import ProfileDAL
 from project.utils.bot_for_checking_subscription import send_to_channel
 from project.utils.logger import Logger
 from project.utils.metric_events import MetricEvents
@@ -30,6 +31,7 @@ def create_job():
     try:
         current_user_tg = get_jwt_identity()
         curr_id = JobDAL.get_employer_id_by_tg(current_user_tg)
+        user_id = ProfileDAL.get_user_id_by_tg(current_user_tg)
         if not curr_id:
             return jsonify({"error": "Только работодатели могут создавать объявления"}), 403
 
@@ -65,7 +67,7 @@ def create_job():
 
         if not new_job:
             return jsonify({"error": "Не удалось создать вакансию"}), 500
-        MetricsBL.track_metric(MetricEvents.VacancyPublished, curr_id)
+        MetricsBL.track_metric(MetricEvents.VacancyPublished, user_id)
 
         return jsonify(new_job), 200
     except Exception as e:
