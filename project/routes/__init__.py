@@ -1,6 +1,5 @@
 from flask import Blueprint
 
-from project.utils.auto_delete_jobs import AutoDeleter
 
 from project.routes.auth_route import auth_router
 from project.routes.metrics_route import metrics_router
@@ -30,4 +29,3 @@ all_routes.register_blueprint(favorite_router)
 
 for router in ROUTERS_CLEAN_LIST:
     all_routes.register_blueprint(router)
-    router.before_request(AutoDeleter.delete_expired_jobs)
