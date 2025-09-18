@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 
 from project.BL.metrics_bl import MetricsBL
+from project.DAL.profile_dal import ProfileDAL
 
 metrics_router = Blueprint("metrics_router", __name__)
 
@@ -11,7 +12,7 @@ def track_event():
     Пример тела запроса:
     {
         "event_name": "vacancy_sent",
-        "user_id": "512523",
+        "tg_id": "512523",
     }
     """
     try:
@@ -23,7 +24,8 @@ def track_event():
         event_name = data.get('event_name')
         if not event_name:
             return jsonify({"error": "event_name is required"}), 400
-        MetricsBL.track_metric(event_name,data.get('user_id'))
+        user_id = ProfileDAL.get_user_id_by_tg(data.get('tg_id'))
+        MetricsBL.track_metric(event_name,user_id)
 
         return jsonify({
             "status": "success",
