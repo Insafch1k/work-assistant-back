@@ -1,5 +1,6 @@
 from flask import Blueprint
 
+from project.routes.admin_route import admin_router
 from project.utils.auto_delete_jobs import AutoDeleter
 
 from project.routes.auth_route import auth_router
@@ -22,6 +23,7 @@ ROUTERS_CLEAN_LIST = [
     finder_jobs_router
 ]
 
+all_routes.register_blueprint(admin_router)
 all_routes.register_blueprint(metrics_router)
 all_routes.register_blueprint(auth_router)
 all_routes.register_blueprint(profile_router)

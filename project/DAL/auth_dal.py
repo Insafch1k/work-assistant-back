@@ -8,7 +8,7 @@ class AuthDAL(DBConnection):
         conn = AuthDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT user_id, tg, tg_username, user_role, user_name, rating 
+                stat = """SELECT user_id, tg, tg_username, user_role, user_name, rating,is_admin 
                           FROM users WHERE tg = %s"""
                 cur.execute(stat, (tg,))
                 row = cur.fetchone()
