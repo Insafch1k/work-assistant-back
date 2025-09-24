@@ -24,18 +24,27 @@ class ArticlesDAL(DBConnection):
             conn.rollback()
             Logger.error(f"ArticlesDal: Error when adding an article to the database: {e}")
             return False
-    # @staticmethod
-    # def update_article(model: UpdateArticleModel):
-    #     conn = ArticlesDAL.connect_db()
-    #     article_id = UpdateArticleModel.id
-    #     try:
-    #         fields = {k: v for k, v in model.dict(exclude_unset=True).items()
-    #
-    #         set_clause = ", ".join([f"{k}=%s" for k in fields.keys()])
-    #         values = list(fi)
+    @staticmethod
+    def update_article(model: UpdateArticleModel):
+        conn = ArticlesDAL.connect_db()
+        article_id = UpdateArticleModel.id
+        try:
+            fields_for_query= {k: v for k, v in model.dict(exclude_unset=True).items()}
 
+            set_clause = ", ".join([f"{k}=%s" for k in fields_for_query.keys()])
+            values = list(fields_for_query.values())
+            values.append(article_id)
 
+            stat = f"UPDATE articles SET {set_clause} WHERE id = %s"
 
+            with conn.cursor() as cur:
+                cur.execute(stat, values)
+                conn.commit()
 
+            return True
+        except Exception as e:
+            Logger.error(f"ArticlesDal: Error when updating an article: {e}")
 
+            conn.rollback()
+            return False
 
