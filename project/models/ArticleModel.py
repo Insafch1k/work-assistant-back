@@ -18,4 +18,11 @@ class UpdateArticleModel(BaseModel):
     description: Optional[str]
     category: Optional[CategoryEnum]
 
+class DeleteArticleModel(BaseModel):
+    id: int
+
+
+class ReadArticleModel(BaseModel):
+    id: int
+
 
