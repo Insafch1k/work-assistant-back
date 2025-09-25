@@ -97,3 +97,21 @@ class ArticlesDAL(DBConnection):
             Logger.error(f"ArticlesDal: Error when deleting an article: {e}")
             conn.rollback()
             return False
+
+    @staticmethod
+    def get_similar_articles(category: str):
+        conn = ArticlesDAL.connect_db()
+        try:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                stat = "SELECT * FROM articles WHERE category = %s LIMIT 10"
+                cur.execute(stat, [category])
+
+                row = cur.fetchone()
+                if not row:
+                    return False, None
+
+                return True, row
+        except Exception as e:
+            Logger.error(f"ArticlesDal: Error when getting similar articles: {e}")
+            return False
+
