@@ -264,7 +264,6 @@ def get_job_seeAll_finders(job_id):
         return jsonify({"error": "Работа не найдена"}), 404
 
     logger.info(job_data)
-    run_async(check_user_subscription(current_user_tg, job_data["city"]))
 
     return job_data, 200
 
