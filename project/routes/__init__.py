@@ -31,4 +31,3 @@ all_routes.register_blueprint(favorite_router)
 
 for router in ROUTERS_CLEAN_LIST:
     all_routes.register_blueprint(router)
-    router.before_request(AutoDeleter.delete_expired_jobs)
