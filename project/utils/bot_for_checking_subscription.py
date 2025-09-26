@@ -1,3 +1,5 @@
+import aiogram.exceptions
+from loguru import logger
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ChatMemberStatus
 import asyncio
@@ -47,14 +49,18 @@ def format_job_message_html(job_data):
     return message
 
 
-async def check_user_subscription(user_id: int, city) -> bool:
+async def check_user_subscription(tg_id: int, city) -> bool:
+
     temp_bot = Bot(token=settings.BOT_TOKEN)
+    CHANNEL_ID = which_city_send_message(city)
     try:
-        CHANNEL_ID = which_city_send_message(city)
+
         member = await temp_bot.get_chat_member(
             chat_id=CHANNEL_ID,
-            user_id=user_id
+            user_id=tg_id
         )
+
+        logger.info(f"Subscription status for user {tg_id}: {member.status}")
 
         return member.status in [
             ChatMemberStatus.MEMBER,
@@ -62,9 +68,27 @@ async def check_user_subscription(user_id: int, city) -> bool:
             ChatMemberStatus.CREATOR
         ]
 
+    except aiogram.exceptions.TelegramBadRequest as e:
+        if "PARTICIPANT_ID_INVALID" in str(e):
+            logger.warning(f"Telegram user {tg_id} is not member of channel {CHANNEL_ID} or account was deleted")
+            return False
+        elif "USER_ID_INVALID" in str(e):
+            logger.warning(f"Invalid Telegram user ID: {tg_id}")
+            return False
+        elif "CHAT_NOT_FOUND" in str(e):
+            logger.error(f"Channel {CHANNEL_ID} not found for city: {city}")
+            return False
+        else:
+            logger.error(f"Telegram API error for user {tg_id}: {e}")
+            return False
+
     except Exception as e:
-        print(f"Ошибка: {e}")
+        logger.error(f"Unexpected error checking subscription for user {tg_id}: {e}")
         return False
+
+    finally:
+        if temp_bot.session:
+            await temp_bot.session.close()
 
 # В отдельный файл
 def which_city_send_message(city):

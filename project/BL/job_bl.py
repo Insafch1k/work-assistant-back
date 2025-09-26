@@ -40,6 +40,12 @@ class JobBL:
         job_json["date"] = formatted_date_of_work
         return job_json
 
+    @staticmethod
+    def get_city_by_job_id(job_id):
+        city = JobDAL.get_city_by_job_id(job_id)
+        return city
+
+
 
 def run_async(coro):
     """Запуск асинхронной функции в отдельном event loop"""

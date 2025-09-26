@@ -2,7 +2,7 @@ import loguru
 
 from project.BL.metrics_bl import MetricsBL
 from project.DAL.profile_dal import ProfileDAL
-from project.utils.bot_for_checking_subscription import send_to_channel
+from project.utils.bot_for_checking_subscription import send_to_channel, check_user_subscription
 from project.utils.logger import Logger
 from project.utils.metric_events import MetricEvents
 from project.utils.photo_transform import photo_url_convert
@@ -264,9 +264,30 @@ def get_job_seeAll_finders(job_id):
         return jsonify({"error": "Работа не найдена"}), 404
 
     logger.info(job_data)
-    # run_async()
+    run_async(check_user_subscription(current_user_tg, job_data["city"]))
 
     return job_data, 200
+
+
+@jobs_see_All_route.route("/jobs/<int:job_id>/check_subscription", methods=["GET"])
+@jwt_required()
+def get_user_subscription(job_id):
+    current_user_tg = get_jwt_identity()
+    curr_id = Jobs.get_finder_id_by_tg(current_user_tg)
+    if not curr_id:
+        return jsonify({"error": "Пользователь не найден или не существует"}), 404
+
+    city = JobBL.get_city_by_job_id(job_id)
+    if not city:
+        return jsonify({"error": f"Город {city} не найден"}), 404
+
+    logger.info(city)
+    access = run_async(check_user_subscription(current_user_tg, city))
+    if not access:
+        return jsonify({"access": access,
+                        "message": f"Пользователю {current_user_tg} нужно подписаться на канал {city}"}), 401
+    return jsonify({"access": access,
+                    "message": f"Пользователь {current_user_tg} подписан на канал {city}"}), 200
 
 
 @employer_jobs_router.route("/jobs/employers", methods=["GET"])
