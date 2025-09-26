@@ -1,7 +1,6 @@
 from flask import Blueprint
 
 from project.routes.admin_route import admin_router
-from project.utils.auto_delete_jobs import AutoDeleter
 
 from project.routes.auth_route import auth_router
 from project.routes.metrics_route import metrics_router
