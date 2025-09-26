@@ -1,3 +1,5 @@
+import loguru
+
 from project.BL.metrics_bl import MetricsBL
 from project.DAL.profile_dal import ProfileDAL
 from project.utils.bot_for_checking_subscription import send_to_channel
@@ -7,8 +9,10 @@ from project.utils.photo_transform import photo_url_convert
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from datetime import datetime, time
+from loguru import logger
 
-from project.BL.job_bl import time_calculate, JobBL, run_async
+from project.BL.job_bl import JobBL, run_async
+from project.utils.methods_for_datetime import time_calculate
 from project.DAL.job_dal import JobDAL
 from project.DAL.filter_dal import FilterDAL
 from project.DAL.history_dal import HistoryDAL
@@ -255,32 +259,14 @@ def get_job_seeAll_finders(job_id):
     if not curr_id:
         return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
-    job_data = Jobs.get_job_seeAll(curr_id, job_id)
+    job_data = JobBL.get_job_see_all(curr_id, job_id)
     if not job_data:
         return jsonify({"error": "Работа не найдена"}), 404
 
-    job = job_data[0]
-    job_json = {
-        "title": job[0].strip() if isinstance(job[0], str) else job[0],
-        "salary": job[1],
-        "address": job[2].strip() if isinstance(job[2], str) else job[2],
-        "date": job[3].isoformat() if isinstance(job[3], datetime) else job[3],
-        "time_start": job[4].strftime("%H:%M") if isinstance(job[4], time) else job[4],
-        "time_end": job[5].strftime("%H:%M") if isinstance(job[5], time) else job[5],
-        "is_urgent": job[6],
-        "xp": job[7],
-        "age": job[8],
-        "description": job[9],
-        "car": job[10],
-        "is_favorite": job[11],
-        "hours": time_calculate(job[4], job[5]) if job[4] and job[5] else None,
-        "wanted_job": job[12],
-        "user_name": job[13],
-        "phone": job[14],
-        "tg_username": job[15]
-    }
+    logger.info(job_data)
+    # run_async()
 
-    return jsonify(job_json), 200
+    return job_data, 200
 
 
 @employer_jobs_router.route("/jobs/employers", methods=["GET"])

@@ -1,9 +1,10 @@
 import asyncio
-from threading import Thread
 
 from project.DAL.job_dal import JobDAL
-from project.utils.logger import Logger
-from datetime import datetime, time, timedelta
+from project.DAL.jobs_seeAll_dal import Jobs
+
+from project.utils.methods_for_datetime import time_calculate, format_any_datetime
+
 
 class JobBL:
     @staticmethod
@@ -27,44 +28,17 @@ class JobBL:
         new_job['message'] = "Объявление успешно создано"
         return new_job
 
-# Комментарий для теста при слиянии
-def test_for_merge(number):
-    return number
+    @staticmethod
+    def get_job_see_all(finder_id, job_id):
+        job_json = Jobs.get_job_seeAll(finder_id, job_id)
 
-def time_calculate(time_start, time_end):
-    try:
-        if isinstance(time_start, datetime) and isinstance(time_end, datetime):
-            if time_start <= time_end:
-                time_diff = time_end - time_start
-            else:
-                time_diff = (time_end + timedelta(days=1)) - time_start
-        elif isinstance(time_start, str) and isinstance(time_end, str):
-            t_start = datetime.strptime(time_start, "%H:%M:%S").time()
-            t_end = datetime.strptime(time_end, "%H:%M:%S").time()
+        hours = (time_calculate(job_json["time_start"], job_json["time_end"])
+                 if job_json["time_start"] and job_json["time_end"] else None,)
+        job_json["hours"] = hours[0]
 
-            dt_start = datetime.combine(datetime.today(), t_start)
-            dt_end = datetime.combine(datetime.today(), t_end)
-
-            if dt_start <= dt_end:
-                time_diff = dt_end - dt_start
-            else:
-                time_diff = (dt_end + timedelta(days=1)) - dt_start
-
-        elif isinstance(time_start, time) and isinstance(time_end, time):
-            dt_start = datetime.combine(datetime.today(), time_start)
-            dt_end = datetime.combine(datetime.today(), time_end)
-
-            if dt_start <= dt_end:
-                time_diff = dt_end - dt_start
-            else:
-                time_diff = (dt_end + timedelta(days=1)) - dt_start
-        else:
-            time_diff = None
-
-        return round(time_diff.total_seconds() / 3600, 2) if time_diff else None
-    except (ValueError, TypeError, AttributeError) as e:
-        Logger.error(f"Error time calculate {str(e)}")
-        return None
+        formatted_date_of_work = format_any_datetime(job_json["date"], with_hour=False)
+        job_json["date"] = formatted_date_of_work
+        return job_json
 
 
 def run_async(coro):
