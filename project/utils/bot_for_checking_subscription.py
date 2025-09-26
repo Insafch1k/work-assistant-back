@@ -1,11 +1,9 @@
-from aiogram import Bot, Dispatcher, types, F
+from aiogram import Bot, Dispatcher
 from aiogram.enums import ChatMemberStatus
-from aiogram.filters import Command
-from aiogram.types import InlineKeyboardButton, WebAppInfo, InlineKeyboardMarkup
 import asyncio
-from datetime import datetime
 from project.utils.logger import Logger
 from project.config import settings
+from project.utils.methods_for_datetime import format_any_datetime
 
 BOT_TOKEN = settings.BOT_TOKEN
 CHANNEL_ID_KAZAN = settings.CHANNEL_ID_KAZAN
@@ -49,47 +47,24 @@ def format_job_message_html(job_data):
     return message
 
 
+async def check_user_subscription(user_id: int, city) -> bool:
+    temp_bot = Bot(token=settings.BOT_TOKEN)
+    try:
+        CHANNEL_ID = which_city_send_message(city)
+        member = await temp_bot.get_chat_member(
+            chat_id=CHANNEL_ID,
+            user_id=user_id
+        )
 
-def format_any_datetime(date_string, with_hour):
-    """
-    Автоматически определяет формат и преобразует в 'DD.MM.YYYY в HH:MM'
-    """
-    formats_to_try = [
-        "%Y-%m-%dT%H:%M:%S.%f",  # ISO с микросекундами
-        "%Y-%m-%dT%H:%M:%S",  # ISO без микросекунд
-        "%a, %d %b %Y %H:%M:%S %Z",  # RFC format
-        "%Y-%m-%d",  # Просто дата
-    ]
+        return member.status in [
+            ChatMemberStatus.MEMBER,
+            ChatMemberStatus.ADMINISTRATOR,
+            ChatMemberStatus.CREATOR
+        ]
 
-    for fmt in formats_to_try:
-        try:
-            dt = datetime.strptime(date_string, fmt)
-            if with_hour:
-                return dt.strftime("%d.%m.%Y в %H:%M")
-            else:
-                return dt.strftime("%d.%m.%Y")
-        except ValueError:
-            continue
-
-    return date_string
-
-
-# async def check_user_subscription(user_id: int) -> bool:
-#     try:
-#         member = await bot.get_chat_member(
-#             chat_id=CHANNEL_ID,
-#             user_id=user_id
-#         )
-#
-#         return member.status in [
-#             ChatMemberStatus.MEMBER,
-#             ChatMemberStatus.ADMINISTRATOR,
-#             ChatMemberStatus.CREATOR
-#         ]
-#
-#     except Exception as e:
-#         print(f"Ошибка: {e}")
-#         return False
+    except Exception as e:
+        print(f"Ошибка: {e}")
+        return False
 
 # В отдельный файл
 def which_city_send_message(city):
