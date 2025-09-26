@@ -483,3 +483,31 @@ LINE 3: ...                     VALUES ('vacancy_published', '312321234...
 
 2025-09-14T22:53:43.030951+0300 | INFO | job_route.py:37 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
 2025-09-14T22:57:00.892338+0300 | INFO | job_route.py:37 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-14T23:03:09.859962+0300 | INFO | job_route.py:37 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-14T23:04:15.915674+0300 | INFO | job_route.py:37 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Набережные-челны', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-14T23:11:24.774555+0300 | INFO | job_route.py:37 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Набережные-челны', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-17T17:13:00.422822+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Москва'}
+2025-09-17T17:13:13.544095+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Казань'}
+2025-09-17T17:15:00.197779+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Казань'}
+2025-09-17T17:18:04.238033+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Москва'}
+2025-09-17T17:18:21.999371+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Казань'}
+2025-09-17T17:18:34.520710+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Москва'}
+2025-09-17T20:30:58.434140+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Москва'}
+2025-09-17T20:34:52.171511+0300 | INFO | job_route.py:37 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-17T20:36:18.694033+0300 | INFO | job_route.py:37 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-17T20:36:54.213331+0300 | INFO | job_route.py:37 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-17T20:37:38.639184+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Москва'}
+2025-09-17T20:44:54.910063+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Набережные-челны'}
+2025-09-17T20:45:49.149023+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Санкт-Петербург'}
+2025-09-17T20:46:34.603568+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Москва'}
+2025-09-17T20:49:52.739963+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Москва'}
+2025-09-17T20:50:48.949176+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Набережные-челны'}
+2025-09-17T20:51:08.527078+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Казань'}
+2025-09-17T20:53:13.246074+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Набережные-челны'}
+2025-09-17T20:54:59.080361+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Набережные-челны'}
+2025-09-17T21:02:17.431801+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Казань'}
+2025-09-17T21:04:18.145618+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Москва'}
+2025-09-17T21:05:08.034417+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Москва'}
+2025-09-17T21:07:29.752872+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Санкт-Петербург'}
+2025-09-17T23:26:21.734368+0300 | INFO | job_route.py:39 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-17T23:28:41.659499+0300 | INFO | job_route.py:39 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}

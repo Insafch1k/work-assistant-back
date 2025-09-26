@@ -13,11 +13,26 @@ class JobDAL(DBConnection):
                           JOIN users u ON e.user_id = u.user_id
                           WHERE u.tg = %s"""
                 cur.execute(stat, (tg,))
-                conn.commit()
                 result = cur.fetchone()
                 return result[0] if result else None
         except Exception as e:
             Logger.error(f"Error get employer_id by tg: {str(e)}")
+            conn.rollback()
+            return None
+        finally:
+            conn.close()
+
+    @staticmethod
+    def get_city_by_job_id(job_id):
+        conn = JobDAL.connect_db()
+        try:
+            with conn.cursor() as cur:
+                stat = """SELECT j.city FROM jobs j WHERE j.job_id = %s"""
+                cur.execute(stat, (job_id,))
+                result = cur.fetchone()
+                return result[0] if result else None
+        except Exception as e:
+            Logger.error(f"Error get city by job_id: {str(e)}")
             conn.rollback()
             return None
         finally:

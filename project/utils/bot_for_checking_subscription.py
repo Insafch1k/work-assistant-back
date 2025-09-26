@@ -1,11 +1,11 @@
-from aiogram import Bot, Dispatcher, types, F
+import aiogram.exceptions
+from loguru import logger
+from aiogram import Bot, Dispatcher
 from aiogram.enums import ChatMemberStatus
-from aiogram.filters import Command
-from aiogram.types import InlineKeyboardButton, WebAppInfo, InlineKeyboardMarkup
 import asyncio
-from datetime import datetime
 from project.utils.logger import Logger
 from project.config import settings
+from project.utils.methods_for_datetime import format_any_datetime
 
 BOT_TOKEN = settings.BOT_TOKEN
 CHANNEL_ID_KAZAN = settings.CHANNEL_ID_KAZAN
@@ -16,7 +16,7 @@ dp = Dispatcher()
 
 
 # В отдельный файл
-def format_job_message(job_data):
+def format_job_message_html(job_data):
     created_at = job_data.get('created_at', '')
     date = job_data.get('date', '')
     formatted_date_of_creation = format_any_datetime(str(created_at), with_hour=True)
@@ -49,46 +49,46 @@ def format_job_message(job_data):
     return message
 
 
-def format_any_datetime(date_string, with_hour):
-    """
-    Автоматически определяет формат и преобразует в 'DD.MM.YYYY в HH:MM'
-    """
-    formats_to_try = [
-        "%Y-%m-%dT%H:%M:%S.%f",  # ISO с микросекундами
-        "%Y-%m-%dT%H:%M:%S",  # ISO без микросекунд
-        "%a, %d %b %Y %H:%M:%S %Z",  # RFC format
-        "%Y-%m-%d",  # Просто дата
-    ]
+async def check_user_subscription(tg_id: int, city) -> bool:
 
-    for fmt in formats_to_try:
-        try:
-            dt = datetime.strptime(date_string, fmt)
-            if with_hour:
-                return dt.strftime("%d.%m.%Y в %H:%M")
-            else:
-                return dt.strftime("%d.%m.%Y")
-        except ValueError:
-            continue
+    temp_bot = Bot(token=settings.BOT_TOKEN)
+    CHANNEL_ID = which_city_send_message(city)
+    try:
 
-    return date_string
+        member = await temp_bot.get_chat_member(
+            chat_id=CHANNEL_ID,
+            user_id=tg_id
+        )
 
+        logger.info(f"Subscription status for user {tg_id}: {member.status}")
 
-# async def check_user_subscription(user_id: int) -> bool:
-#     try:
-#         member = await bot.get_chat_member(
-#             chat_id=CHANNEL_ID,
-#             user_id=user_id
-#         )
-#
-#         return member.status in [
-#             ChatMemberStatus.MEMBER,
-#             ChatMemberStatus.ADMINISTRATOR,
-#             ChatMemberStatus.CREATOR
-#         ]
-#
-#     except Exception as e:
-#         print(f"Ошибка: {e}")
-#         return False
+        return member.status in [
+            ChatMemberStatus.MEMBER,
+            ChatMemberStatus.ADMINISTRATOR,
+            ChatMemberStatus.CREATOR
+        ]
+
+    except aiogram.exceptions.TelegramBadRequest as e:
+        if "PARTICIPANT_ID_INVALID" in str(e):
+            logger.warning(f"Telegram user {tg_id} is not member of channel {CHANNEL_ID} or account was deleted")
+            return False
+        elif "USER_ID_INVALID" in str(e):
+            logger.warning(f"Invalid Telegram user ID: {tg_id}")
+            return False
+        elif "CHAT_NOT_FOUND" in str(e):
+            logger.error(f"Channel {CHANNEL_ID} not found for city: {city}")
+            return False
+        else:
+            logger.error(f"Telegram API error for user {tg_id}: {e}")
+            return False
+
+    except Exception as e:
+        logger.error(f"Unexpected error checking subscription for user {tg_id}: {e}")
+        return False
+
+    finally:
+        if temp_bot.session:
+            await temp_bot.session.close()
 
 # В отдельный файл
 def which_city_send_message(city):
@@ -124,8 +124,9 @@ async def send_to_channel(message_json):
 
         await temp_bot.send_message(
             chat_id=channel_id,
-            text=format_job_message(message_json),
+            text=format_job_message_html(message_json),
             parse_mode="HTML",
+            disable_web_page_preview=True
             # reply_markup=keyboard
         )
 

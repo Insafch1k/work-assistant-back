@@ -29,7 +29,7 @@ class Jobs(DBConnection):
             with conn.cursor() as cur:
                 stat = """
                     SELECT j.title, j.salary, j.address, j.date, j.time_start, j.time_end, j.is_urgent, 
-                    j.xp, j.age, j.description, j.car,
+                    j.xp, j.age, j.description, j.car, j.city,
                     EXISTS (
                         SELECT 1 FROM job_favorites f 
                         WHERE f.job_id = j.job_id 
@@ -45,8 +45,15 @@ class Jobs(DBConnection):
                     WHERE j.job_id = %s
                     """
                 cur.execute(stat, (finder_id, job_id,))
-                conn.commit()
-                return cur.fetchall()
+                result = cur.fetchone()
+                columns = [desc[0] for desc in cur.description]
+                job_dict = dict(zip(columns, result))
+
+                job_dict['time_start'] = job_dict['time_start'].isoformat() if job_dict.get('time_start') else None
+                job_dict['time_end'] = job_dict['time_end'].isoformat() if job_dict.get('time_end') else None
+                job_dict['date'] = job_dict['date'].isoformat() if job_dict.get('date') else None
+
+                return job_dict
         except Exception as e:
             Logger.error(f"Error get job seeAll {str(e)}")
             conn.rollback()

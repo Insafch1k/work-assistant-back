@@ -2,7 +2,7 @@ from project.utils.logger import Logger
 from flask import Blueprint, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from project.BL.job_bl import time_calculate
+from project.utils.methods_for_datetime import time_calculate
 from project.DAL.favorite_dal import FavoriteDAL
 
 favorite_router = Blueprint("favorite_router", __name__)
