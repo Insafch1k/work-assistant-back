@@ -281,7 +281,7 @@ def get_user_subscription(job_id):
         return jsonify({"error": f"Город {city} не найден"}), 404
 
     logger.info(city)
-    access = run_async(check_user_subscription(int(current_user_tg), city))
+    access = run_async(check_user_subscription(current_user_tg, city))
     return jsonify(access), 200
 
 

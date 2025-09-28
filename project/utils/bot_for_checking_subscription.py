@@ -51,14 +51,20 @@ def format_job_message_html(job_data):
     return message
 
 
-async def check_user_subscription(tg_id: int, city):
-
+async def check_user_subscription(tg_id, city):
+    if not tg_id:
+        logger.error(f"Empty tg_id provided for city: {city}")
+        return {
+            "access": False,
+            "channel": None,
+            "message": f"Invalid user ID provided"
+        }
     temp_bot = Bot(token=settings.BOT_TOKEN)
     CHANNEL_ID = which_city_send_message(city)
 
     message_check_sub_false = {"access": False,
-     "channel": CHANNEL_ID,
-     "message": f"Пользователю {tg_id} нужно подписаться на канал {city}"}
+                               "channel": CHANNEL_ID,
+                               "message": f"Пользователю {tg_id} нужно подписаться на канал {city}"}
     message_check_sub_true = {"access": True,
                               "channel": None,
                               "message": f"Пользователь {tg_id} подписан на канал {city}"}
