@@ -5,20 +5,27 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from project.DAL.admin_dal import AdminDAL
 from project.utils.data_state import DataSuccess
+from project.utils.is_admin import admin_required
 
 admin_router = Blueprint("admin_router", __name__)
 
-def admin_required():
-    def wrapper(fn):
-        @wraps(fn)
-        @jwt_required()
-        def decorator(*args, **kwargs):
-            current_tg = get_jwt_identity()
-            if not AdminDAL.is_admin(current_tg):
-                return jsonify({"error": "Admin access required"}), 403
-            return fn(*args, **kwargs)
-        return decorator
-    return wrapper
+
+@admin_router.route('/is_admin', methods=["GET"])
+@jwt_required()
+def check_is_admin():
+    try:
+        current_tg = get_jwt_identity()
+        is_admin = AdminDAL.is_admin(current_tg)
+
+        response_data = {
+            "is_admin": is_admin
+        }
+
+        return jsonify(response_data), 200
+    except Exception as e:
+        return jsonify({
+            "message": f"Error to check admin rights {str(e)}"
+        }), 500
 
 @admin_router.route('/admin/get_users', methods=['POST'])
 @admin_required()

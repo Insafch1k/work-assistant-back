@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 
 from project.BL.metrics_bl import MetricsBL
 from project.DAL.profile_dal import ProfileDAL
+from project.utils.is_admin import admin_required
 
 metrics_router = Blueprint("metrics_router", __name__)
 
@@ -37,6 +38,7 @@ def track_event():
 
 
 @metrics_router.route('/metrics/<metric_name>', methods=['GET'])
+@admin_required()
 def get_metrics(metric_name: str):
     """
     Получение метрик с различной гранулярностью
