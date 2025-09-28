@@ -511,3 +511,87 @@ LINE 3: ...                     VALUES ('vacancy_published', '312321234...
 2025-09-17T21:07:29.752872+0300 | INFO | job_route.py:87 | Filter request data: {'city': 'Санкт-Петербург'}
 2025-09-17T23:26:21.734368+0300 | INFO | job_route.py:39 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
 2025-09-17T23:28:41.659499+0300 | INFO | job_route.py:39 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-27T01:04:51.780474+0300 | ERROR | auth_dal.py:18 | Error getting user: ОШИБКА:  столбец "is_admin" не существует
+LINE 1: ..._id, tg, tg_username, user_role, user_name, rating,is_admin 
+                                                              ^
+
+2025-09-27T01:07:39.385737+0300 | INFO | job_route.py:283 | Казань
+2025-09-27T01:07:51.207693+0300 | ERROR | bot_for_checking_subscription.py:86 | Unexpected error checking subscription for user 1049302313: HTTP Client says - ClientConnectorDNSError: Cannot connect to host api.telegram.org:443 ssl:default [getaddrinfo failed]
+2025-09-27T20:39:47.544936+0300 | INFO | job_route.py:43 | Received data: {'title': 'тест', 'description': 'авыа', 'salary': 132, 'date': '11.11.2025', 'time_start': '11:11', 'time_end': '11:22', 'city': 'Набережные Челны', 'address': 'Респ Татарстан, г Набережные Челны', 'is_urgent': True, 'car': False, 'xp': 'нет опыта', 'age': 'старше 16 лет', 'wanted_job': 'Шабашка'}
+2025-09-27T20:39:48.202085+0300 | ERROR | bot_for_checking_subscription.py:101 | Неизвестный город: набережные челны
+2025-09-27T20:39:48.202085+0300 | ERROR | bot_for_checking_subscription.py:122 | Не найден channel_id для города: Набережные Челны
+2025-09-27T20:40:23.120344+0300 | INFO | job_route.py:266 | {'title': 'тест', 'salary': 132, 'address': 'Респ Татарстан, г Набережные Челны', 'date': '11.11.2025', 'time_start': '11:11:00', 'time_end': '11:22:00', 'is_urgent': True, 'xp': 'нет опыта', 'age': 'старше 16 лет', 'description': 'авыа', 'car': False, 'city': 'Набережные Челны', 'is_favorite': False, 'wanted_job': 'Шабашка', 'user_name': 'Милан', 'phone': None, 'tg_username': '', 'hours': 0.18}
+2025-09-28T23:52:47.208073+0300 | ERROR | bot_for_checking_subscription.py:101 | Неизвестный город: набережные челны
+2025-09-28T23:52:47.209675+0300 | ERROR | bot_for_checking_subscription.py:86 | Unexpected error checking subscription for user : 3 validation errors for GetChatMember
+chat_id.int
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_type
+chat_id.str
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+user_id
+  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_parsing
+2025-09-28T23:53:07.797787+0300 | INFO | job_route.py:283 | Казань
+2025-09-28T23:53:08.495333+0300 | ERROR | bot_for_checking_subscription.py:86 | Unexpected error checking subscription for user : 1 validation error for GetChatMember
+user_id
+  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_parsing
+2025-09-28T23:53:29.939883+0300 | INFO | job_route.py:283 | Набережные Челны
+2025-09-28T23:53:30.576250+0300 | ERROR | bot_for_checking_subscription.py:101 | Неизвестный город: набережные челны
+2025-09-28T23:53:30.577307+0300 | ERROR | bot_for_checking_subscription.py:86 | Unexpected error checking subscription for user : 3 validation errors for GetChatMember
+chat_id.int
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_type
+chat_id.str
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+user_id
+  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_parsing
+2025-09-28T23:53:55.544483+0300 | INFO | job_route.py:283 | Набережные Челны
+2025-09-28T23:53:56.143067+0300 | ERROR | bot_for_checking_subscription.py:101 | Неизвестный город: набережные челны
+2025-09-28T23:53:56.144071+0300 | ERROR | bot_for_checking_subscription.py:86 | Unexpected error checking subscription for user : 3 validation errors for GetChatMember
+chat_id.int
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_type
+chat_id.str
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+user_id
+  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_parsing
+2025-09-28T23:54:00.465784+0300 | INFO | job_route.py:283 | Набережные Челны
+2025-09-28T23:54:01.170897+0300 | ERROR | bot_for_checking_subscription.py:101 | Неизвестный город: набережные челны
+2025-09-28T23:54:01.171994+0300 | ERROR | bot_for_checking_subscription.py:86 | Unexpected error checking subscription for user : 3 validation errors for GetChatMember
+chat_id.int
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_type
+chat_id.str
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+user_id
+  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_parsing
+2025-09-28T23:54:21.899764+0300 | INFO | job_route.py:283 | Набережные Челны
+2025-09-28T23:54:22.555805+0300 | ERROR | bot_for_checking_subscription.py:101 | Неизвестный город: набережные челны
+2025-09-28T23:54:22.556809+0300 | ERROR | bot_for_checking_subscription.py:86 | Unexpected error checking subscription for user : 3 validation errors for GetChatMember
+chat_id.int
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_type
+chat_id.str
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+user_id
+  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_parsing
+2025-09-29T00:33:09.182134+0300 | ERROR | bot_for_checking_subscription.py:115 | Неизвестный город: набережные-челны
+2025-09-29T00:33:09.182134+0300 | ERROR | bot_for_checking_subscription.py:99 | Unexpected error checking subscription for user 1677821394: 2 validation errors for GetChatMember
+chat_id.int
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_type
+chat_id.str
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+2025-09-29T00:33:44.880955+0300 | INFO | job_route.py:283 | Казань
+2025-09-29T00:33:45.569949+0300 | WARNING | bot_for_checking_subscription.py:86 | Telegram user 1677821394 is not member of channel @testerskayia or account was deleted: Telegram server says - Bad Request: PARTICIPANT_ID_INVALID

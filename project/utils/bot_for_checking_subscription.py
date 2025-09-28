@@ -1,3 +1,5 @@
+from typing import Dict
+
 import aiogram.exceptions
 from loguru import logger
 from aiogram import Bot, Dispatcher
@@ -49,10 +51,17 @@ def format_job_message_html(job_data):
     return message
 
 
-async def check_user_subscription(tg_id: int, city) -> bool:
+async def check_user_subscription(tg_id: int, city):
 
     temp_bot = Bot(token=settings.BOT_TOKEN)
     CHANNEL_ID = which_city_send_message(city)
+
+    message_check_sub_false = {"access": False,
+     "channel": CHANNEL_ID,
+     "message": f"Пользователю {tg_id} нужно подписаться на канал {city}"}
+    message_check_sub_true = {"access": True,
+                              "channel": None,
+                              "message": f"Пользователь {tg_id} подписан на канал {city}"}
     try:
 
         member = await temp_bot.get_chat_member(
@@ -62,40 +71,45 @@ async def check_user_subscription(tg_id: int, city) -> bool:
 
         logger.info(f"Subscription status for user {tg_id}: {member.status}")
 
-        return member.status in [
+        if member.status in [
             ChatMemberStatus.MEMBER,
             ChatMemberStatus.ADMINISTRATOR,
             ChatMemberStatus.CREATOR
-        ]
+        ]:
+
+            return message_check_sub_true
+        else:
+            return message_check_sub_false
 
     except aiogram.exceptions.TelegramBadRequest as e:
         if "PARTICIPANT_ID_INVALID" in str(e):
-            logger.warning(f"Telegram user {tg_id} is not member of channel {CHANNEL_ID} or account was deleted")
-            return False
+            logger.warning(f"Telegram user {tg_id} is not member of channel {CHANNEL_ID} or account was deleted: {e}")
+            return message_check_sub_false
         elif "USER_ID_INVALID" in str(e):
             logger.warning(f"Invalid Telegram user ID: {tg_id}")
-            return False
+            return message_check_sub_false
         elif "CHAT_NOT_FOUND" in str(e):
             logger.error(f"Channel {CHANNEL_ID} not found for city: {city}")
-            return False
+            return message_check_sub_false
         else:
             logger.error(f"Telegram API error for user {tg_id}: {e}")
-            return False
+            return message_check_sub_false
 
     except Exception as e:
         logger.error(f"Unexpected error checking subscription for user {tg_id}: {e}")
-        return False
+        return message_check_sub_false
 
     finally:
         if temp_bot.session:
             await temp_bot.session.close()
+
 
 # В отдельный файл
 def which_city_send_message(city):
     city = city.lower().strip()
     if city == "казань":
         return CHANNEL_ID_KAZAN
-    elif city == "набережные-челны":
+    elif city == "набережные челны" or "набережные-челны":
         return CHANNEL_ID_CHELNY
     else:
         Logger.error(f"Неизвестный город: {city}")

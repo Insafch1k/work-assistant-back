@@ -281,12 +281,8 @@ def get_user_subscription(job_id):
         return jsonify({"error": f"Город {city} не найден"}), 404
 
     logger.info(city)
-    access = run_async(check_user_subscription(current_user_tg, city))
-    if not access:
-        return jsonify({"access": access,
-                        "message": f"Пользователю {current_user_tg} нужно подписаться на канал {city}"}), 401
-    return jsonify({"access": access,
-                    "message": f"Пользователь {current_user_tg} подписан на канал {city}"}), 200
+    access = run_async(check_user_subscription(int(current_user_tg), city))
+    return jsonify(access), 200
 
 
 @employer_jobs_router.route("/jobs/employers", methods=["GET"])
