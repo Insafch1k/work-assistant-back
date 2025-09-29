@@ -1,21 +1,30 @@
-from project.models.ArticleModel import CreateArticleModel, UpdateArticleModel, ReadArticleModel
-from project.utils.db_connection import DBConnection
-from logger import Logger
+import psycopg2
 
+from project.models.ArticleModel import CreateArticleModel, UpdateArticleModel, ReadArticleModel, DeleteArticleModel
+from project.utils.db_connection import DBConnection
+from project.utils.logger import Logger
 
 class ArticlesDAL(DBConnection):
     @staticmethod
     def create_article(model: CreateArticleModel):
+        """
+        Создает статью
+        :param model:
+        :return: boolean
+        """
         conn = ArticlesDAL.connect_db()
+
         try:
             with conn.cursor() as cursor:
-                stat = """INSERT INTO articles (author, header, description, category) VALUES (%s, %s, %s, %s)"""
-                cursor.execute(stat, model.author,
+                ## Поправить метод: нужно сделать универсальный сет, который по количеству полей формирует запрос
+
+                stat = """INSERT INTO articles (header, description, category, slug) VALUES (%s, %s, %s, %s)"""
+                cursor.execute(stat, (
                                model.header,
                                model.description,
-                               model.category)
+                               model.category,
+                               model.slug))
                 conn.commit()
-
                 return True
         except Exception as e:
             conn.rollback()
@@ -24,14 +33,6 @@ class ArticlesDAL(DBConnection):
 
     @staticmethod
     def read_article(model: ReadArticleModel):
-        """
-        Возвращает boolean, dict\None
-
-        Логика для BLL:
-           1 - получаем True, result - значит данные есть и их можно конвертировать в json:
-               json_data = json.dumps(result, ensure_ascii=False)
-           2 - получаем False, None - возвращаем ответ о том, что данных нет
-           3 - не получаем второй параметр: exception """
 
         article_id = model.id
         conn = ArticlesDAL.connect_db()
@@ -84,7 +85,7 @@ class ArticlesDAL(DBConnection):
 
     @staticmethod
     def delete_article(model: DeleteArticleModel):
-        article_id = DeleteArticleModel.id
+        article_id = model.id
         conn = ArticlesDAL.connect_db()
         try:
             with conn.cursor() as cur:
@@ -114,4 +115,3 @@ class ArticlesDAL(DBConnection):
         except Exception as e:
             Logger.error(f"ArticlesDal: Error when getting similar articles: {e}")
             return False
-

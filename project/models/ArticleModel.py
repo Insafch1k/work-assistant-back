@@ -1,12 +1,16 @@
+from typing import Optional
+
+from pydantic import BaseModel, Field
+
 from project.utils.vars.enums import CategoryEnum
 
 
 class CreateArticleModel(BaseModel):
-    title: str
-    author: int
-    header: Optional[str]
-    description: Optional[str]
+    author: int = Field(None)
+    header: str = Field(None)
+    description: str = Field(None)
     category: CategoryEnum
+    slug: str= Field(None)
 
 class UpdateArticleModel(BaseModel):
     """Модель по сути проверяет наличие только 1 поля - id статьи,
@@ -14,7 +18,7 @@ class UpdateArticleModel(BaseModel):
     id есть хотя бы 1 поле, которое требуется обновить"""
     id: int
     author: Optional[int]
-    header: Optiona[str]
+    header: Optional[str]
     description: Optional[str]
     category: Optional[CategoryEnum]
 

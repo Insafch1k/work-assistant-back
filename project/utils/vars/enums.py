@@ -1,4 +1,4 @@
-
+from enum import Enum
 
 class CategoryEnum(str, Enum):
     FOR_EMPLOYERS = "for_employers"

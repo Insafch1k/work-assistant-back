@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-
+from project.routes.article_routes import article_routes
 from project.routes.auth_route import auth_router
 from project.routes.metrics_route import metrics_router
 from project.routes.profile_route import profile_router, employer_profile_router
@@ -26,6 +26,7 @@ all_routes.register_blueprint(auth_router)
 all_routes.register_blueprint(profile_router)
 all_routes.register_blueprint(resume_router)
 all_routes.register_blueprint(favorite_router)
+all_routes.register_blueprint(article_routes)
 
 for router in ROUTERS_CLEAN_LIST:
     all_routes.register_blueprint(router)
