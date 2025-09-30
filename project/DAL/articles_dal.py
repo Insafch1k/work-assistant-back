@@ -7,23 +7,27 @@ from project.utils.logger import Logger
 class ArticlesDAL(DBConnection):
     @staticmethod
     def create_article(model: CreateArticleModel):
+        print(model)
+
         """
         Создает статью
         :param model:
         :return: boolean
         """
+
         conn = ArticlesDAL.connect_db()
 
         try:
             with conn.cursor() as cursor:
-                ## Поправить метод: нужно сделать универсальный сет, который по количеству полей формирует запрос
+                model_dict = model.dict(exclude_none=True)
 
-                stat = """INSERT INTO articles (header, description, category, slug) VALUES (%s, %s, %s, %s)"""
-                cursor.execute(stat, (
-                               model.header,
-                               model.description,
-                               model.category,
-                               model.slug))
+                columns = ", ".join(model_dict.keys())
+                placeholders = ", ".join(["%s"] * len(model_dict))
+                values = tuple(model_dict.values())
+
+                stat = f"INSERT INTO articles ({columns}) VALUES ({placeholders})"
+                cursor.execute(stat, values)
+
                 conn.commit()
                 return True
         except Exception as e:
