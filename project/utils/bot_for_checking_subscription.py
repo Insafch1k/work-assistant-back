@@ -60,22 +60,29 @@ async def check_user_subscription(tg_id, city):
             "message": f"Invalid user ID provided"
         }
     temp_bot = Bot(token=settings.BOT_TOKEN)
-    CHANNEL_ID = which_city_send_message(city)
+
+    # Проверка на существование канала для города объявления
+    # message_if_city_not_found = {"access": True,
+    #                              "channel": None,
+    #                              "message": f"Канала для города {city} еще нет, доступ дан"}
+    # CHANNEL_ID = which_city_send_message(city)
+    # if not CHANNEL_ID:
+    #     return message_if_city_not_found
 
     message_check_sub_false = {"access": False,
-                               "channel": CHANNEL_ID,
-                               "message": f"Пользователю {tg_id} нужно подписаться на канал {city}"}
+                               "channel": CHANNEL_ID_KAZAN,
+                               "message": f"Пользователю {tg_id} нужно подписаться на канал {CHANNEL_ID_KAZAN}"}
     message_check_sub_true = {"access": True,
                               "channel": None,
-                              "message": f"Пользователь {tg_id} подписан на канал {city}"}
+                              "message": f"Пользователь {tg_id} подписан на канал {CHANNEL_ID_KAZAN}"}
     try:
 
         member = await temp_bot.get_chat_member(
-            chat_id=CHANNEL_ID,
+            chat_id=CHANNEL_ID_KAZAN,
             user_id=tg_id
         )
 
-        logger.info(f"Subscription status for user {tg_id}: {member.status}")
+        logger.info(f"Subscription status for user {tg_id}: {member.status} in channel {CHANNEL_ID_KAZAN}")
 
         if member.status in [
             ChatMemberStatus.MEMBER,
@@ -89,13 +96,13 @@ async def check_user_subscription(tg_id, city):
 
     except aiogram.exceptions.TelegramBadRequest as e:
         if "PARTICIPANT_ID_INVALID" in str(e):
-            logger.warning(f"Telegram user {tg_id} is not member of channel {CHANNEL_ID} or account was deleted: {e}")
+            logger.warning(f"Telegram user {tg_id} is not member of channel {CHANNEL_ID_KAZAN} or account was deleted: {e}")
             return message_check_sub_false
         elif "USER_ID_INVALID" in str(e):
             logger.warning(f"Invalid Telegram user ID: {tg_id}")
             return message_check_sub_false
         elif "CHAT_NOT_FOUND" in str(e):
-            logger.error(f"Channel {CHANNEL_ID} not found for city: {city}")
+            logger.error(f"Channel {CHANNEL_ID_KAZAN} not found for city: {city}")
             return message_check_sub_false
         else:
             logger.error(f"Telegram API error for user {tg_id}: {e}")
@@ -115,8 +122,8 @@ def which_city_send_message(city):
     city = city.lower().strip()
     if city == "казань":
         return CHANNEL_ID_KAZAN
-    elif city == "набережные челны" or "набережные-челны":
-        return CHANNEL_ID_CHELNY
+    # elif city == "набережные челны" or "набережные-челны":
+    #     return CHANNEL_ID_CHELNY
     else:
         Logger.error(f"Неизвестный город: {city}")
         return None
@@ -135,11 +142,13 @@ async def send_to_channel(message_json):
 
         if not message_json.get("city"):
             Logger.error("Город не указан в message_json")
+            await temp_bot.session.close()
             return False
 
         channel_id = which_city_send_message(message_json["city"])
         if not channel_id:
             Logger.error(f"Не найден channel_id для города: {message_json['city']}")
+            await temp_bot.session.close()
             return False
 
         await temp_bot.send_message(

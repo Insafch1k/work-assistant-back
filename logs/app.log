@@ -595,3 +595,15 @@ chat_id.str
     For further information visit https://errors.pydantic.dev/2.11/v/string_type
 2025-09-29T00:33:44.880955+0300 | INFO | job_route.py:283 | Казань
 2025-09-29T00:33:45.569949+0300 | WARNING | bot_for_checking_subscription.py:86 | Telegram user 1677821394 is not member of channel @testerskayia or account was deleted: Telegram server says - Bad Request: PARTICIPANT_ID_INVALID
+2025-09-30T22:52:20.145207+0300 | ERROR | bot_for_checking_subscription.py:126 | Неизвестный город: набережные-челны
+2025-09-30T22:58:21.676620+0300 | INFO | job_route.py:283 | Набережные-челны
+2025-09-30T22:58:22.512094+0300 | ERROR | bot_for_checking_subscription.py:126 | Неизвестный город: набережные-челны
+2025-09-30T23:14:25.084722+0300 | INFO | job_route.py:43 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Москва', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-30T23:14:25.993519+0300 | ERROR | bot_for_checking_subscription.py:128 | Неизвестный город: москва
+2025-09-30T23:14:25.995527+0300 | ERROR | bot_for_checking_subscription.py:150 | Не найден channel_id для города: Москва
+2025-09-30T23:14:48.836579+0300 | INFO | job_route.py:43 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Казань', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-30T23:15:18.347109+0300 | INFO | job_route.py:43 | Received data: {'title': 'Водитель-курьер', 'wanted_job': 'Курьер', 'description': 'Доставка товаров и Собак по городу. График работы 5/2 с 10:00 до 19:00.', 'salary': 40000, 'date': '2025-10-20', 'time_start': '10:00', 'time_end': '19:00', 'address': 'пр. Ленина, д. 100', 'city': 'Набережные Челны', 'xp': 'От 1 года', 'age': '21+', 'car': True}
+2025-09-30T23:15:19.190153+0300 | ERROR | bot_for_checking_subscription.py:128 | Неизвестный город: набережные челны
+2025-09-30T23:15:19.191525+0300 | ERROR | bot_for_checking_subscription.py:150 | Не найден channel_id для города: Набережные Челны
+2025-09-30T23:16:21.318236+0300 | INFO | job_route.py:283 | Москва
+2025-09-30T23:16:22.624454+0300 | INFO | bot_for_checking_subscription.py:85 | Subscription status for user 1049302313: kicked
