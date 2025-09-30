@@ -65,7 +65,10 @@ def create_job():
         except Exception as e:
             Logger.error(f"Error parsing date: {str(e)}")
             return jsonify({"error": "Неверный формат даты. Используйте DD.MM.YYYY или YYYY-MM-DD"}), 400
-
+        check = run_async(check_user_subscription(current_user_tg, data['city']))
+        if not check["access"]:
+            Logger.info(f"Работодателю {current_user_tg} нужно подписаться на канал для размещения объявления")
+            return check
         new_job = JobBL.add_job(curr_id, data)
         run_async(send_to_channel(new_job))
 
