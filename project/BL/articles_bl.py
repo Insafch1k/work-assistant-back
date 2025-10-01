@@ -1,10 +1,17 @@
-from project.models.ArticleModel import CreateArticleModel
+from sqlite3 import DataError, DatabaseError
+
+from flask import jsonify
+from pydantic import ValidationError
+from werkzeug.exceptions import ServiceUnavailable
+
+from project.models.ArticleModel import CreateArticleModel, UpdateArticleModel
 from ..DAL.articles_dal import ArticlesDAL
 from ..utils.logger import Logger
 from ..utils.universal.universal_var import transform_to_slug
 from ..utils.vars.status_code import HttpStatusCode
 
 class ArticleBL:
+
     @staticmethod
     def create_article(model: CreateArticleModel):
         model.slug = transform_to_slug(model.header)
@@ -30,3 +37,17 @@ class ArticleBL:
         except Exception as e:
             Logger.error(f"Error creating article {str(e)}")
             return {"status": "error", "message": "Внутренняя  ошибка серверм"}, HttpStatusCode.INTERNAL_SERVER_ERROR
+
+    @staticmethod
+    def update_article(model) -> bool:
+
+        try:
+            updated_count = ArticlesDAL().update_article(model)
+        except DatabaseError as e:
+            raise ServiceUnavailable("DB temporarily unavailable") from e
+
+        result = True if updated_count is not None else False
+
+        return result
+
+

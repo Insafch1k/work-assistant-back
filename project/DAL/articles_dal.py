@@ -5,17 +5,10 @@ from project.utils.db_connection import DBConnection
 from project.utils.logger import Logger
 
 class ArticlesDAL(DBConnection):
+
     @staticmethod
-    def create_article(model: CreateArticleModel):
-        print(model)
-
-        """
-        Создает статью
-        :param model:
-        :return: boolean
-        """
-
-        conn = ArticlesDAL.connect_db()
+    def create_article( model: CreateArticleModel):
+        conn = DBConnection.connect_db()
 
         try:
             with conn.cursor() as cursor:
@@ -34,10 +27,11 @@ class ArticlesDAL(DBConnection):
             conn.rollback()
             Logger.error(f"ArticlesDal: Error when adding an article to the database: {e}")
             return False
+        finally:
+            conn.close()
 
     @staticmethod
     def read_article(model: ReadArticleModel):
-
         article_id = model.id
         conn = ArticlesDAL.connect_db()
 
@@ -62,11 +56,14 @@ class ArticlesDAL(DBConnection):
             Logger.error(f"ArticlesDal: Error when reading an article: {e}")
             conn.rollback()
             return False
+        finally:
+            conn.close()
 
     @staticmethod
-    def update_article(model: UpdateArticleModel):
-        conn = ArticlesDAL.connect_db()
-        article_id = UpdateArticleModel.id
+    def update_article( model: UpdateArticleModel):
+        conn = DBConnection.connect_db()
+        article_id = model.id
+
         try:
             fields_for_query = {k: v for k, v in model.dict(exclude_unset=True).items()}
 
@@ -79,13 +76,17 @@ class ArticlesDAL(DBConnection):
             with conn.cursor() as cur:
                 cur.execute(stat, values)
                 conn.commit()
-
-            return True
-        except Exception as e:
+                return cur.rowcount
+        except psycopg2.DatabaseError as e:
             Logger.error(f"ArticlesDal: Error when updating an article: {e}")
-
             conn.rollback()
-            return False
+            return None
+        except psycopg2.Error as e:
+            Logger.error(f"ArticlesDal: Database error in update article: {e}")
+            conn.rollback()
+            return None
+        finally:
+            conn.close()
 
     @staticmethod
     def delete_article(model: DeleteArticleModel):
@@ -102,6 +103,8 @@ class ArticlesDAL(DBConnection):
             Logger.error(f"ArticlesDal: Error when deleting an article: {e}")
             conn.rollback()
             return False
+        finally:
+            conn.close()
 
     @staticmethod
     def get_similar_articles(category: str):
@@ -119,3 +122,5 @@ class ArticlesDAL(DBConnection):
         except Exception as e:
             Logger.error(f"ArticlesDal: Error when getting similar articles: {e}")
             return False
+        finally:
+            conn.close()

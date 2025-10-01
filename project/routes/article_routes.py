@@ -2,13 +2,13 @@ from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
 from project.BL.articles_bl import ArticleBL
-from project.models.ArticleModel import CreateArticleModel
+from project.models.ArticleModel import CreateArticleModel, UpdateArticleModel
 
 article_routes = Blueprint('article_routes', __name__)
 
-@article_routes.route('/blog/create-article', methods=['POST'])
-def create_articles():
 
+@article_routes.route('/blog/create-article', methods=['POST'])
+def create_article():
     try:
         data = CreateArticleModel(**request.get_json())
     except ValidationError as e:
@@ -19,4 +19,15 @@ def create_articles():
     return jsonify(answer), status_code
 
 
+@article_routes.route('/blog/update_article', methods=['POST'])
+def update_article():
+    try:
+        data = UpdateArticleModel(**request.get_json())
+    except ValidationError as e:
+        return jsonify({'error': 'Ошибка валидации'})
 
+    success = ArticleBL.update_article(data)
+
+    if not success:
+        return jsonify({'error': 'Статья не найдена'}), 400
+    return jsonify(''), 204
