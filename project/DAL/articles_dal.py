@@ -52,6 +52,23 @@ class ArticlesDAL(DBConnection):
             conn.close()
 
     @staticmethod
+    def update_date(article_id):
+        conn = DBConnection.connect_db()
+        try:
+            stmt = f"""UPDATE articles SET updated_at = NOW() WHERE id = %s"""
+
+            with conn.cursor() as cur:
+                cur.execute(stmt, (article_id,))
+
+                conn.commit()
+                return True
+        except Exception as e:
+            Logger.error(f"ArticleDAL: error when execute update_date method: {e}")
+            return False
+        finally:
+            conn.close()
+
+    @staticmethod
     def update_article( model: UpdateArticleModel):
         conn = DBConnection.connect_db()
         article_id = model.id
@@ -68,6 +85,9 @@ class ArticlesDAL(DBConnection):
             with conn.cursor() as cur:
                 cur.execute(stat, values)
                 conn.commit()
+
+                ArticlesDAL.update_date(model.id)
+
                 return cur.rowcount
         except psycopg2.DatabaseError as e:
             Logger.error(f"ArticlesDal: Error when updating an article: {e}")
