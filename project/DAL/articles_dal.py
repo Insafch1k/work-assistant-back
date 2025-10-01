@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2.extras import RealDictCursor
 
 from project.models.ArticleModel import CreateArticleModel, UpdateArticleModel, ReadArticleModel, DeleteArticleModel
 from project.utils.db_connection import DBConnection
@@ -31,31 +32,22 @@ class ArticlesDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def read_article(model: ReadArticleModel):
-        article_id = model.id
+    def read_article(article_id):
         conn = ArticlesDAL.connect_db()
 
         try:
-            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                stat = f"""SELECT author,
-                                   header,
-                                   description,
-                                   category,
-                                   created_at,
-                                   updated_at,
-                                   views
-                                   FROM articles 
-                                   WHERE id = %s"""
+            with conn.cursor(cursor_factory= RealDictCursor) as cur:
+                stat = f"""SELECT * FROM articles WHERE id = %s"""
                 cur.execute(stat, [article_id])
                 result = cur.fetchone()
                 if not result:
                     return False, None
 
-                return True, result
+                return result
         except Exception as e:
             Logger.error(f"ArticlesDal: Error when reading an article: {e}")
             conn.rollback()
-            return False
+            return None
         finally:
             conn.close()
 
@@ -110,7 +102,7 @@ class ArticlesDAL(DBConnection):
     def get_similar_articles(category: str):
         conn = ArticlesDAL.connect_db()
         try:
-            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            with conn.cursor(cursor_factory= RealDictCursor) as cur:
                 stat = "SELECT * FROM articles WHERE category = %s LIMIT 10"
                 cur.execute(stat, [category])
 

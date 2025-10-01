@@ -13,6 +13,11 @@ from ..utils.vars.status_code import HttpStatusCode
 class ArticleBL:
 
     @staticmethod
+    def get_article(article_id):
+        article_data = ArticlesDAL.read_article(article_id)
+        return article_data
+
+    @staticmethod
     def create_article(model: CreateArticleModel):
         model.slug = transform_to_slug(model.header)
 
