@@ -37,7 +37,7 @@ class ArticlesDAL(DBConnection):
 
         try:
             with conn.cursor(cursor_factory= RealDictCursor) as cur:
-                stat = f"""SELECT * FROM articles WHERE id = %s"""
+                stat = "SELECT * FROM articles WHERE id = %s"
                 cur.execute(stat, [article_id])
                 result = cur.fetchone()
                 if not result:
@@ -50,6 +50,24 @@ class ArticlesDAL(DBConnection):
             return None
         finally:
             conn.close()
+
+    @staticmethod
+    def get_all_articles(category = None):
+        conn = DBConnection.connect_db()
+        try:
+            stat = """SELECT * FROM articles"""
+
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                if category is not None:
+                    stat += " WHERE category = %s"
+                    cur.execute(stat, [category])
+                else:
+                    cur.execute(stat)
+
+                return cur.fetchall()
+        except Exception as e:
+            Logger.error("ArticleDAL(get_all_articles): error getting all articles")
+            return None
 
     @staticmethod
     def update_date(article_id):

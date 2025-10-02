@@ -6,8 +6,7 @@ from project.models.ArticleModel import CreateArticleModel, UpdateArticleModel
 
 article_routes = Blueprint('article_routes', __name__)
 
-
-@article_routes.route('/blog/create-article', methods=['POST'])
+@article_routes.route('/blog/create_article', methods=['POST'])
 def create_article():
     try:
         data = CreateArticleModel(**request.get_json())
@@ -17,7 +16,6 @@ def create_article():
     answer, status_code = ArticleBL.create_article(data)
 
     return jsonify(answer), status_code
-
 
 @article_routes.route('/blog/update_article', methods=['POST'])
 def update_article():
@@ -40,4 +38,16 @@ def read_article(slug, article_id):
         return jsonify({'error': 'Статья не обнаружена'}), 404
 
     return jsonify(article), 200
+
+@article_routes.route('/blog/articles/<string:category>', methods=['GET'])
+def read(category="all"):
+    temp = None if category == "all" else category
+
+    success, articles = ArticleBL.get_all_articles(temp)
+    if not success:
+        return jsonify({'error': 'Статьи не обнаружены'}), 404
+    else:
+        return jsonify(articles), 200
+
+
 

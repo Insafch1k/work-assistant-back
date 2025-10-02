@@ -1,3 +1,4 @@
+import datetime
 from sqlite3 import DataError, DatabaseError
 
 from flask import jsonify
@@ -55,4 +56,23 @@ class ArticleBL:
 
         return result
 
+    @staticmethod
+    def get_all_articles(category=None):
+        result = ArticlesDAL.get_all_articles(category)
+
+        if not result:
+            return False, None
+        else:
+            rows = [dict(r) for r in result]
+            print(f"До: {rows}")
+
+            for row in rows:
+                if isinstance(row.get("created_at"), (datetime.date, datetime.datetime)):
+                    row["created_at"] = row["created_at"].isoformat()
+                if isinstance(row.get("updated_at"), (datetime.date, datetime.datetime)):
+                    row["updated_at"] = row["updated_at"].isoformat()
+
+            print(f"После: {rows}")
+            print(type(rows[0]["created_at"]))  # должно вывести <class 'str'>
+            return True, rows
 

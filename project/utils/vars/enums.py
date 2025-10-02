@@ -9,3 +9,8 @@ class CategoryEnum(str, Enum):
     FREELANCE = "freelance"
     LIFEHACKS = "lifehacks"
     TIPS = "tips"
+
+class ArticleSortEnum(str, Enum):
+    DATE_ASC = "asc"
+    DATE_DESC = "desc"
+
