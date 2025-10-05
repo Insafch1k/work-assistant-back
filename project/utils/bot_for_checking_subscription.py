@@ -11,6 +11,7 @@ from project.utils.methods_for_datetime import format_any_datetime
 
 BOT_TOKEN = settings.BOT_TOKEN
 CHANNEL_ID_KAZAN = settings.CHANNEL_ID_KAZAN
+CHAT_ID_KAZAN = settings.CHAT_ID_KAZAN
 CHANNEL_ID_CHELNY = settings.CHANNEL_ID_CHELNY
 
 bot = Bot(token=BOT_TOKEN)
@@ -158,6 +159,14 @@ async def send_to_channel(message_json):
             disable_web_page_preview=True
             # reply_markup=keyboard
         )
+        if channel_id == CHANNEL_ID_KAZAN:
+            await temp_bot.send_message(
+                chat_id=CHAT_ID_KAZAN,
+                text=format_job_message_html(message_json),
+                parse_mode="HTML",
+                disable_web_page_preview=True
+                # reply_markup=keyboard
+            )
 
         await temp_bot.session.close()
         return True

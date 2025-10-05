@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     PORT: str
     BOT_TOKEN: str
     CHANNEL_ID_KAZAN: str
+    CHAT_ID_KAZAN: str
     CHANNEL_ID_CHELNY: str
 
     class Config:
