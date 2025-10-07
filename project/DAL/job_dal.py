@@ -4,19 +4,18 @@ from project.utils.logger import Logger
 
 class JobDAL(DBConnection):
     @staticmethod
-    def get_employer_id_by_tg(tg):
+    def get_employer_id_by_user_id(user_id):
         conn = JobDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT e.profile_id 
-                          FROM employers e
-                          JOIN users u ON e.user_id = u.user_id
-                          WHERE u.tg = %s"""
-                cur.execute(stat, (tg,))
+                stat = """SELECT profile_id 
+                          FROM employers
+                          WHERE user_id = %s"""
+                cur.execute(stat, (user_id,))
                 result = cur.fetchone()
                 return result[0] if result else None
         except Exception as e:
-            Logger.error(f"Error get employer_id by tg: {str(e)}")
+            Logger.error(f"Error get employer_id by user_id: {str(e)}")
             conn.rollback()
             return None
         finally:

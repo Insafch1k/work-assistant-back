@@ -12,14 +12,13 @@ resume_router = Blueprint("resume_router", __name__)
 def create_resume():
     """Создание нового резюме"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = ResumeDAL.get_user_id_by_tg(current_user_tg)
-        if not curr_id:
+        user_id = get_jwt_identity()
+        if not user_id:
             return jsonify({"error": "Пользователь не найден"}), 404
 
         data = request.get_json()
 
-        resume = ResumeDAL.create_resume(curr_id, data["job_title"], data["education"], data["work_xp"], data["skills"])
+        resume = ResumeDAL.create_resume(user_id, data["job_title"], data["education"], data["work_xp"], data["skills"])
         print(resume)
 
         return jsonify({
@@ -42,12 +41,8 @@ def create_resume():
 def delete_resume():
     """Удаление резюме"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = ResumeDAL.get_finder_id_by_tg(current_user_tg)
-        if not curr_id:
-            return jsonify({"error": "Пользователь не найден или не существует"}), 404
-
-        resume_id = ResumeDAL.get_resume_id_by_finder(curr_id)
+        user_id = get_jwt_identity()
+        resume_id = ResumeDAL.get_resume_id_by_user_id(user_id)
         if not resume_id:
             return jsonify({"error": "Резюме не найдено или доступ запрещён"}), 404
 
@@ -65,12 +60,12 @@ def delete_resume():
 def update_resume():
     """Редактирование резюме"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = ResumeDAL.get_finder_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = ResumeDAL.get_finder_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
-        resume_id = ResumeDAL.get_resume_id_by_finder(curr_id)
+        resume_id = ResumeDAL.get_resume_id_by_user_id(curr_id)
         if not resume_id:
             return jsonify({"error": "Резюме не найдено"}), 404
 
@@ -108,9 +103,9 @@ def update_resume():
 def get_user_resumes():
     """Получение резюме пользователя"""
     try:
-        current_user_tg = get_jwt_identity()
+        user_id = get_jwt_identity()
 
-        resume = ResumeDAL.get_resume_data(current_user_tg)
+        resume = ResumeDAL.get_resume_data(user_id)
         if not resume:
             return jsonify({"message": "Резюме не найдено"}), 404
         return jsonify({

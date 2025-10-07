@@ -4,36 +4,19 @@ from project.utils.logger import Logger
 
 class ResumeDAL(DBConnection):
     @staticmethod
-    def get_user_id_by_tg(tg):
+    def get_finder_id_by_user_id(user_id):
         conn = ResumeDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT user_id FROM users WHERE tg = %s"""
-                cur.execute(stat, (tg,))
-                conn.commit()
-                return cur.fetchone()[0]
-        except Exception as e:
-            Logger.error(f"Error get user_id by tg {str(e)}")
-            conn.rollback()
-            return None
-        finally:
-            conn.close()
-
-    @staticmethod
-    def get_finder_id_by_tg(tg):
-        conn = ResumeDAL.connect_db()
-        try:
-            with conn.cursor() as cur:
-                stat = """SELECT f.profile_id 
-                              FROM finders f
-                              JOIN users u ON f.user_id = u.user_id
-                              WHERE u.tg = %s"""
+                stat = """SELECT profile_id 
+                              FROM finders 
+                              WHERE user_id = %s"""
                 cur.execute(stat, (tg,))
                 conn.commit()
                 result = cur.fetchone()
                 return result[0] if result else None
         except Exception as e:
-            Logger.error(f"Error get finder_id by tg {str(e)}")
+            Logger.error(f"Error get finder_id by user_id {str(e)}")
             conn.rollback()
             return None
         finally:
@@ -59,19 +42,18 @@ class ResumeDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def get_resume_id_by_finder(profile_id):
+    def get_resume_id_by_user_id(user_id):
         conn = ResumeDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT r.resume_id 
-                            FROM resume r
-                            JOIN finders f ON r.user_id = f.user_id
-                            WHERE f.profile_id = %s"""
-                cur.execute(stat, (profile_id,))
+                stat = """SELECT resume_id 
+                            FROM resume
+                            WHERE user_id = %s"""
+                cur.execute(stat, (user_id,))
                 conn.commit()
                 return cur.fetchone()
         except Exception as e:
-            Logger.error(f"Error get resume_id by finder {str(e)}")
+            Logger.error(f"Error get resume_id by user_id {str(e)}")
             conn.rollback()
             return None
         finally:
@@ -136,10 +118,9 @@ class ResumeDAL(DBConnection):
         conn = ResumeDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT r.job_title, r.education, r.work_xp, r.skills
-                          FROM resume r
-                          JOIN users u ON r.user_id = u.user_id
-                          WHERE u.tg = %s"""
+                stat = """SELECT job_title, education, work_xp, skills
+                          FROM resume 
+                          WHERE user_id = %s"""
                 cur.execute(stat, (current_user_tg,))
                 conn.commit()
                 return cur.fetchone()

@@ -4,20 +4,19 @@ from project.utils.logger import Logger
 
 class Finder_Jobs(DBConnection):
     @staticmethod
-    def get_finder_id_by_tg(tg):
+    def get_finder_id_by_user_id(user_id):
         conn = Finder_Jobs.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT f.profile_id 
-                          FROM finders f
-                          JOIN users u ON f.user_id = u.user_id
-                          WHERE u.tg = %s"""
-                cur.execute(stat, (tg,))
+                stat = """SELECT profile_id 
+                          FROM finders
+                          WHERE tg = %s"""
+                cur.execute(stat, (user_id,))
                 conn.commit()
                 result = cur.fetchone()
                 return result[0] if result else None
         except Exception as e:
-            Logger.error(f"Error get finder_id by tg {str(e)}")
+            Logger.error(f"Error get finder_id by user_id {str(e)}")
             conn.rollback()
             return None
         finally:

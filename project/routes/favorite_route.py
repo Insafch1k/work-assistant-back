@@ -13,8 +13,8 @@ favorite_router = Blueprint("favorite_router", __name__)
 def add_favorite(job_id):
     """Добавление вакансии в избранное"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = FavoriteDAL.get_finder_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = FavoriteDAL.get_finder_id_by_user_id(user_id)
         print("CURR_ID", curr_id, "\n\n")
         print("JOB ID", job_id, "\n\n")
         if not curr_id:
@@ -48,8 +48,8 @@ def add_favorite(job_id):
 def remove_favorite(job_id):
     """Удаление вакансии из избранного"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = FavoriteDAL.get_finder_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = FavoriteDAL.get_finder_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден"}), 404
 
@@ -70,8 +70,8 @@ def remove_favorite(job_id):
 def get_favorites():
     """Получение списка избранных вакансий"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = FavoriteDAL.get_finder_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = FavoriteDAL.get_finder_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден"}), 404
 

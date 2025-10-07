@@ -11,8 +11,8 @@ def admin_required():
         @wraps(fn)
         @jwt_required()
         def decorator(*args, **kwargs):
-            current_tg = get_jwt_identity()
-            if not AdminDAL.is_admin(current_tg):
+            user_id = get_jwt_identity()
+            if not AdminDAL.is_admin(user_id):
                 return jsonify({"error": "Admin access required"}), 403
             return fn(*args, **kwargs)
         return decorator

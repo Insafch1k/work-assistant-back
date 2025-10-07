@@ -3,19 +3,18 @@ from project.utils.logger import Logger
 
 class HistoryDAL(DBConnection):
     @staticmethod
-    def get_finder_id_by_tg(tg):
+    def get_finder_id_by_user_id(user_id):
         conn = HistoryDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT f.profile_id 
-                          FROM finders f
-                          JOIN users u ON f.user_id = u.user_id
-                          WHERE u.tg = %s"""
-                cur.execute(stat, (tg,))
+                stat = """SELECT profile_id 
+                          FROM finders
+                          WHERE user_id = %s"""
+                cur.execute(stat, (user_id,))
                 conn.commit()
                 return cur.fetchone()[0]
         except Exception as e:
-            Logger.error(f"Error get finder_id by tg {str(e)}")
+            Logger.error(f"Error get finder_id by user_id {str(e)}")
             conn.rollback()
             return False
         finally:

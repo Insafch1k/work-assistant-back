@@ -33,9 +33,8 @@ finder_jobs_router = Blueprint("finder_jobs_router", __name__)
 def create_job():
     """Создание новой вакансии"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = JobDAL.get_employer_id_by_tg(current_user_tg)
-        user_id = ProfileDAL.get_user_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = JobDAL.get_employer_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Только работодатели могут создавать объявления"}), 403
 
@@ -84,8 +83,8 @@ def create_job():
 def filter_jobs():
     """Фильтрация вакансий"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = FilterDAL.get_finder_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = FilterDAL.get_finder_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
@@ -181,8 +180,8 @@ def filter_jobs():
 def add_job_view(job_id):
     """Добавление связи для истории просмотра вакансий"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = HistoryDAL.get_finder_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = HistoryDAL.get_finder_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден"}), 404
 
@@ -208,8 +207,8 @@ def add_job_view(job_id):
 def get_view_history():
     """Получение истории просмотра вакансий"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = HistoryDAL.get_finder_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = HistoryDAL.get_finder_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден"}), 404
 
@@ -254,8 +253,8 @@ def get_view_history():
 @jwt_required()
 def get_job_seeAll_finders(job_id):
     """Подробное описание объявления"""
-    current_user_tg = get_jwt_identity()
-    curr_id = Jobs.get_finder_id_by_tg(current_user_tg)
+    user_id = get_jwt_identity()
+    curr_id = Jobs.get_finder_id_by_user_id(user_id)
     if not curr_id:
         return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
@@ -271,22 +270,23 @@ def get_job_seeAll_finders(job_id):
 @jobs_see_All_route.route("/jobs/<int:job_id>/check_subscription", methods=["GET"])
 @jwt_required()
 def get_user_subscription(job_id):
-    current_user_tg = get_jwt_identity()
-    curr_id = Jobs.get_finder_id_by_tg(current_user_tg)
-    if not curr_id:
-        return jsonify({"error": "Пользователь не найден или не существует"}), 404
+    user_id = get_jwt_identity()
+    user = ProfileDAL.get_profile_data(user_id)
+
+    if user.paltform != 'tg':
+        return jsonify({"error": f"Этот метод для тг пользователей"}), 404
 
     city = JobBL.get_city_by_job_id(job_id)
     if not city:
         return jsonify({"error": f"Город {city} не найден"}), 404
 
     logger.info(city)
-    access = run_async(check_user_subscription(current_user_tg, city))
+    access = run_async(check_user_subscription(user.tg, city))
     if not access:
         return jsonify({"access": access,
-                        "message": f"Пользователю {current_user_tg} нужно подписаться на канал {city}"}), 401
+                        "message": f"Пользователю {user_id} нужно подписаться на канал {city}"}), 401
     return jsonify({"access": access,
-                    "message": f"Пользователь {current_user_tg} подписан на канал {city}"}), 200
+                    "message": f"Пользователь {user_id} подписан на канал {city}"}), 200
 
 
 @employer_jobs_router.route("/jobs/employers", methods=["GET"])
@@ -294,8 +294,8 @@ def get_user_subscription(job_id):
 def get_jobs_for_employers():
     """Получение списка вакансий для работодателя"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = Emplyers_Jobs.get_employer_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = Emplyers_Jobs.get_employer_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
@@ -337,8 +337,8 @@ def get_jobs_for_employers():
 @jwt_required()
 def get_jobs_for_finders():
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = Finder_Jobs.get_finder_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = Finder_Jobs.get_finder_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
@@ -380,8 +380,8 @@ def get_jobs_for_finders():
 @jwt_required()
 def get_my_jobs():
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = Emplyers_Jobs.get_employer_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = Emplyers_Jobs.get_employer_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
@@ -425,8 +425,8 @@ def get_my_jobs():
 def update_my_job(job_id):
     """Редактирование объявления"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = Emplyers_Jobs.get_employer_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = Emplyers_Jobs.get_employer_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден или не существует"}), 404
 
@@ -506,8 +506,8 @@ def update_my_job(job_id):
 def delete_my_job(job_id):
     """Удаление объявления"""
     try:
-        current_user_tg = get_jwt_identity()
-        curr_id = Emplyers_Jobs.get_employer_id_by_tg(current_user_tg)
+        user_id = get_jwt_identity()
+        curr_id = Emplyers_Jobs.get_employer_id_by_user_id(user_id)
         if not curr_id:
             return jsonify({"error": "Пользователь не найден или не существует"}), 404
 

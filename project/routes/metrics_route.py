@@ -13,7 +13,7 @@ def track_event():
     Пример тела запроса:
     {
         "event_name": "vacancy_sent",
-        "tg_id": "512523",
+        "user_id": "512523",
     }
     """
     try:
@@ -25,8 +25,7 @@ def track_event():
         event_name = data.get('event_name')
         if not event_name:
             return jsonify({"error": "event_name is required"}), 400
-        user_id = ProfileDAL.get_user_id_by_tg(data.get('tg_id'))
-        MetricsBL.track_metric(event_name,user_id)
+        MetricsBL.track_metric(event_name,data.get('user_id'))
 
         return jsonify({
             "status": "success",

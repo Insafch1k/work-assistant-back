@@ -14,8 +14,8 @@ admin_router = Blueprint("admin_router", __name__)
 @jwt_required()
 def check_is_admin():
     try:
-        current_tg = get_jwt_identity()
-        is_admin = AdminDAL.is_admin(current_tg)
+        user_id = get_jwt_identity()
+        is_admin = AdminDAL.is_admin(user_id)
 
         response_data = {
             "is_admin": is_admin

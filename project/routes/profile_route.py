@@ -17,20 +17,19 @@ employer_profile_router = Blueprint("employer_profile_router", __name__)
 def update_profile():
     """Обновление профиля"""
     try:
-        current_tg = get_jwt_identity()
+        user_id = get_jwt_identity()
         data = request.get_json()
-        curr_id = ProfileDAL.get_user_id_by_tg(current_tg)
 
-        role = ProfileDAL.get_user_role(curr_id)
+        role = ProfileDAL.get_user_role(user_id)
 
         if role == "finder":
-            ProfileDAL.update_profile(curr_id, user_name=data.get("user_name"), phone=data.get("phone"), photo=data.get("photo"))
+            ProfileDAL.update_profile(user_id, user_name=data.get("user_name"), phone=data.get("phone"), photo=data.get("photo"))
             if "age" in data:
-                ProfileDAL.update_finder_profile(data.get("age"), curr_id)
+                ProfileDAL.update_finder_profile(data.get("age"), user_id)
         if role == "employer":
-            ProfileDAL.update_profile(curr_id, user_name=data.get("user_name"), phone=data.get("phone"), photo=data.get("photo"))
+            ProfileDAL.update_profile(user_id, user_name=data.get("user_name"), phone=data.get("phone"), photo=data.get("photo"))
             if "organization_name" in data:
-                ProfileDAL.update_employer_profile(data.get("organization_name"), curr_id)
+                ProfileDAL.update_employer_profile(data.get("organization_name"), user_id)
 
         return jsonify({"message": "Профиль обновлён"}), 200
     except Exception as e:
@@ -45,10 +44,8 @@ def update_profile():
 def get_profile():
     """Получение данных своего профиля"""
     try:
-        current_tg = get_jwt_identity()
-        curr_id = ProfileDAL.get_user_id_by_tg(current_tg)
-
-        data = ProfileDAL.get_profile_data(curr_id)
+        user_id = get_jwt_identity()
+        data = ProfileDAL.get_employer_profile_data_by_user_id(user_id)
         if not data:
             return jsonify({"error": "Профиль не найден"}), 404
 
@@ -77,7 +74,7 @@ def get_profile():
 def get_employer_profile(employer_id):
     """Получение основной информации о работодателе"""
     try:
-        profile = ProfileDAL.get_employer_profile_data(employer_id)
+        profile = ProfileDAL.get_employer_profile_data_by_employer_id(employer_id)
         if not profile:
             return jsonify({"error": "Работодатель не найден"}), 404
 
@@ -117,12 +114,10 @@ def get_employer_profile(employer_id):
 def create_review(employer_id):
     """Создание отзыва о работодателе"""
     try:
-        current_user_tg = get_jwt_identity()
-        finder = ProfileDAL.check_finder(current_user_tg)
-        if not finder:
+        user_id = get_jwt_identity()
+        finder_id = ProfileDAL.get_finder_id_by_user_id(user_id)
+        if not finder_id:
             return jsonify({"error": "Только соискатели могут оставлять отзыв"}), 403
-
-        user_id, finder_id = finder
 
         data = request.get_json()
         rating = data["rating"]

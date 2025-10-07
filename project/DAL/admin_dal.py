@@ -73,12 +73,12 @@ class AdminDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def is_admin(tg):
+    def is_admin(user_id):
         conn = AdminDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT is_admin FROM users WHERE tg = %s"""
-                cur.execute(stat, (tg,))
+                stat = """SELECT is_admin FROM users WHERE user_id = %s"""
+                cur.execute(stat, (user_id,))
                 return cur.fetchone()[0]
         except Exception as e:
             Logger.error(f"Error get is_admin by tg {str(e)}")

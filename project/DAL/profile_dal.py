@@ -1,3 +1,6 @@
+from psycopg2.extras import RealDictCursor
+
+from project.BL.models.user import User
 from project.utils.db_connection import DBConnection
 from project.utils.logger import Logger
 
@@ -89,7 +92,24 @@ class ProfileDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def get_profile_data(user_id):
+    def get_profile_data(user_id) -> User:
+        conn = ProfileDAL.connect_db()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                stat = """SELECT *
+                          FROM users
+                          WHERE user_id = %s"""
+                cur.execute(stat, (user_id,))
+                return User(cur.fetchone())
+        except Exception as e:
+            Logger.error(f"Error get profile data {str(e)}")
+            conn.rollback()
+            return None
+        finally:
+            conn.close()
+
+    @staticmethod
+    def get_employer_profile_data_by_user_id(user_id):
         conn = ProfileDAL.connect_db()
         try:
             with conn.cursor() as cur:
@@ -110,23 +130,7 @@ class ProfileDAL(DBConnection):
             conn.close()
 
     @staticmethod
-    def get_user_id_by_tg(tg):
-        conn = ProfileDAL.connect_db()
-        try:
-            with conn.cursor() as cur:
-                stat = """SELECT user_id FROM users WHERE tg = %s"""
-                cur.execute(stat, (tg,))
-                conn.commit()
-                return cur.fetchone()[0]
-        except Exception as e:
-            Logger.error(f"Error get user_id by tg {str(e)}")
-            conn.rollback()
-            return None
-        finally:
-            conn.close()
-
-    @staticmethod
-    def get_employer_profile_data(employer_id):
+    def get_employer_profile_data_by_employer_id(employer_id):
         conn = ProfileDAL.connect_db()
         try:
             with conn.cursor() as cur:
@@ -169,15 +173,14 @@ class ProfileDAL(DBConnection):
 
 
     @staticmethod
-    def check_finder(current_user_tg):
+    def get_finder_id_by_user_id(user_id):
         conn = ProfileDAL.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT u.user_id, f.profile_id
-                          FROM users u
-                          JOIN finders f ON u.user_id = f.user_id
-                          WHERE u.tg = %s"""
-                cur.execute(stat, (current_user_tg,))
+                stat = """SELECT profile_id
+                          FROM finders 
+                          WHERE user_id = %s"""
+                cur.execute(stat, (user_id,))
                 conn.commit()
                 return cur.fetchone()
         except Exception as e:

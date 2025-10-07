@@ -3,19 +3,18 @@ from project.utils.logger import Logger
 
 class Emplyers_Jobs(DBConnection):
     @staticmethod
-    def get_employer_id_by_tg(tg):
+    def get_employer_id_by_user_id(user_id):
         conn = Emplyers_Jobs.connect_db()
         try:
             with conn.cursor() as cur:
-                stat = """SELECT e.profile_id 
-                          FROM employers e
-                          JOIN users u ON e.user_id = u.user_id
-                          WHERE u.tg = %s"""
-                cur.execute(stat, (tg,))
+                stat = """SELECT profile_id 
+                          FROM employers
+                          WHERE tg = %s"""
+                cur.execute(stat, (user_id,))
                 conn.commit()
                 return cur.fetchone()[0]
         except Exception as e:
-            Logger.error(f"Error get employer_id by tg {str(e)}")
+            Logger.error(f"Error get employer_id by user_id {str(e)}")
             conn.rollback()
             return None
         finally:
