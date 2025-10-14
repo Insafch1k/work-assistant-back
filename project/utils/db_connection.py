@@ -9,7 +9,7 @@ def connection_db():
     user = settings.USER
     password = settings.PASSWORD
     host = settings.HOST_NAME
-    port = settings.PORT_NAME
+    port = settings.PORT
     try:
         # for creating connection string
         connection_str = f'postgresql://{user}:{password}@{host}:{port}/{dbname}'

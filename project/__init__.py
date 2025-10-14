@@ -2,7 +2,8 @@ from flask import Flask, Blueprint
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 from project.config import settings
-from project.routes import all_routes
+from project.application.routes import all_routes
+
 
 main_blueprint = Blueprint('main', __name__)
 main_blueprint.register_blueprint(all_routes)
