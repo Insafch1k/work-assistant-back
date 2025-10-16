@@ -9,7 +9,7 @@ from project.utils.data_state import DataFailedMessage
 profile_router = Blueprint("profile_router", __name__)
 
 def get_profile_bl(user_id: str):
-    """Фабрика для получения соответствующего BL класса"""
+    """Фоабрика для получения сответствующего BL класса"""
     user_role = get_user_role(user_id)
     bl_map = {
         'finder': FinderProfileBl,

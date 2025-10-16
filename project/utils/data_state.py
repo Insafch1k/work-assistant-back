@@ -24,10 +24,6 @@ class DataState(BaseModel, Generic[T]):
 
         # Создаем структуру для JSON ответа
         result = {}
-
-        if self.error_type:
-            result["type"] = self.error_type
-
         # if self.error_code:
         #     result["code"] = self.error_code
 
@@ -35,6 +31,9 @@ class DataState(BaseModel, Generic[T]):
             result["message"] = self.error_message
 
         if settings.DEBUG_RESPONSE:
+            if self.error_type:
+                result["type"] = self.error_type
+
             if self.error_details:
                 result["details"] = self.error_details
 

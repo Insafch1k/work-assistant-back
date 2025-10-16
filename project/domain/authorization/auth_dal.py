@@ -1,9 +1,5 @@
 from datetime import datetime
-from typing import Optional
-
 from loguru import logger
-from pydantic import BaseModel
-
 from project.application.entities.user import User
 from project.domain.core.models.resume import ResumeModel
 from project.domain.core.models.user import UserModel
