@@ -12,11 +12,3 @@ class JobViewHistoryModel(Base):
     job_id = Column(Integer, ForeignKey('public.jobs.id', ondelete='CASCADE'))
     viewed_at = Column(DateTime, default=func.now())
 
-    def to_json(self):
-        data = {
-            'id': self.id,
-            'user_id': self.user_id,
-            'job_id': self.job_id,
-            'viewed_at': self.viewed_at.isoformat() if self.viewed_at else None
-        }
-        return data
