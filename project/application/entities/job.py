@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, time
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
 
 class Job(BaseModel):
-    id: int
+    id: Optional[int] = None
     user_id: int
     city_id: int
     title: str
@@ -13,8 +13,8 @@ class Job(BaseModel):
     description: Optional[str] = None
     salary: Optional[int] = None
     date: Optional[datetime] = None
-    time_start: Optional[datetime] = None
-    time_end: Optional[datetime] = None
+    time_start: Optional[time] = None
+    time_end: Optional[time] = None
     address: Optional[str] = None
     is_urgent: bool = False
     status: bool = True

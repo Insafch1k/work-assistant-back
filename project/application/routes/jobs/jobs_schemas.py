@@ -19,8 +19,8 @@ class CreateNewJobValidateSchema(BaseModel):
     age: str
     car: bool
 
-    @staticmethod
-    def from_request(json_data) -> DataState[CreateNewJobValidateSchema]:
+    @classmethod
+    def from_request(cls, json_data) -> DataState[CreateNewJobValidateSchema]:
         try:
             return DataSuccess(CreateNewJobValidateSchema(**json_data))
         except ValidationError as e:
