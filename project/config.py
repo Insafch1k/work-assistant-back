@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     CHANNEL_ID_KAZAN: str
     DEBUG_RESPONSE: bool # если true, то при ошибках будет выводить в response traceback и саму ошибку
     CHANNEL_ID_CHELNY: str
+    CODE_EXPIRES: int #  в минутах
 
     class Config:
         env_file = "../.env"

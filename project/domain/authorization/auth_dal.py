@@ -5,6 +5,7 @@ import redis
 from loguru import logger
 from werkzeug.security import check_password_hash
 
+from project import settings
 from project.application.entities.user import User
 from project.domain.core.models.resume import ResumeModel
 from project.domain.core.models.user import UserModel
@@ -82,7 +83,7 @@ class AuthDal:
             key = f"verification:{code}"
             redis_client.setex(
                 key,
-                timedelta(minutes=30),
+                timedelta(minutes=settings.CODE_EXPIRES),
                 json.dumps(verification_data)
             )
 
@@ -158,7 +159,7 @@ class AuthDal:
         with Session() as session:
             try:
                 user = session.query(UserModel).filter(UserModel.email == email).first()
-                if user and user.confirmed:
+                if user:
                     return DataFailedMessage("Аккаунт с такой почтой уже существует")
 
                 return DataSuccess()

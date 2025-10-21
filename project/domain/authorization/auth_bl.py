@@ -2,6 +2,8 @@ import string
 from flask import render_template
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
+
+from project import settings
 from project.application.entities.user import User
 from project.application.routes.authorization.auth_schemas import LoginValidateSchema, RegisterTgValidateSchema, \
     LoginTgValidateSchema, RegistrationValidateSchema
@@ -69,7 +71,8 @@ class AuthBl:
                 recipients=[email],
                 html=render_template(
                     'email_confirmation.html',
-                    code=code
+                    code=code,
+                    expires=settings.CODE_EXPIRES
                 )
             )
             from project import mail
