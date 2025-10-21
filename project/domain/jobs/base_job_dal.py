@@ -1,4 +1,4 @@
-from project.application.entities.job import Jobs
+from project.application.entities.job import Job
 from project.domain.core.models.jobs import JobsModel
 from project.utils.data_state import DataFailedMessage, DataSuccess
 from project.utils.db_connection import connection_db
@@ -33,7 +33,7 @@ class BaseJobDal:
                 session.commit()
 
                 logger.info(f"Вакансия '{job.title}' успешно добавлена с ID: {job.id}")
-                return DataSuccess(Jobs.model_validate(job))
+                return DataSuccess(Job.model_validate(job))
             except Exception as e:
                 session.rollback()
                 return DataFailedMessage(f"Ошибка при добавлении вакансии", error=e)

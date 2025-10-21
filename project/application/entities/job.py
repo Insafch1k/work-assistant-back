@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
-class Jobs(BaseModel):
+class Job(BaseModel):
     id: int
     user_id: int
     city_id: int

@@ -13,7 +13,7 @@ class CityDal:
 
         with Session() as session:
             try:
-                city = session.query(CityModel).filter(CityModel.id == city_name).first()
+                city = session.query(CityModel).filter(CityModel.name == city_name).first()
                 if not city:
                     return DataFailedMessage(f"Город с названием {city_name} не найден")
 

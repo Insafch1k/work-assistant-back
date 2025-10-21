@@ -1,5 +1,10 @@
-from datetime import datetime
+import json
+from datetime import datetime, timedelta
+
+import redis
 from loguru import logger
+from werkzeug.security import check_password_hash
+
 from project.application.entities.user import User
 from project.domain.core.models.resume import ResumeModel
 from project.domain.core.models.user import UserModel
@@ -8,7 +13,7 @@ from project.utils.db_connection import connection_db
 
 class AuthDal:
     @staticmethod
-    def add_user(tg_id, tg_username,user_name, user_role) -> DataState[User]:
+    def add_tg_user(tg_id, tg_username, user_name, user_role) -> DataState[User]:
         Session = connection_db()
         if not Session:
             return DataFailedMessage("Database connection error")
@@ -19,7 +24,8 @@ class AuthDal:
                     user_role=user_role,
                     tg_username=tg_username,
                     tg_id=tg_id,
-                    user_name=user_name)
+                    user_name=user_name,
+                    auth_method='telegram')
                 session.add(user)
                 session.flush() # Синхронизирует состояние сессии с БД  Все изменения в сессии перенесутся в БД, но не зафиксируются
                 resume = ResumeModel(
@@ -27,12 +33,78 @@ class AuthDal:
                 session.add(resume)
                 session.commit()
 
-                logger.info(f"Пользователь {user.user_name} успешно добавлен с ID: {user.id}")
+                logger.info(f"TG Пользователь {user.user_name} успешно добавлен с ID: {user.id}")
                 return DataSuccess(User.model_validate(user))
             except Exception as e:
                 session.rollback()
                 return DataFailedMessage(f"Ошибка при добавлении пользователя",error=e)
 
+    @staticmethod
+    def add_email_user(user: User) -> DataState[User]:
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                user = UserModel(
+                    user_role=user.user_role,
+                    email=user.email,
+                    password_hash=user.password_hash,
+                    user_name=user.user_name,
+                    auth_method='email')
+                session.add(user)
+                session.flush() # Синхронизирует состояние сессии с БД  Все изменения в сессии перенесутся в БД, но не зафиксируются
+                resume = ResumeModel(
+                    user_id=user.id)
+                session.add(resume)
+                session.commit()
+
+                logger.debug(f"Пользователь {user.user_name} успешно добавлен с ID: {user.id}")
+                return DataSuccess(User.model_validate(user))
+            except Exception as e:
+                session.rollback()
+                return DataFailedMessage(f"Ошибка при добавлении пользователя",error=e)
+
+    @staticmethod
+    def store_verification_data(code, email, password_hash, user_name, user_role) -> DataState:
+        try:
+            redis_client = redis.Redis(db=1)
+
+            verification_data = {
+                'user_name': user_name,
+                'email': email,
+                'password_hash': password_hash,  # Всегда храним хеш!
+                'user_role': user_role,
+            }
+
+            # Сохраняем в Redis
+            key = f"verification:{code}"
+            redis_client.setex(
+                key,
+                timedelta(minutes=30),
+                json.dumps(verification_data)
+            )
+
+            logger.debug(f"Пользователь {user_name} ожидает подтверждение почты")
+            return DataSuccess()
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при сохранении кода",error=e)
+
+    @staticmethod
+    def get_verification_data(code) -> DataState:
+        try:
+            redis_client = redis.Redis(db=1)
+
+            key = f"verification:{code}"
+            data = redis_client.get(key)
+            if data:
+                redis_client.delete(key)  # удаляем код после подтврждения
+                return DataSuccess(User.model_validate(json.loads(data)))
+
+            return DataFailedMessage('Неверный или просроченный код подтверждения',code=400)
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при проверке кода",error=e)
 
     @staticmethod
     def update_user(tg_id, tg_username) -> DataState[User]:
@@ -55,3 +127,41 @@ class AuthDal:
             except Exception as e:
                 session.rollback()
                 return DataFailedMessage(f"Ошибка при обновлении пользователя",error=e)
+
+    @staticmethod
+    def check_user(email, password) -> DataState[User]:
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                user = session.query(UserModel).filter(UserModel.email == email).first()
+                if not user:
+                    return DataFailedMessage("Пользователь не найден")
+
+                if not check_password_hash(user.password_hash,password):
+                    return DataFailedMessage("Неверный пароль")
+
+                #logger.info(f"Пользователь {user.user_name} успешно вошел в аккаунт")
+                return DataSuccess(User.model_validate(user))
+            except Exception as e:
+                session.rollback()
+                return DataFailedMessage(f"Ошибка при проверки авторизации пользователя",error=e)
+
+    @staticmethod
+    def email_exists(email):
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                user = session.query(UserModel).filter(UserModel.email == email).first()
+                if user and user.confirmed:
+                    return DataFailedMessage("Аккаунт с такой почтой уже существует")
+
+                return DataSuccess()
+            except Exception as e:
+                session.rollback()
+                return DataFailedMessage(f"Ошибка при проверки почты", error=e)

@@ -1,11 +1,21 @@
 from flask.cli import load_dotenv
+from pydantic import Field
 from pydantic_settings import BaseSettings
 
 load_dotenv()
 
+class MailConfig(BaseSettings):
+    MAIL_SERVER: str = Field(default='smtp.gmail.com', env='MAIL_SERVER')
+    MAIL_PORT: int = Field(default=587, env='MAIL_PORT')
+    MAIL_USE_TLS: bool = Field(default=True, env='MAIL_USE_TLS')
+    MAIL_USERNAME: str = Field(default='your@email.com', env='MAIL_USERNAME')
+    MAIL_PASSWORD: str = Field(default='your-password', env='MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER: str = Field(default='noreply@example.com', env='MAIL_DEFAULT_SENDER')
+    MAIL_TOKEN_EXPIRE_HOURS: int = Field(default=24, env='MAIL_TOKEN_EXPIRE_HOURS')
+
 class Settings(BaseSettings):
     JWT_SECRET_KEY: str
-    JWT_ACCESS_TOKEN_EXPIRES_HOURS: int
+    JWT_ACCESS_TOKEN_EXPIRES_HOURS: float
 
     USER: str
     PASSWORD: str
@@ -23,5 +33,5 @@ class Settings(BaseSettings):
         case_sensitive = True
         extra = "allow"
 
-
+mail_config = MailConfig()
 settings = Settings()
