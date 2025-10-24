@@ -51,7 +51,7 @@ class DataSuccess(DataState[T]):
         return True
 
     def to_response(self) -> (Response, int):
-        return jsonify({"data": f'{self.data}'}), 200
+        return jsonify({"data": self.data}), 200
 
 
 class DataFailedMessage(DataState):

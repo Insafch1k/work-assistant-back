@@ -1,8 +1,40 @@
 from __future__ import annotations
-from loguru import logger
-from pydantic import BaseModel, ValidationError, constr
+from pydantic import BaseModel, ValidationError, Field, field_validator
 
 from project.utils.data_state import DataFailedMessage, DataState, DataSuccess
+
+class ChangePasswordValidateSchema(BaseModel):
+    old_password: Field(str)
+    new_password: Field(str,min_length=8)
+
+    @classmethod
+    def from_request(cls, json_data) -> DataState[ChangePasswordValidateSchema]:
+        try:
+            return DataSuccess(ChangePasswordValidateSchema(**json_data))
+        except ValidationError as e:
+            errors = [
+                {"field": err["loc"][0],
+                 "message": err["msg"]}
+                for err in e.errors()
+            ]
+            return DataFailedMessage(f'Ошибка валидации при подтверждении почты: {errors}', error=e)
+
+class RecoveryPasswordValidateSchema(BaseModel):
+    temporary_id: int
+    code: int
+    password: str
+
+    @classmethod
+    def from_request(cls, json_data) -> DataState[RecoveryPasswordValidateSchema]:
+        try:
+            return DataSuccess(RecoveryPasswordValidateSchema(**json_data))
+        except ValidationError as e:
+            errors = [
+                {"field": err["loc"][0],
+                 "message": err["msg"]}
+                for err in e.errors()
+            ]
+            return DataFailedMessage(f'Ошибка валидации при подтверждении почты: {errors}', error=e)
 
 class ConfirmationValidateSchema(BaseModel):
     temporary_id: int
@@ -20,11 +52,32 @@ class ConfirmationValidateSchema(BaseModel):
             ]
             return DataFailedMessage(f'Ошибка валидации при подтверждении почты: {errors}', error=e)
 
+class ForgotPasswordValidateSchema(BaseModel):
+    email: str
+    code: int
+
+    @classmethod
+    def from_request(cls, json_data) -> DataState[ForgotPasswordValidateSchema]:
+        try:
+            return DataSuccess(ForgotPasswordValidateSchema(**json_data))
+        except ValidationError as e:
+            errors = [
+                {"field": err["loc"][0],
+                 "message": err["msg"]}
+                for err in e.errors()
+            ]
+            return DataFailedMessage(f'Ошибка валидации при подтверждении почты: {errors}', error=e)
+
 class RegistrationValidateSchema(BaseModel):
     username: str
-    password: str
+    password: Field(str, min_length=8)
     email: str
     user_role: str
+
+    @field_validator('user_role', mode='before')
+    def validate_name(cls, v):
+        if not v in ['finder','employer']:
+            raise ValueError('Неверная роль!')
 
     @classmethod
     def from_request(cls, json_data) -> DataState[RegistrationValidateSchema]:
@@ -43,6 +96,11 @@ class RegisterTgValidateSchema(BaseModel):
     tg_username: str
     user_name: str
     user_role: str
+
+    @field_validator('user_role', mode='before')
+    def validate_name(cls, v):
+        if not v in ['finder','employer']:
+            raise ValueError('Неверная роль!')
 
     @staticmethod
     def from_request(json_data) -> DataState[RegisterTgValidateSchema]:

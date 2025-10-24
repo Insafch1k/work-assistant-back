@@ -6,7 +6,8 @@ from werkzeug.security import generate_password_hash
 from project import settings
 from project.application.entities.user import User
 from project.application.routes.authorization.auth_schemas import LoginValidateSchema, RegisterTgValidateSchema, \
-    LoginTgValidateSchema, RegistrationValidateSchema
+    LoginTgValidateSchema, RegistrationValidateSchema, ConfirmationValidateSchema, ForgotPasswordValidateSchema, \
+    RecoveryPasswordValidateSchema, ChangePasswordValidateSchema
 from project.domain.authorization.auth_dal import AuthDal
 from project.utils.data_state import DataState, DataFailedMessage, DataSuccess
 import secrets
@@ -23,6 +24,27 @@ class AuthBl:
     @staticmethod
     def update_user(data: LoginTgValidateSchema) -> DataState[User]:
         return AuthDal.update_user(data.tg_id, data.tg_username)
+
+    @staticmethod
+    def forgot_password(data: ForgotPasswordValidateSchema) -> DataState[int]:
+        data_state = AuthDal.email_exists(data.email)
+        if not data_state:
+            return data_state
+
+        user_id = data_state.data
+        temporary_id = generate_secure_code()
+        mail_code = generate_secure_code()
+        final_code = f'{temporary_id}{mail_code}'
+
+        data_state = AuthDal.store_password_recovery_code(final_code, user_id)
+        if not data_state:
+            return data_state
+
+        email_data_state = AuthBl.send_email(mail_code, data.email,'reset_password')
+        if not email_data_state:
+            return email_data_state
+
+        return DataSuccess(int(temporary_id))
 
     @staticmethod
     def check_user(data: LoginValidateSchema) -> DataState[User]:
@@ -42,20 +64,24 @@ class AuthBl:
         if not verif_data_state:
             return verif_data_state
 
-        email_data_state = AuthBl.send_confirmation_email(mail_code, data.email)
+        email_data_state = AuthBl.send_email(mail_code, data.email,'email_confirmation')
         if not email_data_state:
             return email_data_state
 
         return DataSuccess(int(temporary_id))
 
     @staticmethod
-    def confirm_mail(temporary_id, code) -> DataState[User]:
-        final_code=f'{temporary_id}{code}'
+    def confirm_mail(result: ConfirmationValidateSchema) -> DataState[User]:
+        final_code=f'{result.temporary_id}{result.code}'
         verif_data_state = AuthDal.get_verification_data(final_code)
         if not verif_data_state:
             return verif_data_state
 
         user = verif_data_state.data
+        email_data_state = AuthDal.email_exists(user.email)
+        if not email_data_state:
+            return email_data_state
+
         add_data_state = AuthDal.add_email_user(user)
         if not add_data_state:
             return add_data_state
@@ -63,14 +89,43 @@ class AuthBl:
         return DataSuccess(add_data_state.data)
 
     @staticmethod
-    def send_confirmation_email(code, email):
-        try:
+    def check_recovery_code(result: ConfirmationValidateSchema) -> DataState:
+        final_code=f'{result.temporary_id}{result.code}'
+        verif_data_state = AuthDal.check_password_recovery_code(final_code)
 
+        return verif_data_state
+
+    @staticmethod
+    def recovery_password(result: RecoveryPasswordValidateSchema) -> DataState:
+        final_code = f'{result.temporary_id}{result.code}'
+        pwd_hash = generate_password_hash(result.password)
+        verif_data_state = AuthDal.check_password_recovery_code(final_code,delete_after=True)
+        if not verif_data_state:
+            return verif_data_state
+
+        user_id = verif_data_state.data
+        pwd_data_state = AuthDal.recovery_password(user_id, pwd_hash)
+        return pwd_data_state
+
+    @staticmethod
+    def change_password(result: ChangePasswordValidateSchema,user_id) -> DataState:
+        old_pwd_hash = generate_password_hash(result.old_password)
+        new_pwd_hash = generate_password_hash(result.password)
+        return AuthDal.change_password(user_id, old_pwd_hash, new_pwd_hash)
+
+
+
+    @staticmethod
+    def send_email(code, email, message_type):
+        try:
+            message_types = {'email_confirmation': ["Подтвердите ваш email",'email_confirmation.html'],
+                             'reset_password': ['Сброс пароля','password_reset.html']}
+            mail_name, mail_template = message_types[message_type]
             msg = Message(
-                "Подтвердите ваш email",
+                mail_name,
                 recipients=[email],
                 html=render_template(
-                    'email_confirmation.html',
+                    mail_template,
                     code=code,
                     expires=settings.CODE_EXPIRES
                 )

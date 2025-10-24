@@ -108,6 +108,42 @@ class AuthDal:
             return DataFailedMessage(f"Ошибка при проверке кода",error=e)
 
     @staticmethod
+    def check_password_recovery_code(code,delete_after: bool=False) -> DataState:
+        try:
+            redis_client = redis.Redis(db=1)
+
+            key = f"verification:{code}"
+            user_id = redis_client.get(key)
+            if not user_id:
+                return DataFailedMessage('Неверный или просроченный код подтверждения',code=400)
+            if delete_after:
+                redis_client.delete(key)
+
+            return DataSuccess(user_id)
+
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при проверке кода",error=e)
+
+    @staticmethod
+    def store_password_recovery_code(code, user_id) -> DataState:
+        try:
+            redis_client = redis.Redis(db=1)
+
+            # Сохраняем в Redis
+            key = f"verification:{code}"
+            redis_client.setex(
+                key,
+                timedelta(minutes=settings.CODE_EXPIRES),
+                user_id
+            )
+
+            return DataSuccess()
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при сохранении кода",error=e)
+
+
+
+    @staticmethod
     def update_user(tg_id, tg_username) -> DataState[User]:
         Session = connection_db()
         if not Session:
@@ -119,6 +155,9 @@ class AuthDal:
                 if not user:
                     return DataFailedMessage("Пользователь не найден")
 
+                if user.banned:
+                    return DataFailedMessage("Пользователь заблокирован",code=423)
+
                 user.tg_username = tg_username
                 user.last_login_at = datetime.now()
                 session.commit()
@@ -128,6 +167,27 @@ class AuthDal:
             except Exception as e:
                 session.rollback()
                 return DataFailedMessage(f"Ошибка при обновлении пользователя",error=e)
+
+    @staticmethod
+    def recovery_password(user_id, psw_hash) -> DataState[User]:
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                user = session.get(UserModel, user_id)
+                if not user:
+                    return DataFailedMessage("Пользователь не найден")
+
+                user.password_hash = psw_hash
+                session.commit()
+
+                logger.debug(f"Пользователь {user.user_name} успешно восстановил аккаунт и сменил пароль")
+                return DataSuccess(User.model_validate(user))
+            except Exception as e:
+                session.rollback()
+                return DataFailedMessage(f"Ошибка при смене пароля",error=e)
 
     @staticmethod
     def check_user(email, password) -> DataState[User]:
@@ -144,8 +204,30 @@ class AuthDal:
                 if not check_password_hash(user.password_hash,password):
                     return DataFailedMessage("Неверный пароль")
 
+                if user.banned:
+                    return DataFailedMessage("Пользователь заблокирован",code=423)
+
                 #logger.info(f"Пользователь {user.user_name} успешно вошел в аккаунт")
                 return DataSuccess(User.model_validate(user))
+            except Exception as e:
+                return DataFailedMessage(f"Ошибка при проверки авторизации пользователя",error=e)
+
+    @staticmethod
+    def change_password(user_id, old_pwd_hash, new_pwd_hash) -> DataState[User]:
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                user = session.get(UserModel,user_id)
+                if not check_password_hash(user.password_hash,old_pwd_hash):
+                    return DataFailedMessage("Неверный пароль")
+
+                user.password_hash = new_pwd_hash
+                session.commit()
+                logger.debug(f"Пользователь {user.user_name} успешно сменил пароль")
+                return DataSuccess()
             except Exception as e:
                 session.rollback()
                 return DataFailedMessage(f"Ошибка при проверки авторизации пользователя",error=e)
@@ -162,7 +244,6 @@ class AuthDal:
                 if user:
                     return DataFailedMessage("Аккаунт с такой почтой уже существует")
 
-                return DataSuccess()
+                return DataSuccess(user.id)
             except Exception as e:
-                session.rollback()
                 return DataFailedMessage(f"Ошибка при проверки почты", error=e)
