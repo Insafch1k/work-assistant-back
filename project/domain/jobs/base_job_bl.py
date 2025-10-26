@@ -34,5 +34,11 @@ class BaseJobBl:
 
         return job
 
+    @staticmethod
+    def get_all_jobs(user_id) -> DataState[Job]:
+        jobs = BaseJobDal.get_all_jobs(user_id)
+        jobs = jobs.data
+        return jobs
+
 
 

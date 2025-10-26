@@ -53,5 +53,23 @@ class BaseJobDal:
             except Exception as e:
                 return DataFailedMessage(f"Ошибка при получении вакансии", error=e)
 
+    @staticmethod
+    def get_all_jobs(user_id):
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                jobs = session.query(JobModel).all()
+                if not jobs:
+                    return DataFailedMessage(f"Ошибка в нахождении списка вакансий")
+
+                # Преобразуем каждую работу в JSON
+                jobs_json = [Job.model_validate(job).to_json() for job in jobs]
+                return DataSuccess(jobs_json)
+            except Exception as e:
+                return DataFailedMessage(f"Ошибка при получении всех вакансии", error=e)
+
 
 

@@ -33,9 +33,14 @@ def create_job():
 def get_all_jobs():
     """Получение всех вакансий"""
     try:
-        return True
+        user_id = get_jwt_identity()
+        data_state = BaseJobBl.get_all_jobs(user_id)
+        if not data_state:
+            return data_state.to_response()
+
+        return jsonify(data_state), 200
     except Exception as e:
-        return False
+        return DataFailedMessage(f"Ошибка вывода всех вакансий", error=e).to_response()
 
 
 @job_router.route("/jobs/<int:job_id>/see_all", methods=["GET"])
