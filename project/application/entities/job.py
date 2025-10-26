@@ -8,6 +8,7 @@ class Job(BaseModel):
     id: Optional[int] = None
     user_id: int
     city_id: int
+    city: Optional[str] = None
     title: str
     wanted_job: Optional[str] = None
     description: Optional[str] = None
@@ -22,6 +23,8 @@ class Job(BaseModel):
     age: Optional[str] = None
     created_at: Optional[datetime] = None
     car: bool = False
+    is_favorite: Optional[bool] = False
+
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -30,11 +33,12 @@ class Job(BaseModel):
             'id': self.id,
             'user_id': self.user_id,
             'city_id': self.city_id,
+            'city': self.city,
             'title': self.title,
             'wanted_job': self.wanted_job,
             'description': self.description,
             'salary': self.salary,
-            'date': self.date.isoformat() if self.date else None,
+            'date': self.date.strftime("%d-%m-%Y") if self.date else None,
             'time_start': self.time_start.isoformat() if self.time_start else None,
             'time_end': self.time_end.isoformat() if self.time_end else None,
             'address': self.address,
@@ -42,7 +46,8 @@ class Job(BaseModel):
             'status': self.status,
             'xp': self.xp,
             'age': self.age,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'car': self.car
+            'created_at': self.created_at.strftime("%d-%m-%Y %H:%M:%S") if self.created_at else None,
+            'car': self.car,
+            'is_favorite': self.is_favorite
         }
         return data

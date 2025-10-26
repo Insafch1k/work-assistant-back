@@ -1,5 +1,5 @@
 from project.application.entities.job import Job
-from project.domain.core.models.jobs import JobsModel
+from project.domain.core.models.jobs import JobModel
 from project.utils.data_state import DataFailedMessage, DataSuccess
 from project.utils.db_connection import connection_db
 
@@ -15,7 +15,7 @@ class BaseJobDal:
 
         with Session() as session:
             try:
-                job = JobsModel(user_id=job_data.user_id,
+                job = JobModel(user_id=job_data.user_id,
                                 city_id=job_data.city_id,
                                 title=job_data.title,
                                 wanted_job=job_data.wanted_job,
@@ -33,8 +33,25 @@ class BaseJobDal:
                 session.commit()
 
                 logger.info(f"Вакансия '{job.title}' успешно добавлена с ID: {job.id}")
-                return DataSuccess(Job.model_validate(job))
+                return DataSuccess(Job.model_validate(job).to_json())
             except Exception as e:
                 session.rollback()
                 return DataFailedMessage(f"Ошибка при добавлении вакансии", error=e)
+
+    @staticmethod
+    def get_all_info_job(user_id, job_id):
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                job = session.query(JobModel).filter(JobModel.id == job_id).first()
+                if not job:
+                    return DataFailedMessage(f"Вакансия с id {job_id} не найдена")
+                return DataSuccess(Job.model_validate(job).to_json())
+            except Exception as e:
+                return DataFailedMessage(f"Ошибка при получении вакансии", error=e)
+
+
 

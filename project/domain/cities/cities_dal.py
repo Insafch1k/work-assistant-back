@@ -20,3 +20,19 @@ class CityDal:
                 return DataSuccess(City.model_validate(city))
             except Exception as e:
                 return DataFailedMessage(f"Ошибка при получении города", error=e)
+
+    @staticmethod
+    def get_city_name_by_id(city_id: int) -> DataState[City]:
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                city = session.query(CityModel.name).filter(CityModel.id == city_id).scalar()
+                if not city:
+                    return DataFailedMessage(f"Города с id {city_id} не найден")
+
+                return DataSuccess(city)
+            except Exception as e:
+                return DataFailedMessage(f"Ошибка при получении города", error=e)

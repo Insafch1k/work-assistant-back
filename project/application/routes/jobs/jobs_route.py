@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from project.application.routes.jobs.jobs_schemas import CreateNewJobValidateSchema
@@ -26,3 +26,28 @@ def create_job():
         return data_state.to_response()
     except Exception as e:
         return DataFailedMessage(f"Ошибка добавления вакансии", error=e).to_response()
+
+
+@job_router.route("/jobs", methods=["GET"])
+@jwt_required()
+def get_all_jobs():
+    """Получение всех вакансий"""
+    try:
+        return True
+    except Exception as e:
+        return False
+
+
+@job_router.route("/jobs/<int:job_id>/see_all", methods=["GET"])
+@jwt_required()
+def get_all_info_job(job_id: int):
+    """Подробная информация вакансии"""
+    try:
+        user_id = get_jwt_identity()
+        data_state = BaseJobBl.get_all_info_job(user_id, job_id)
+        if not data_state:
+            return data_state.to_response()
+
+        return jsonify(data_state), 200
+    except Exception as e:
+        return DataFailedMessage(f"Ошибка просмотра вакансии", error=e).to_response()
