@@ -1,3 +1,4 @@
+import redis
 from loguru import logger
 from sqlalchemy.orm import sessionmaker, Mapped, mapped_column
 from sqlalchemy import create_engine, String
@@ -23,3 +24,14 @@ def connection_db():
         logger.error(f'Sorry failed to connect: {ex}')
         return None
 
+
+def connection_redis():
+    dbnum = settings.REDIS_DB_NUM
+    host = settings.REDIS_HOST_NAME
+    port = settings.REDIS_PORT
+    try:
+        return redis.Redis(db=dbnum,host=host,port=port)
+
+    except Exception as ex:
+        logger.error(f'Sorry failed to connect: {ex}')
+        return None

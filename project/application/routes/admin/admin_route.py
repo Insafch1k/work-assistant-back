@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from project.application.routes.admin.admin_schemas import GetUsersValidateSchema, BanUserValidateSchema
 from project.domain.admin.admin_bl import AdminBl
+from project.domain.authorization.auth_bl import AuthBl
 from project.utils.data_state import  DataFailedMessage
 from project.utils.is_admin import admin_required
 

@@ -1,9 +1,13 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, decode_token, get_jwt
+
+from project.application.entities.event import MetricEvents
 from project.application.routes.authorization.auth_schemas import RegisterTgValidateSchema, LoginTgValidateSchema, \
     RegistrationValidateSchema, ConfirmationValidateSchema, LoginValidateSchema, ForgotPasswordValidateSchema, \
     RecoveryPasswordValidateSchema, ChangePasswordValidateSchema
+from project.application.routes.metrics.metric_schemas import TrackEventValidateSchema
 from project.domain.authorization.auth_bl import AuthBl
+from project.domain.metrics.metric_bl import MetricsBL
 from project.utils.data_state import DataFailedMessage
 
 auth_router = Blueprint("auth_router", __name__)
@@ -33,7 +37,6 @@ def register_mobile():
             return auth_data_state.to_response()
 
         temporary_id = auth_data_state.data
-        # MetricsBL.track_metric(MetricEvents.UserRegistered, user['user_id'])
         return jsonify({
             "temporary_id": temporary_id
         }), 200
@@ -66,8 +69,14 @@ def confirm_email():
             return auth_data_state.to_response()
 
         user = auth_data_state.data
-        # MetricsBL.track_metric(MetricEvents.UserRegistered, user['user_id'])
+        MetricsBL.track_metric(
+            TrackEventValidateSchema(event_name=MetricEvents.UserRegistered, user_id=user['user_id']))
         access_token = create_access_token(identity=user.id)
+        decoded = decode_token(access_token)
+        token_data_state = AuthBl.add_token(user_id=user.id,jti=decoded["jti"])
+        if not token_data_state:
+            return token_data_state.to_response()
+
         return jsonify({
             "message": "Вы успешно зарегистрированы",
             "access_token": access_token,
@@ -160,7 +169,16 @@ def recovery_password():
             return auth_data_state.to_response()
 
         user = auth_data_state.data
+        token_data_state = AuthBl.delete_all_sessions(user_id=user.id)
+        if not token_data_state:
+            return token_data_state.to_response()
+
         access_token = create_access_token(identity=str(user.id))
+        decoded = decode_token(access_token)
+        token_data_state = AuthBl.add_token(user_id=user.id,jti=decoded["jti"])
+        if not token_data_state:
+            return token_data_state.to_response()
+
         return jsonify({
             "message": "Вы успешно восстановили аккаунт.",
             "access_token": access_token,
@@ -198,7 +216,16 @@ def change_password():
             return auth_data_state.to_response()
 
         user = auth_data_state.data
+        token_data_state = AuthBl.delete_all_sessions(user_id=user.id)
+        if not token_data_state:
+            return token_data_state.to_response()
+
         access_token = create_access_token(identity=str(user.id))
+        decoded = decode_token(access_token)
+        token_data_state = AuthBl.add_token(user_id=user.id,jti=decoded["jti"])
+        if not token_data_state:
+            return token_data_state.to_response()
+
         return jsonify({
             "message": "Вы успешно сменили пароль.",
             "access_token": access_token,
@@ -206,7 +233,7 @@ def change_password():
         }), 200
 
     except Exception as e:
-        return DataFailedMessage(f"Ошибка при восстановлении пароля", error=e).to_response()
+        return DataFailedMessage(f"Ошибка при смене пароля", error=e).to_response()
 
 @auth_router.route("/auth/register", methods=["POST"])
 def register_tg():
@@ -233,8 +260,13 @@ def register_tg():
             return data_state.to_response()
 
         user = data_state.data
-   # MetricsBL.track_metric(MetricEvents.UserRegistered, user['user_id'])
+        MetricsBL.track_metric(TrackEventValidateSchema(event_name=MetricEvents.UserRegistered,user_id=user['user_id']))
         access_token = create_access_token(identity=user.id)
+        decoded = decode_token(access_token)
+        token_data_state = AuthBl.add_token(user_id=user.id,jti=decoded["jti"])
+        if not token_data_state:
+            return token_data_state.to_response()
+
         return jsonify({
             "message": "Вы успешно зарегистрированы",
             "access_token": access_token,
@@ -269,6 +301,11 @@ def login():
 
         user = data_state.data
         access_token = create_access_token(identity=str(user.id))
+        decoded = decode_token(access_token)
+        token_data_state = AuthBl.add_token(user_id=user.id,jti=decoded["jti"])
+        if not token_data_state:
+            return token_data_state.to_response()
+
         return jsonify({
             "message": "Вы успешно авторизовались",
             "access_token": access_token,
@@ -305,6 +342,11 @@ def login_mail():
 
         user = data_state.data
         access_token = create_access_token(identity=str(user.id))
+        decoded = decode_token(access_token)
+        token_data_state = AuthBl.add_token(user_id=user.id,jti=decoded["jti"])
+        if not token_data_state:
+            return token_data_state.to_response()
+
         return jsonify({
             "message": "Вы успешно авторизовались",
             "access_token": access_token,
@@ -312,3 +354,20 @@ def login_mail():
         }), 200
     except Exception as e:
         return DataFailedMessage(f"Ошибка при входе в аккаунт", error=e).to_response()
+
+@auth_router.route("/auth/logout", methods=['GET'])
+@jwt_required()
+def logout():
+    try:
+        user_id = get_jwt_identity()
+        jwt_data = get_jwt()  # Полный payload токена
+        auth_data_state = AuthBl.delete_token(user_id=user_id, jti=jwt_data["jti"])
+        if not auth_data_state:
+            return auth_data_state.to_response()
+
+        return jsonify({
+            "message": "Вы вышли из аккаунта.",
+        }), 200
+
+    except Exception as e:
+        return DataFailedMessage(f"Ошибка при выходе из аккаунта", error=e).to_response()

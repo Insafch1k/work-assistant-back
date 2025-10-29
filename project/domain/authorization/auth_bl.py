@@ -77,6 +77,22 @@ class AuthBl:
         return DataSuccess(int(temporary_id))
 
     @staticmethod
+    def add_token(user_id, jti) -> DataState:
+        return AuthDal.add_token(user_id, jti)
+
+    @staticmethod
+    def has_token(user_id, jti) -> DataState:
+        return AuthDal.has_token(user_id, jti)
+
+    @staticmethod
+    def delete_token(user_id, jti) -> DataState:
+        return AuthDal.delete_token(user_id, jti)
+
+    @staticmethod
+    def delete_all_sessions(user_id) -> DataState:
+        return AuthDal.delete_all_sessions(user_id)
+
+    @staticmethod
     def confirm_mail(result: ConfirmationValidateSchema) -> DataState[User]:
         final_code=f'{result.temporary_id}{result.code}'
         verif_data_state = AuthDal.get_verification_data(final_code)

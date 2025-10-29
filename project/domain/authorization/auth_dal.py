@@ -10,7 +10,8 @@ from project.application.entities.user import User
 from project.domain.core.models.resume import ResumeModel
 from project.domain.core.models.user import UserModel
 from project.utils.data_state import DataState, DataFailedMessage, DataSuccess
-from project.utils.db_connection import connection_db
+from project.utils.db_connection import connection_db, connection_redis
+
 
 class AuthDal:
     @staticmethod
@@ -68,9 +69,65 @@ class AuthDal:
                 return DataFailedMessage(f"Ошибка при добавлении пользователя",error=e)
 
     @staticmethod
+    def add_token(user_id, jti) -> DataState:
+        try:
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
+
+            key = f"tokens:{user_id}"
+            redis_client.sadd(key, jti)
+            redis_client.expire(key, timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRES))
+            return DataSuccess()
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при добавлении токена",error=e)
+
+    @staticmethod
+    def has_token(user_id: str, jti: str) -> DataState:
+        try:
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
+
+            key = f"tokens:{user_id}"
+            return DataSuccess(redis_client.sismember(key, jti))
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при проверке токена",error=e)
+
+    @staticmethod
+    def delete_token(user_id: str, jti: str) -> DataState:
+        try:
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
+
+            key = f"tokens:{user_id}"
+            redis_client.srem(key, jti)
+            if redis_client.scard(key) == 0:  # если нет больше токенов
+                redis_client.delete(key)
+            return DataSuccess()
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при удалении токена",error=e)
+
+    @staticmethod
+    def delete_all_sessions(user_id: str) -> DataState:
+        try:
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
+
+            key = f"tokens:{user_id}"
+            redis_client.delete(key)
+            return DataSuccess()
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при удалении всех токенов пользователя",error=e)
+
+    @staticmethod
     def store_verification_data(code, email, password_hash, user_name, user_role) -> DataState:
         try:
-            redis_client = redis.Redis(db=1)
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
 
             verification_data = {
                 'user_name': user_name,
@@ -95,7 +152,9 @@ class AuthDal:
     @staticmethod
     def get_verification_data(code) -> DataState:
         try:
-            redis_client = redis.Redis(db=1)
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
 
             key = f"verification:{code}"
             data = redis_client.get(key)
@@ -110,7 +169,9 @@ class AuthDal:
     @staticmethod
     def check_password_recovery_code(code,delete_after: bool=False) -> DataState[str]:
         try:
-            redis_client = redis.Redis(db=1)
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
 
             key = f"verification:{code}"
             user_id = redis_client.get(key)
@@ -127,7 +188,9 @@ class AuthDal:
     @staticmethod
     def store_password_recovery_code(code, user_id) -> DataState:
         try:
-            redis_client = redis.Redis(db=1)
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
 
             # Сохраняем в Redis
             key = f"verification:{code}"

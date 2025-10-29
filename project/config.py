@@ -15,7 +15,7 @@ class MailConfig(BaseSettings):
 
 class Settings(BaseSettings):
     JWT_SECRET_KEY: str
-    JWT_ACCESS_TOKEN_EXPIRES_HOURS: float
+    JWT_ACCESS_TOKEN_EXPIRES: int
 
     USER: str
     PASSWORD: str
@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     DEBUG_RESPONSE: bool # если true, то при ошибках будет выводить в response traceback и саму ошибку
     CHANNEL_ID_CHELNY: str
     CODE_EXPIRES: int #  в минутах
+
+    REDIS_DB_NUM: int
+    REDIS_HOST_NAME: str
+    REDIS_PORT: str
 
     class Config:
         env_file = "../.env"
