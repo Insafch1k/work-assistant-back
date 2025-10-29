@@ -7,3 +7,7 @@ class CityBl:
     @staticmethod
     def get_city_id_by_name(city_name: str) -> DataState[City]:
         return CityDal.get_city_id_by_name(city_name)
+
+    @staticmethod
+    def get_city_name_by_id(city_id: int) -> DataState[City]:
+        return CityDal.get_city_name_by_id(city_id)

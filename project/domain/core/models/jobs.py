@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, ForeignKey, Text, DateTime, Boolean, fun
 from sqlalchemy.orm import relationship
 
 from project.utils.base_model import Base
-class JobsModel(Base):
+class JobModel(Base):
     __tablename__ = 'jobs'
     __table_args__ = {'schema': 'public'}
 

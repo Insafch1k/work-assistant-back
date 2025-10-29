@@ -17,6 +17,7 @@ class CreateNewJobValidateSchema(BaseModel):
     city: str
     xp: str
     age: str
+    is_urgent: bool
     car: bool
 
     @classmethod
