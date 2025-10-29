@@ -26,17 +26,19 @@ class AuthBl:
         return AuthDal.update_user(data.tg_id, data.tg_username)
 
     @staticmethod
-    def forgot_password(data: ForgotPasswordValidateSchema) -> DataState[int]:
+    def forgot_password(data: ForgotPasswordValidateSchema) -> DataState:
         data_state = AuthDal.email_exists(data.email)
         if not data_state:
-            return data_state
+             return data_state
+        user = data_state.data
+        if not user:
+            return DataFailedMessage("Аккаунта с такой почтой не существует")
 
-        user_id = data_state.data
         temporary_id = generate_secure_code()
         mail_code = generate_secure_code()
         final_code = f'{temporary_id}{mail_code}'
 
-        data_state = AuthDal.store_password_recovery_code(final_code, user_id)
+        data_state = AuthDal.store_password_recovery_code(final_code, user.id)
         if not data_state:
             return data_state
 
@@ -55,6 +57,10 @@ class AuthBl:
         email_data_state = AuthDal.email_exists(data.email)
         if not email_data_state:
             return email_data_state
+
+        user = email_data_state.data
+        if user:
+            return DataFailedMessage("Аккаунт с такой почтой уже существует")
 
         temporary_id = generate_secure_code()
         mail_code = generate_secure_code()
@@ -81,6 +87,9 @@ class AuthBl:
         email_data_state = AuthDal.email_exists(user.email)
         if not email_data_state:
             return email_data_state
+        user = email_data_state.data
+        if user:
+            return DataFailedMessage("Аккаунт с такой почтой уже существует")
 
         add_data_state = AuthDal.add_email_user(user)
         if not add_data_state:
@@ -109,9 +118,8 @@ class AuthBl:
 
     @staticmethod
     def change_password(result: ChangePasswordValidateSchema,user_id) -> DataState:
-        old_pwd_hash = generate_password_hash(result.old_password)
-        new_pwd_hash = generate_password_hash(result.password)
-        return AuthDal.change_password(user_id, old_pwd_hash, new_pwd_hash)
+        new_pwd_hash = generate_password_hash(result.new_password)
+        return AuthDal.change_password(user_id, result.old_password, new_pwd_hash)
 
 
 

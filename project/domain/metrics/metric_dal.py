@@ -185,7 +185,7 @@ class MetricsDal:
                 for row in query.all()])
 
     @staticmethod
-    def _get_response_rate(session, period_type: PeriodType, limit: int) -> DataState:
+    def _get_response_rate(session, period_type: PeriodType, limit: int):
         """Метрика: rate откликов"""
         periods_cte = MetricsDal._generate_periods(session, period_type, limit)
         period_expr = MetricsDal.DATE_TRUNC_MAP[period_type]
@@ -211,12 +211,13 @@ class MetricsDal:
             .cte('users')
         )
 
+        # Исправленный синтаксис case()
         query = (
             session.query(
                 func.to_char(periods_cte.c.period, MetricsDal.PERIOD_FORMATS[period_type]).label('period'),
                 case(
-                    [(users_cte.c.users_count > 0,
-                      responses_cte.c.responses_count.cast(Float) / users_cte.c.users_count)],
+                    (
+                    users_cte.c.users_count > 0, responses_cte.c.responses_count.cast(Float) / users_cte.c.users_count),
                     else_=0.0
                 ).label('value')
             )

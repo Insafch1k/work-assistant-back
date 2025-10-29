@@ -4,8 +4,8 @@ from pydantic import BaseModel, ValidationError, Field, field_validator
 from project.utils.data_state import DataFailedMessage, DataState, DataSuccess
 
 class ChangePasswordValidateSchema(BaseModel):
-    old_password: Field(str)
-    new_password: Field(str,min_length=8)
+    old_password: str
+    new_password: str = Field(min_length=8)
 
     @classmethod
     def from_request(cls, json_data) -> DataState[ChangePasswordValidateSchema]:
@@ -22,7 +22,7 @@ class ChangePasswordValidateSchema(BaseModel):
 class RecoveryPasswordValidateSchema(BaseModel):
     temporary_id: int
     code: int
-    password: str
+    password: str = Field(min_length=8)
 
     @classmethod
     def from_request(cls, json_data) -> DataState[RecoveryPasswordValidateSchema]:
@@ -54,7 +54,6 @@ class ConfirmationValidateSchema(BaseModel):
 
 class ForgotPasswordValidateSchema(BaseModel):
     email: str
-    code: int
 
     @classmethod
     def from_request(cls, json_data) -> DataState[ForgotPasswordValidateSchema]:
@@ -70,7 +69,7 @@ class ForgotPasswordValidateSchema(BaseModel):
 
 class RegistrationValidateSchema(BaseModel):
     username: str
-    password: Field(str, min_length=8)
+    password: str = Field(min_length=8)
     email: str
     user_role: str
 

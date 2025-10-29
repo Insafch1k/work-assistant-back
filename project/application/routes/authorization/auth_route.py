@@ -172,7 +172,7 @@ def recovery_password():
 
 
 @auth_router.route("/auth/change_password", methods=['POST'])
-@jwt_required
+@jwt_required()
 def change_password():
     """
     Смена пароля
@@ -200,7 +200,7 @@ def change_password():
         user = auth_data_state.data
         access_token = create_access_token(identity=str(user.id))
         return jsonify({
-            "message": "Вы успешно восстановили аккаунт.",
+            "message": "Вы успешно сменили пароль.",
             "access_token": access_token,
             "role": user.user_role
         }), 200

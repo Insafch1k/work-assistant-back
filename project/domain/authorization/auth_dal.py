@@ -108,7 +108,7 @@ class AuthDal:
             return DataFailedMessage(f"Ошибка при проверке кода",error=e)
 
     @staticmethod
-    def check_password_recovery_code(code,delete_after: bool=False) -> DataState:
+    def check_password_recovery_code(code,delete_after: bool=False) -> DataState[str]:
         try:
             redis_client = redis.Redis(db=1)
 
@@ -119,7 +119,7 @@ class AuthDal:
             if delete_after:
                 redis_client.delete(key)
 
-            return DataSuccess(user_id)
+            return DataSuccess(user_id.decode('utf-8'))
 
         except Exception as e:
             return DataFailedMessage(f"Ошибка при проверке кода",error=e)
@@ -213,7 +213,7 @@ class AuthDal:
                 return DataFailedMessage(f"Ошибка при проверки авторизации пользователя",error=e)
 
     @staticmethod
-    def change_password(user_id, old_pwd_hash, new_pwd_hash) -> DataState[User]:
+    def change_password(user_id, old_pwd, new_pwd_hash) -> DataState[User]:
         Session = connection_db()
         if not Session:
             return DataFailedMessage("Database connection error")
@@ -221,19 +221,19 @@ class AuthDal:
         with Session() as session:
             try:
                 user = session.get(UserModel,user_id)
-                if not check_password_hash(user.password_hash,old_pwd_hash):
+                if not check_password_hash(user.password_hash,old_pwd):
                     return DataFailedMessage("Неверный пароль")
 
                 user.password_hash = new_pwd_hash
                 session.commit()
                 logger.debug(f"Пользователь {user.user_name} успешно сменил пароль")
-                return DataSuccess()
+                return DataSuccess(user)
             except Exception as e:
                 session.rollback()
                 return DataFailedMessage(f"Ошибка при проверки авторизации пользователя",error=e)
 
     @staticmethod
-    def email_exists(email):
+    def email_exists(email) -> DataState[User]:
         Session = connection_db()
         if not Session:
             return DataFailedMessage("Database connection error")
@@ -241,9 +241,7 @@ class AuthDal:
         with Session() as session:
             try:
                 user = session.query(UserModel).filter(UserModel.email == email).first()
-                if user:
-                    return DataFailedMessage("Аккаунт с такой почтой уже существует")
+                return DataSuccess(user)
 
-                return DataSuccess(user.id)
             except Exception as e:
                 return DataFailedMessage(f"Ошибка при проверки почты", error=e)
