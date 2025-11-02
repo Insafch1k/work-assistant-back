@@ -1,6 +1,9 @@
+from sqlalchemy import update
+
 from project.application.entities.job import Job
 from project.domain.core.models.jobs import JobModel
-from project.utils.data_state import DataFailedMessage, DataSuccess
+from project.domain.core.models.user import UserModel
+from project.utils.data_state import DataFailedMessage, DataSuccess, DataState
 from project.utils.db_connection import connection_db
 
 from loguru import logger
@@ -71,5 +74,30 @@ class BaseJobDal:
             except Exception as e:
                 return DataFailedMessage(f"Ошибка при получении всех вакансии", error=e)
 
+    @staticmethod
+    def update_job(job_id, job_data) -> DataState:
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+        if not job_data:
+            return DataFailedMessage("Нет данных для обновления")
 
+        with Session() as session:
+            try:
+                job = session.get(JobModel, job_id)
+                if not job:
+                    return DataFailedMessage("Вакансия не найдена")
 
+                stmt = (
+                    update(JobModel)
+                    .where(JobModel.id == job_id)
+                    .values(**job_data)
+                )
+                session.execute(stmt)
+                session.commit()
+
+                session.commit()
+                return DataSuccess('Данные вакансии успешно обновлены!')
+            except Exception as e:
+                session.rollback()
+                return DataFailedMessage(f"Ошибка в обновлении вакансии job_id = {job_id}", error=e)

@@ -40,11 +40,11 @@ class UpdateJobSchema(BaseModel):
     job: Optional[CreateNewJobValidateSchema] = None
 
     @staticmethod
-    def from_request(json_data: dict) -> DataState[UpdateJobSchema]:
+    def from_request(json_data: dict) -> DataState:
         try:
             # Обрабатываем вложенный объект resume
             if 'job' in json_data and isinstance(json_data['job'], dict):
-                json_data['job'] = UpdateJobSchema(**json_data['job'])
+                json_data['job'] = CreateNewJobValidateSchema(**json_data['job'])
             return DataSuccess(UpdateJobSchema(**json_data))
         except ValidationError as e:
             errors = [

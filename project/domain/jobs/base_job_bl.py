@@ -40,5 +40,10 @@ class BaseJobBl:
         jobs = jobs.data
         return jobs
 
+    @staticmethod
+    def update_job(job_id, updated_data) -> DataState:
+        job_data = updated_data.get('job', {})
+        return BaseJobDal.update_job(job_id, job_data)
+
 
 
