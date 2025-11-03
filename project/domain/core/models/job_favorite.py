@@ -11,3 +11,5 @@ class JobFavoriteModel(Base):
     job_id = Column(Integer, ForeignKey('public.jobs.id', ondelete='CASCADE'))
     created_at = Column(DateTime, default=func.now())
 
+    job = relationship("JobModel", back_populates="favorites")
+

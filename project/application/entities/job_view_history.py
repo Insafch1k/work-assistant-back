@@ -15,6 +15,6 @@ class JobViewHistory(BaseModel):
             'id': self.id,
             'user_id': self.user_id,
             'job_id': self.job_id,
-            'viewed_at': self.viewed_at.isoformat() if self.viewed_at else None
+            'viewed_at': self.viewed_at.strftime("%d-%m-%Y %H:%M:%S") if self.viewed_at else None
         }
         return data

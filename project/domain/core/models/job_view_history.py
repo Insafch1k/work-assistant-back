@@ -12,3 +12,5 @@ class JobViewHistoryModel(Base):
     job_id = Column(Integer, ForeignKey('public.jobs.id', ondelete='CASCADE'))
     viewed_at = Column(DateTime, default=func.now())
 
+    job = relationship("JobModel", back_populates="histories")
+

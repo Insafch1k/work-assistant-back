@@ -1,6 +1,7 @@
-from sqlalchemy import update
+from sqlalchemy import update, and_
 
 from project.application.entities.job import Job
+from project.domain.core.models.job_favorite import JobFavoriteModel
 from project.domain.core.models.jobs import JobModel
 from project.domain.core.models.user import UserModel
 from project.utils.data_state import DataFailedMessage, DataSuccess, DataState
@@ -49,13 +50,28 @@ class BaseJobDal:
 
         with Session() as session:
             try:
-                job = session.query(JobModel).filter(JobModel.id == job_id).first()
+                job = (
+                    session.query(JobModel, JobFavoriteModel.id.label("favorite_id"))
+                    .outerjoin(
+                        JobFavoriteModel,
+                        (JobFavoriteModel.job_id == JobModel.id) &
+                        (JobFavoriteModel.user_id == user_id)
+                    )
+                    .filter(JobModel.id == job_id)
+                    .first()
+                )
+
                 if not job:
                     return DataFailedMessage(f"Вакансия с id {job_id} не найдена")
-                return DataSuccess(Job.model_validate(job).to_json())
-            except Exception as e:
-                return DataFailedMessage(f"Ошибка при получении вакансии", error=e)
 
+                job_model, favorite_id = job
+                job_data = Job.model_validate(job_model).to_json()
+                job_data["is_favorite"] = favorite_id is not None
+
+                return DataSuccess(job_data)
+
+            except Exception as e:
+                return DataFailedMessage("Ошибка при получении вакансии", error=e)
     @staticmethod
     def get_all_jobs(user_id):
         Session = connection_db()
@@ -64,12 +80,28 @@ class BaseJobDal:
 
         with Session() as session:
             try:
-                jobs = session.query(JobModel).all()
-                if not jobs:
-                    return DataFailedMessage(f"Ошибка в нахождении списка вакансий")
+                jobs = (
+                    session.query(JobModel, JobFavoriteModel.id.label("favorite_id"))
+                    .outerjoin(
+                        JobFavoriteModel,
+                        and_(
+                            JobFavoriteModel.job_id == JobModel.id,
+                            JobFavoriteModel.user_id == user_id
+                        )
+                    )
+                    .all()
+                )
 
-                # Преобразуем каждую работу в JSON
-                jobs_json = [Job.model_validate(job).to_json() for job in jobs]
+                if not jobs:
+                    return DataFailedMessage("Ошибка в нахождении списка вакансий")
+
+                # Преобразуем результат в JSON
+                jobs_json = []
+                for job_model, favorite_id in jobs:
+                    job_data = Job.model_validate(job_model).to_json()
+                    job_data["is_favorite"] = favorite_id is not None
+                    jobs_json.append(job_data)
+
                 return DataSuccess(jobs_json)
             except Exception as e:
                 return DataFailedMessage(f"Ошибка при получении всех вакансии", error=e)

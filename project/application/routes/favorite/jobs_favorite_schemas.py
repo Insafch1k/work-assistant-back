@@ -5,13 +5,13 @@ from pydantic import BaseModel, ValidationError
 from project.utils.data_state import DataFailedMessage, DataState, DataSuccess
 
 
-class AddJobToFavoriteValidateSchema(BaseModel):
+class JobIdValidateSchema(BaseModel):
     job_id: int
 
     @classmethod
-    def from_request(cls, json_data) -> DataState[AddJobToFavoriteValidateSchema]:
+    def from_request(cls, json_data) -> DataState[JobIdValidateSchema]:
         try:
-            return DataSuccess(AddJobToFavoriteValidateSchema(**json_data))
+            return DataSuccess(JobIdValidateSchema(**json_data))
         except ValidationError as e:
             errors = [
                 {"field": err["loc"][0],

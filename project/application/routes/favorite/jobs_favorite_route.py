@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from project.application.routes.favorite.jobs_favorite_schemas import AddJobToFavoriteValidateSchema
+from project.application.routes.favorite.jobs_favorite_schemas import JobIdValidateSchema as SendJobIdValidateSchema
 from project.domain.favorite.favorite_bl import FavoriteJobBL
 from project.domain.jobs.base_job_bl import BaseJobBl
 from project.utils.data_state import DataFailedMessage
@@ -15,7 +15,7 @@ def add_job_to_favorite():
     try:
         user_id = get_jwt_identity()
         data = request.get_json()
-        validate_data_state = AddJobToFavoriteValidateSchema.from_request(data)
+        validate_data_state = SendJobIdValidateSchema.from_request(data)
         if not validate_data_state:
             return validate_data_state.to_response()
 
@@ -38,3 +38,21 @@ def get_list_of_favorites():
         return jobs_state.to_response()
     except Exception as e:
         return DataFailedMessage(f"Ошибка вывода списка избранных", error=e).to_response()
+
+@job_favorite_router.route("/jobs/favorite", methods=["DELETE"])
+@jwt_required()
+def remove_job_from_favorites():
+    try:
+        user_id = get_jwt_identity()
+
+        data = request.get_json()
+        validate_data_state = SendJobIdValidateSchema.from_request(data)
+        if not validate_data_state:
+            return validate_data_state.to_response()
+
+        job_id = validate_data_state.data.job_id
+        data_state = FavoriteJobBL.delete_job_from_favorites(user_id, job_id)
+
+        return data_state.to_response()
+    except Exception as e:
+        return DataFailedMessage(f"Ошибка удаления вакансии из избранных", error=e).to_response()

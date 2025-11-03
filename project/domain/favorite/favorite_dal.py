@@ -45,7 +45,35 @@ class FavoriteJobDal:
                 if not favorite_jobs:
                     return DataSuccess([])  # Возвращаем пустой список, если нет избранных
 
-                jobs_data = [Job.model_validate(job).to_json() for job in favorite_jobs]
-                return DataSuccess(jobs_data)
+                jobs_data = []
+                for job in favorite_jobs:
+                    job_data = Job.model_validate(job).to_json()
+                    job_data["is_favorite"] = True
+                    jobs_data.append(job_data)
             except Exception as e:
                 return DataFailedMessage(f"Ошибка при получении списка избранных вакансий", error=e)
+
+    @staticmethod
+    def delete_job_from_favorites(user_id, job_id) -> DataState:
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                job_favorite = session.query(JobFavoriteModel).filter_by(
+                    user_id=user_id,
+                    job_id=job_id
+                ).first()
+
+                if not job_favorite:
+                    return DataFailedMessage("Вакансия не найдена в избранном")
+
+                session.delete(job_favorite)
+                session.commit()
+
+                logger.info(f"Вакансия '{job_id}' удалена из избранного пользователя {user_id}")
+                return DataSuccess({"message": "Вакансия успешно удалена из избранного", "deleted_id": job_id})
+            except Exception as e:
+                session.rollback()
+                return DataFailedMessage(f"Ошибка при удалении вакансии из избранного", error=e)
