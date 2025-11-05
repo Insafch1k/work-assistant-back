@@ -13,7 +13,7 @@ def connection_db():
     port = settings.PORT
     try:
         # for creating connection string
-        connection_str = f'postgresql://{user}:{password}@{host}:{port}/{dbname}'
+        connection_str = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}'
         # SQLAlchemy engine
         engine = create_engine(connection_str)
         # you can test if the connection is made or not

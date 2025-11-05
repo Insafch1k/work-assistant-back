@@ -77,6 +77,7 @@ class RegistrationValidateSchema(BaseModel):
     def validate_name(cls, v):
         if not v in ['finder','employer']:
             raise ValueError('Неверная роль!')
+        return v
 
     @classmethod
     def from_request(cls, json_data) -> DataState[RegistrationValidateSchema]:
@@ -100,6 +101,7 @@ class RegisterTgValidateSchema(BaseModel):
     def validate_name(cls, v):
         if not v in ['finder','employer']:
             raise ValueError('Неверная роль!')
+        return v
 
     @staticmethod
     def from_request(json_data) -> DataState[RegisterTgValidateSchema]:

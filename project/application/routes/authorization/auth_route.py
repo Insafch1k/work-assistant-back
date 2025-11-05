@@ -70,8 +70,8 @@ def confirm_email():
 
         user = auth_data_state.data
         MetricsBL.track_metric(
-            TrackEventValidateSchema(event_name=MetricEvents.UserRegistered, user_id=user['user_id']))
-        access_token = create_access_token(identity=user.id)
+            TrackEventValidateSchema(event_name=MetricEvents.UserRegistered, user_id=user.id))
+        access_token = create_access_token(identity=str(user.id))
         decoded = decode_token(access_token)
         token_data_state = AuthBl.add_token(user_id=user.id,jti=decoded["jti"])
         if not token_data_state:
@@ -260,8 +260,8 @@ def register_tg():
             return data_state.to_response()
 
         user = data_state.data
-        MetricsBL.track_metric(TrackEventValidateSchema(event_name=MetricEvents.UserRegistered,user_id=user['user_id']))
-        access_token = create_access_token(identity=user.id)
+        MetricsBL.track_metric(TrackEventValidateSchema(event_name=MetricEvents.UserRegistered,user_id=user.id))
+        access_token = create_access_token(identity=str(user.id))
         decoded = decode_token(access_token)
         token_data_state = AuthBl.add_token(user_id=user.id,jti=decoded["jti"])
         if not token_data_state:
