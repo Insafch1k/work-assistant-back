@@ -26,11 +26,11 @@ def connection_db():
 
 
 def connection_redis():
-    dbnum = settings.REDIS_DB_NUM
     host = settings.REDIS_HOST_NAME
     port = settings.REDIS_PORT
+    password = settings.REDIS_PASSWORD
     try:
-        return redis.Redis(db=dbnum,host=host,port=port)
+        return redis.Redis(host=host,port=port,password=password)
 
     except Exception as ex:
         logger.error(f'Sorry failed to connect: {ex}')

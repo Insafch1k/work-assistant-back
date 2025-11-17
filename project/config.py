@@ -28,9 +28,9 @@ class Settings(BaseSettings):
     CHANNEL_ID_CHELNY: str
     CODE_EXPIRES: int #  в минутах
 
-    REDIS_DB_NUM: int
     REDIS_HOST_NAME: str
     REDIS_PORT: str
+    REDIS_PASSWORD: str
 
     class Config:
         env_file = "../.env"
