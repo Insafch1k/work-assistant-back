@@ -1,8 +1,11 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from project.application.entities.event import MetricEvents
 from project.application.routes.jobs.jobs_schemas import CreateNewJobValidateSchema, UpdateJobSchema
+from project.application.routes.metrics.metric_schemas import TrackEventValidateSchema
 from project.domain.jobs.base_job_bl import BaseJobBl
+from project.domain.metrics.metric_bl import MetricsBL
 from project.utils.data_state import DataFailedMessage
 
 from loguru import logger
@@ -24,6 +27,8 @@ def create_job():
 
         result = validate_data_state.data
         data_state = BaseJobBl.add_job(user_id, result)
+        if data_state:
+            MetricsBL.track_metric(TrackEventValidateSchema(event_name=MetricEvents.VacancyPublished,user_id=user_id))
 
         return data_state.to_response()
     except Exception as e:

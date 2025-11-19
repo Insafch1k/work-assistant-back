@@ -22,6 +22,9 @@ class AuthDal:
 
         with Session() as session:
             try:
+                user = session.query(UserModel).filter(UserModel.tg_id == tg_id).first()
+                if not user:
+                    return DataFailedMessage("Пользователь не найден")
                 user = UserModel(
                     user_role=user_role,
                     tg_username=tg_username,
@@ -216,7 +219,7 @@ class AuthDal:
             try:
                 user = session.query(UserModel).filter(UserModel.tg_id == tg_id).first()
                 if not user:
-                    return DataFailedMessage("Пользователь не найден")
+                    return DataFailedMessage("Пользователь не найден",code=404)
 
                 if user.banned:
                     return DataFailedMessage("Пользователь заблокирован",code=423)
