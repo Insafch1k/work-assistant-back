@@ -103,8 +103,8 @@ class AuthBl:
         email_data_state = AuthDal.email_exists(user.email)
         if not email_data_state:
             return email_data_state
-        user = email_data_state.data
-        if user:
+
+        if email_data_state.data:
             return DataFailedMessage("Аккаунт с такой почтой уже существует")
 
         add_data_state = AuthDal.add_email_user(user)
