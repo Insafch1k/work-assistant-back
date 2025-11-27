@@ -72,6 +72,33 @@ class AuthDal:
                 return DataFailedMessage(f"Ошибка при добавлении пользователя",error=e)
 
     @staticmethod
+    def add_websocket_uid(user_id, uid) -> DataState:
+        try:
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
+
+            key = f"active_users:{user_id}"
+            redis_client.setex(key, uid, timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRES))
+            return DataSuccess()
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при добавлении websocket_uid",error=e)
+
+    @staticmethod
+    def delete_websocket_uid(user_id: str) -> DataState:
+        try:
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
+
+            key = f"active_users:{user_id}"
+            redis_client.delete(key)
+            return DataSuccess()
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при удалении websocket_uid",error=e)
+
+
+    @staticmethod
     def add_token(user_id, jti) -> DataState:
         try:
             redis_client = connection_redis()

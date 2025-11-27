@@ -1,6 +1,9 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, decode_token, get_jwt
+from flask_socketio import disconnect
+from loguru import logger
 
+from extensions import socketio
 from project.application.entities.event import MetricEvents
 from project.application.routes.authorization.auth_schemas import RegisterTgValidateSchema, LoginTgValidateSchema, \
     RegistrationValidateSchema, ConfirmationValidateSchema, LoginValidateSchema, ForgotPasswordValidateSchema, \
@@ -9,6 +12,7 @@ from project.application.routes.metrics.metric_schemas import TrackEventValidate
 from project.domain.authorization.auth_bl import AuthBl
 from project.domain.metrics.metric_bl import MetricsBL
 from project.utils.data_state import DataFailedMessage
+from project.utils.get_jwt_from_socket import require_jwt_or_disconnect
 
 auth_router = Blueprint("auth_router", __name__)
 
@@ -371,3 +375,23 @@ def logout():
 
     except Exception as e:
         return DataFailedMessage(f"Ошибка при выходе из аккаунта", error=e).to_response()
+
+@socketio.on("connect", namespace="/ws")
+def on_connect():
+    user_id = require_jwt_or_disconnect()
+    if not user_id:
+        return
+
+    sid = request.sid
+    data_state = AuthBl.add_websocket_uid(user_id,sid)
+
+@socketio.on("disconnect", namespace="/ws")
+def on_disconnect(data):
+    logger.debug('leave')
+    user_id = require_jwt_or_disconnect()
+    #sid = request.sid
+    if not user_id:
+        return
+
+    AuthBl.delete_websocket_uid(user_id)
+    disconnect()

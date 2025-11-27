@@ -77,6 +77,14 @@ class AuthBl:
         return DataSuccess(int(temporary_id))
 
     @staticmethod
+    def add_websocket_uid(user_id, uid) -> DataState:
+        return AuthDal.add_websocket_uid(user_id, uid)
+
+    @staticmethod
+    def delete_websocket_uid(user_id) -> DataState:
+        return AuthDal.delete_websocket_uid(user_id)
+
+    @staticmethod
     def add_token(user_id, jti) -> DataState:
         return AuthDal.add_token(user_id, jti)
 
