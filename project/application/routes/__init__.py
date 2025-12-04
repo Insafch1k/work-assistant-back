@@ -6,6 +6,7 @@ from project.application.routes.jobs.jobs_route import job_router
 from project.application.routes.favorite.jobs_favorite_route import job_favorite_router
 from project.application.routes.history.jobs_history_route import job_history_router
 from project.application.routes.metrics.metric_route import mertic_router
+from project.application.routes.chat.chat_route import chat_router
 all_routes = Blueprint("all_routes", __name__, url_prefix="/api")
 
 all_routes.register_blueprint(admin_router)
@@ -15,3 +16,4 @@ all_routes.register_blueprint(job_router)
 all_routes.register_blueprint(job_favorite_router)
 all_routes.register_blueprint(job_history_router)
 all_routes.register_blueprint(mertic_router)
+all_routes.register_blueprint(chat_router)

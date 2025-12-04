@@ -30,7 +30,7 @@ def connection_redis():
     port = settings.REDIS_PORT
     password = settings.REDIS_PASSWORD
     try:
-        return redis.Redis(host=host,port=port,password=password)
+        return redis.Redis(host=host,port=port,password=password, decode_responses=True)
 
     except Exception as ex:
         logger.error(f'Sorry failed to connect: {ex}')

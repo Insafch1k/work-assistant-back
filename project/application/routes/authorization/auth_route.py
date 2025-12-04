@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, decode_token, get_jwt
-from flask_socketio import disconnect
+from flask_socketio import disconnect, emit
 from loguru import logger
 
 from extensions import socketio
@@ -384,6 +384,13 @@ def on_connect():
 
     sid = request.sid
     data_state = AuthBl.add_websocket_uid(user_id,sid)
+
+    if not data_state:
+        emit("error", data_state.to_response()[0].data, namespace="/ws")
+        disconnect()
+        return
+
+    emit("connected", namespace="/ws")
 
 @socketio.on("disconnect", namespace="/ws")
 def on_disconnect(data):

@@ -1,6 +1,9 @@
+from datetime import timedelta
+
 from requests import session
 from sqlalchemy import func, case
 
+from project import settings
 from project.domain.core.models.chat import ChatModel
 from project.domain.core.models.jobs import JobModel
 from project.domain.core.models.message import MessageModel
@@ -28,8 +31,8 @@ class ChatDal:
 
                 #Кол-во непрочитанных сообщений
                 last_read_id_expr = case(
-                    (ChatModel.finder_id == user_id, ChatModel.last_message_finder),
-                    (ChatModel.employer_id == user_id, ChatModel.last_message_employer),
+                    (ChatModel.finder_id == user_id, ChatModel.last_message_finder_id),
+                    (ChatModel.employer_id == user_id, ChatModel.last_message_employer_id),
                     else_=None
                 )
 
@@ -110,13 +113,22 @@ class ChatDal:
 
         with Session() as session:
             try:
-                chat = session.query(ChatModel).filter(ChatModel.finder_id == finder_id and ChatModel.employer_id == employer_id).first()
+                chat = session.query(ChatModel).filter(ChatModel.finder_id == finder_id, ChatModel.employer_id == employer_id).first()
                 if not chat:
                     return DataFailedMessage('Такого чата нету',code=404)
 
                 messages = session.query(MessageModel).filter(
                     MessageModel.chat_id == chat.id).order_by(MessageModel.id.desc()).offset(offset).limit(limit).all()
                 messages = list(reversed(messages))
+
+                if new_job_id:
+                    new_job_id = int(new_job_id)
+                    job = session.get(JobModel, new_job_id)
+                    if job.user_id != employer_id:
+                        return DataFailedMessage('Работя не принадлежит данному работодателю',code=403)
+
+                    chat.job_id = new_job_id
+                    chat.name = job.title
 
                 result ={
                     "messages": [
@@ -142,9 +154,7 @@ class ChatDal:
                     else:
                         chat.last_message_finder_id = other_msgs[-1]
 
-                if new_job_id:
-                    chat.job_id = new_job_id
-                    chat.name = session.get(JobModel, new_job_id).title
+
 
                 session.commit()
 
@@ -170,13 +180,18 @@ class ChatDal:
 
         with Session() as session:
             try:
-                chat = session.query(ChatModel).filter(ChatModel.finder_id == finder_id and ChatModel.employer_id == employer_id).first()
+                chat = session.query(ChatModel).filter(ChatModel.finder_id == finder_id, ChatModel.employer_id == employer_id).first()
                 if chat:
                     return DataFailedMessage('Чат уже существует',code=406)
 
                 job = session.get(JobModel, job_id)
-                new_chat = ChatModel(finder_id=finder_id, employer_id=employer_id,name=job.title)
-                session.add(new_chat)
+                if not job:
+                    return DataFailedMessage(f'Работа с id = {job_id} не найдена',code=404)
+                if job.user_id != employer_id:
+                    return DataFailedMessage('Данная работа не принадлежит данном работодателю',code=403)
+
+                chat = ChatModel(finder_id=finder_id, employer_id=employer_id,name=job.title,job_id=job_id)
+                session.add(chat)
                 session.commit()
 
                 result = {
@@ -207,7 +222,7 @@ class ChatDal:
 
         with Session() as session:
             try:
-                chat = session.query(ChatModel).filter(ChatModel.finder_id == finder_id and ChatModel.employer_id == employer_id).first()
+                chat = session.query(ChatModel).filter(ChatModel.finder_id == finder_id, ChatModel.employer_id == employer_id).first()
                 if not chat:
                     return DataFailedMessage('Такого чата нету',code=404)
 
@@ -236,5 +251,18 @@ class ChatDal:
             key = f"active_users:{user_id}"
             sid = redis_client.get(key)
             return DataSuccess(sid)
+        except Exception as e:
+            return DataFailedMessage(f"Ошибка при получении websocket sid",error=e)
+
+    @staticmethod
+    def add_websocket_connection(user_id, sid):
+        try:
+            redis_client = connection_redis()
+            if not redis_client:
+                return DataFailedMessage("Redis Database connection error")
+
+            key = f"active_users:{user_id}"
+            redis_client.setex(key, timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRES), sid)
+            return DataSuccess()
         except Exception as e:
             return DataFailedMessage(f"Ошибка при получении websocket sid",error=e)

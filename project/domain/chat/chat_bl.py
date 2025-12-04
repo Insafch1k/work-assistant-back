@@ -29,3 +29,7 @@ class ChatBl:
                 socketio.emit("ping", {"penpal_id": penpal_id}, to=sid_data_state.data, namespace="/ws")
 
         return data_state
+
+    @staticmethod
+    def add_websocket_connection(user_id: int, sid: str):
+        return ChatDal.add_websocket_connection(user_id, sid)

@@ -23,8 +23,8 @@ class AuthDal:
         with Session() as session:
             try:
                 user = session.query(UserModel).filter(UserModel.tg_id == tg_id).first()
-                if not user:
-                    return DataFailedMessage("Пользователь не найден")
+                if user:
+                    return DataFailedMessage("Пользователь уже существует",code=406)
                 user = UserModel(
                     user_role=user_role,
                     tg_username=tg_username,
@@ -79,7 +79,7 @@ class AuthDal:
                 return DataFailedMessage("Redis Database connection error")
 
             key = f"active_users:{user_id}"
-            redis_client.setex(key, uid, timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRES))
+            redis_client.setex(key, timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRES), uid)
             return DataSuccess()
         except Exception as e:
             return DataFailedMessage(f"Ошибка при добавлении websocket_uid",error=e)
