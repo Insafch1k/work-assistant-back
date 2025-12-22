@@ -1,6 +1,8 @@
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from flask_socketio import emit, disconnect
 
+from extensions import socketio
+
 
 def require_jwt_or_disconnect():
     """
@@ -11,11 +13,12 @@ def require_jwt_or_disconnect():
     try:
         # Ограничим места поиска только query в сокетах — это надёжнее для браузера.
         # Но так как в app.config включены и headers, и query_string, тут явно укажем.
+
         verify_jwt_in_request(locations=["query_string", "headers"])
         uid = get_jwt_identity()
         if uid is None:
             emit("error", {"code": "no_identity"}, namespace="/ws")
-            disconnect()
+            #disconnect()
             return ""
         return uid
     except Exception as e:
@@ -23,5 +26,5 @@ def require_jwt_or_disconnect():
         err = str(e)
         code = "token_expired" if "expired" in err.lower() else "bad_token"
         emit("error", {"code": code}, namespace="/ws")
-        disconnect()
+        #disconnect()
         return ""

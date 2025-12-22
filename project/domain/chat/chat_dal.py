@@ -79,14 +79,15 @@ class ChatDal:
                         "name": chat.name,
                         "job_id": chat.job_id,
                         'unread_messages': unread_count,
-                        "last_message_data": {
+                    }
+                    if last_message:
+                        chat_dict["last_message_data"] = {
                             "sender_id": last_message.sender_id,
                             "text": last_message.text,
                             "created_at": (
                                 last_message.created_at
                             ),
                         }
-                    }
 
                     result.append(chat_dict)
 
@@ -136,7 +137,7 @@ class ChatDal:
                                         "sender_id": m.sender_id,
                                         "text": m.text,
                                         "created_at": m.created_at,
-                                        "is_readed": m.id > (chat.last_message_finder_id if user_role == 'employer' else chat.last_message_employer_id) or m.sender_id != user_id
+                                        "is_readed": (m.id > (chat.last_message_finder_id if user_role == 'employer' else chat.last_message_employer_id)) or m.sender_id == user_id
                                     }
                                     for m in messages
                                 ],
@@ -181,6 +182,8 @@ class ChatDal:
         with Session() as session:
             try:
                 chat = session.query(ChatModel).filter(ChatModel.finder_id == finder_id, ChatModel.employer_id == employer_id).first()
+                if user_id == penpal_id:
+                    return DataFailedMessage('Нельзя создать чат с самим собой', code=406)
                 if chat:
                     return DataFailedMessage('Чат уже существует',code=406)
 

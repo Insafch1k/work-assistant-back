@@ -380,6 +380,8 @@ def logout():
 def on_connect():
     user_id = require_jwt_or_disconnect()
     if not user_id:
+        emit("connected", namespace="/ws")
+        disconnect()
         return
 
     sid = request.sid
@@ -391,6 +393,7 @@ def on_connect():
         return
 
     emit("connected", namespace="/ws")
+
 
 @socketio.on("disconnect", namespace="/ws")
 def on_disconnect(data):

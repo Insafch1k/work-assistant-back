@@ -26,7 +26,7 @@ class ChatBl:
         if data_state:
             sid_data_state = ChatDal.get_websocket_sid(penpal_id)
             if sid_data_state and sid_data_state.data:
-                socketio.emit("ping", {"penpal_id": penpal_id}, to=sid_data_state.data, namespace="/ws")
+                socketio.emit("ping", {"penpal_id": user_id}, to=sid_data_state.data, namespace="/ws")
 
         return data_state
 
