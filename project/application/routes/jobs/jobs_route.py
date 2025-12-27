@@ -42,10 +42,8 @@ def get_all_jobs():
     try:
         user_id = get_jwt_identity()
         data_state = BaseJobBl.get_all_jobs(user_id)
-        if not data_state:
-            return data_state.to_response()
 
-        return jsonify(data_state), 200
+        return data_state.to_response()
     except Exception as e:
         return DataFailedMessage(f"Ошибка вывода всех вакансий", error=e).to_response()
 
@@ -69,6 +67,7 @@ def get_all_info_job(job_id: int):
 def update_job(job_id):
     try:
         data = request.get_json()
+        user_id = get_jwt_identity()
         logger.info(f"Data from request {data}")
         validate_data_state = UpdateJobSchema.from_request(data)
         logger.info(f"Data after validate {validate_data_state.data}")
@@ -78,7 +77,7 @@ def update_job(job_id):
 
         updated_data = validate_data_state.data.get_update_fields()
         logger.info(f"data after update {updated_data}")
-        data_state = BaseJobBl.update_job(job_id, updated_data)
+        data_state = BaseJobBl.update_job(job_id,user_id, updated_data)
 
         return data_state.to_response()
 

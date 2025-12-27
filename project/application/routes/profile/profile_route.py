@@ -33,6 +33,22 @@ def get_profile():
     except Exception as e:
         return DataFailedMessage(f"Не удалось получить профиль",error=e).to_response()
 
+@profile_router.route('/profile/update_avatar', methods=["GET"])
+@jwt_required()
+def update_avatar():
+    try:
+        user_id = get_jwt_identity()
+        f = request.files.get("file")
+        data_state = get_profile_bl(user_id).update_avatar(user_id=user_id,avatar=f)
+
+        if not data_state:
+            return data_state.to_response()
+
+        return jsonify(data_state.data), 200
+
+    except Exception as e:
+        return DataFailedMessage(f"Не удалось обновить фото пользователя",error=e).to_response()
+
 @profile_router.route('/profile/change_role', methods=["GET"])
 @jwt_required()
 def change_role():

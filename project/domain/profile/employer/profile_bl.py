@@ -1,5 +1,8 @@
+from werkzeug.datastructures import FileStorage
+
 from project.domain.profile.employer.profile_dal import EmployerProfileDal
 from project.utils.data_state import DataState, DataSuccess
+from project.utils.image_convertor import save_avatar, delete_avatar, load_and_validate_pillow_image
 
 
 class EmployerProfileBl:
@@ -28,6 +31,18 @@ class EmployerProfileBl:
         profile_data = updated_data.get('profile',{})
         resume_data = updated_data.get('resume',{})
         return EmployerProfileDal.update_profile(user_id,resume_data, profile_data)
+
+    @staticmethod
+    def update_avatar(user_id: str, avatar: FileStorage) -> DataState:
+        img = load_and_validate_pillow_image(avatar.stream)
+        avatar_url = save_avatar(img)
+        data_state = EmployerProfileDal.update_avatar(user_id, avatar_url)
+        if data_state:
+            old_photo = data_state.data
+            delete_avatar(old_photo)
+
+        return DataSuccess({'new_avatar_url':avatar_url})
+
 
 
     # @staticmethod

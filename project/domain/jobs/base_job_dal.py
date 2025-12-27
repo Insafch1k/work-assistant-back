@@ -1,6 +1,7 @@
-from sqlalchemy import update, and_
+from sqlalchemy import update, and_, case
+from sqlalchemy.orm import aliased
 
-from project.application.entities.job import Job
+from project.application.entities.job import Job, JobBaseInfo, JobInfo
 from project.domain.core.models.job_favorite import JobFavoriteModel
 from project.domain.core.models.jobs import JobModel
 from project.domain.core.models.user import UserModel
@@ -50,23 +51,49 @@ class BaseJobDal:
 
         with Session() as session:
             try:
-                job = (
-                    session.query(JobModel, JobFavoriteModel.id.label("favorite_id"))
+                FavoriteAlias = aliased(JobFavoriteModel)
+                row = (
+                    session.query(JobModel,
+                                  UserModel,
+                                  case(
+                                      (FavoriteAlias.id.isnot(None), True),
+                                      else_=False
+                                  ).label("is_favorite"))
+                    .join(UserModel, UserModel.id == JobModel.user_id)
                     .outerjoin(
-                        JobFavoriteModel,
-                        (JobFavoriteModel.job_id == JobModel.id) &
-                        (JobFavoriteModel.user_id == user_id)
-                    )
-                    .filter(JobModel.id == job_id)
+                        FavoriteAlias,
+                        and_(
+                            FavoriteAlias.job_id == JobModel.id,
+                            FavoriteAlias.user_id == int(user_id)
+                        )
+                    ).where(JobModel.id == job_id)
                     .first()
                 )
+                job, user, is_favorite = row
 
                 if not job:
                     return DataFailedMessage(f"Вакансия с id {job_id} не найдена")
 
-                job_model, favorite_id = job
-                job_data = Job.model_validate(job_model).to_json()
-                job_data["is_favorite"] = favorite_id is not None
+                job_data = JobInfo(
+                    id=job.id,
+                    user=user,
+                    city_id=job.city_id,
+                    title=job.title,
+                    wanted_job=job.wanted_job,
+                    description=job.description,
+                    salary=job.salary,
+                    date=job.date,
+                    time_start=job.time_start,
+                    time_end=job.time_end,
+                    address=job.address,
+                    is_urgent=job.is_urgent,
+                    status=job.status,
+                    xp=job.xp,
+                    age=job.age,
+                    created_at=job.created_at,
+                    car=job.car,
+                    is_favorite=is_favorite,
+                ).model_dump()
 
                 return DataSuccess(job_data)
 
@@ -80,13 +107,20 @@ class BaseJobDal:
 
         with Session() as session:
             try:
+                FavoriteAlias = aliased(JobFavoriteModel)
                 jobs = (
-                    session.query(JobModel, JobFavoriteModel.id.label("favorite_id"))
+                    session.query( JobModel,
+            UserModel,
+            case(
+                (FavoriteAlias.id.isnot(None), True),
+                else_=False
+            ).label("is_favorite"))
+                    .join(UserModel, UserModel.id == JobModel.user_id)
                     .outerjoin(
-                        JobFavoriteModel,
+                        FavoriteAlias,
                         and_(
-                            JobFavoriteModel.job_id == JobModel.id,
-                            JobFavoriteModel.user_id == user_id
+                            FavoriteAlias.job_id == JobModel.id,
+                            FavoriteAlias.user_id == user_id
                         )
                     )
                     .all()
@@ -97,17 +131,28 @@ class BaseJobDal:
 
                 # Преобразуем результат в JSON
                 jobs_json = []
-                for job_model, favorite_id in jobs:
-                    job_data = Job.model_validate(job_model).to_json()
-                    job_data["is_favorite"] = favorite_id is not None
-                    jobs_json.append(job_data)
+                for job, user, is_favorite in jobs:
+                    jobs_json.append(
+                        JobBaseInfo(
+                            id=job.id,
+                            user=user,
+                            title=job.title,
+                            salary=job.salary,
+                            time_start=job.time_start,
+                            time_end=job.time_end,
+                            address=job.address,
+                            is_urgent=job.is_urgent,
+                            car=job.car,
+                            is_favorite=is_favorite,
+                        ).model_dump()
+                    )
 
-                return DataSuccess(jobs_json)
+                return DataSuccess({"jobs":jobs_json})
             except Exception as e:
                 return DataFailedMessage(f"Ошибка при получении всех вакансии", error=e)
 
     @staticmethod
-    def update_job(job_id, job_data) -> DataState:
+    def update_job(job_id, user_id, job_data) -> DataState:
         Session = connection_db()
         if not Session:
             return DataFailedMessage("Database connection error")
@@ -119,6 +164,8 @@ class BaseJobDal:
                 job = session.get(JobModel, job_id)
                 if not job:
                     return DataFailedMessage("Вакансия не найдена")
+                if job.user_id != int(user_id):
+                    return DataFailedMessage("Нет доступа",code=406)
 
                 stmt = (
                     update(JobModel)

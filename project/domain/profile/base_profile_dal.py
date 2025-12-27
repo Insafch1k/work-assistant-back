@@ -22,6 +22,24 @@ class BaseProfileDal:
                 return DataFailedMessage(f'Не удалось получить данные о пользователе с id = {user_id}',error=e)
 
     @staticmethod
+    def update_avatar(user_id,avatar_url) -> DataState:
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                user = session.get(UserModel, user_id)
+                old_photo = user.photo
+                user.photo = avatar_url
+                session.commit()
+                return DataSuccess(old_photo)
+            except Exception as e:
+                session.rollback()
+                return DataFailedMessage(f"Ошибка при обновлении фото пользователя",error=e)
+
+
+    @staticmethod
     def change_role(user_id, user_role) -> DataState:
         Session = connection_db()
         if not Session:

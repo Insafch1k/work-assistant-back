@@ -42,10 +42,8 @@ class UpdateJobSchema(BaseModel):
     @staticmethod
     def from_request(json_data: dict) -> DataState:
         try:
-            # Обрабатываем вложенный объект resume
-            if 'job' in json_data and isinstance(json_data['job'], dict):
-                json_data['job'] = CreateNewJobValidateSchema(**json_data['job'])
-            return DataSuccess(UpdateJobSchema(**json_data))
+            data = CreateNewJobValidateSchema(**json_data)
+            return DataSuccess(UpdateJobSchema(job=data))
         except ValidationError as e:
             errors = [
                 {"field": err["loc"][0], "message": err["msg"]}

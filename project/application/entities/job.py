@@ -1,7 +1,9 @@
 from datetime import datetime, time
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
+
+from project.application.entities.user import UserBaseInfo
 
 
 class Job(BaseModel):
@@ -51,3 +53,75 @@ class Job(BaseModel):
             'is_favorite': self.is_favorite
         }
         return data
+
+class JobBaseInfo(BaseModel):
+    id: Optional[int] = None
+    user: UserBaseInfo
+    title: str
+    salary: Optional[int] = None
+    time_start: Optional[str] = None
+    time_end: Optional[str] = None
+    address: Optional[str] = None
+    is_urgent: bool = False
+    car: bool = False
+    is_favorite: Optional[bool] = False
+
+    @field_validator('user', mode='before')
+    @classmethod
+    def extract_user(cls, user):
+        return UserBaseInfo.model_validate(user)
+
+    @field_validator('time_start', mode='before')
+    @classmethod
+    def extract_time_start(cls, time_start):
+        return time_start.isoformat()
+
+    @field_validator('time_end', mode='before')
+    @classmethod
+    def extract_time_end(cls, time_end):
+        return time_end.isoformat()
+
+    model_config = ConfigDict(from_attributes=True)
+
+class JobInfo(BaseModel):
+    id: Optional[int] = None
+    user: UserBaseInfo
+    city_id: int
+    city: Optional[str] = None
+    title: str
+    wanted_job: Optional[str] = None
+    description: Optional[str] = None
+    salary: Optional[int] = None
+    date: Optional[str] = None
+    time_start: Optional[str] = None
+    time_end: Optional[str] = None
+    address: Optional[str] = None
+    is_urgent: bool = False
+    status: bool = True
+    xp: Optional[str] = None
+    age: Optional[str] = None
+    created_at: Optional[datetime] = None
+    car: bool = False
+    is_favorite: Optional[bool] = False
+
+    @field_validator('user', mode='before')
+    @classmethod
+    def extract_user(cls, user):
+        return UserBaseInfo.model_validate(user)
+
+    @field_validator('time_start', mode='before')
+    @classmethod
+    def extract_time_start(cls, time_start):
+        return time_start.isoformat()
+
+    @field_validator('time_end', mode='before')
+    @classmethod
+    def extract_ztime_end(cls, time_end):
+        return time_end.isoformat()
+
+    @field_validator('date', mode='before')
+    @classmethod
+    def extract_time_end(cls, date):
+        return date.strftime("%d-%m-%Y")
+
+    model_config = ConfigDict(from_attributes=True)

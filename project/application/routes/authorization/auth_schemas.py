@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+from typing import Optional
+
 from pydantic import BaseModel, ValidationError, Field, field_validator
 
 from project.utils.data_state import DataFailedMessage, DataState, DataSuccess
@@ -94,6 +97,7 @@ class RegistrationValidateSchema(BaseModel):
 class RegisterTgValidateSchema(BaseModel):
     tg_id: int
     tg_username: str
+    avatar_url: Optional[str] = None
     user_name: str
     user_role: str
 

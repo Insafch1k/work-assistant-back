@@ -1,4 +1,6 @@
+import io
 import string
+
 from flask import render_template
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
@@ -12,6 +14,9 @@ from project.domain.authorization.auth_dal import AuthDal
 from project.utils.data_state import DataState, DataFailedMessage, DataSuccess
 import secrets
 
+from project.utils.image_convertor import download_image_bytes, save_avatar, load_and_validate_pillow_image
+
+
 def generate_secure_code(length: int = 4) -> str:
     """Генерирует криптографически безопасный код"""
     return ''.join(secrets.choice(string.digits) for _ in range(length))
@@ -19,7 +24,18 @@ def generate_secure_code(length: int = 4) -> str:
 class AuthBl:
     @staticmethod
     def register_tg(data: RegisterTgValidateSchema) -> DataState[User]:
-        return AuthDal.add_tg_user(data.tg_id, data.tg_username, data.user_name, data.user_role)
+        data_state = AuthDal.add_tg_user(data.tg_id, data.tg_username, data.user_name, data.user_role)
+        if data_state and data.avatar_url:
+            try:
+                photo_arr = download_image_bytes(data.avatar_url)
+                bio = io.BytesIO(photo_arr)
+                img = load_and_validate_pillow_image(bio)
+                avatar_url = save_avatar(img)
+                AuthDal.set_avatar(data_state.data.id,avatar_url)
+            except Exception as ex:
+                DataFailedMessage(f"Ошибка при добавлении фото пользователя" ,error=ex)
+
+        return data_state
 
     @staticmethod
     def update_user(data: LoginTgValidateSchema) -> DataState[User]:
