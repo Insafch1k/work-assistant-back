@@ -35,14 +35,18 @@ class BaseJobBl:
         return job
 
     @staticmethod
-    def get_all_jobs(user_id) -> DataState:
-        return BaseJobDal.get_all_jobs(user_id)
+    def get_all_jobs(user_id, search, finder_id) -> DataState:
+        return BaseJobDal.get_all_jobs(user_id,search, finder_id)
 
 
     @staticmethod
     def update_job(job_id, user_id, updated_data) -> DataState:
         job_data = updated_data.get('job', {})
         return BaseJobDal.update_job(job_id, user_id, job_data)
+
+    @staticmethod
+    def delete_job(job_id, user_id) -> DataState:
+        return BaseJobDal.delete_job(job_id, user_id)
 
 
 

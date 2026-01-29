@@ -140,24 +140,11 @@ async def send_to_channel(message_json):
         await temp_bot.session.close()
 
 
-async def main():
-    print("Бот запускается...")
-
+async def send_notification(tg_id: int,text: str):
     try:
-        me = await bot.get_me()
-        print(f"Бот @{me.username} успешно подключен")
-    except Exception as e:
-        print(f"Ошибка подключения: {e}")
-        return
-
-    try:
-        await dp.start_polling(bot)
-
-    except Exception as e:
-        print(f"Ошибка polling: {e}")
-    finally:
-        await bot.session.close()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        temp_bot = Bot(token=settings.BOT_TOKEN)
+        await temp_bot.send_message(
+                chat_id=tg_id,
+                text=text, parse_mode='HTML')
+    except Exception as ex:
+        Logger.error(f"Ошибка отправки уведомления в тг юзеру {tg_id}\n{ex}")

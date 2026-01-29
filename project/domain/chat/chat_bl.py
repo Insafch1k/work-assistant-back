@@ -1,7 +1,11 @@
+import asyncio
 from extensions import socketio
 from project.application.routes.chat.chat_schemas import CreateChatValidateSchema, SendMessageValidateSchema
 from project.domain.chat.chat_dal import ChatDal
+from project.domain.profile.base_profile_dal import BaseProfileDal
 from project.domain.profile.get_role import get_user_role
+from project.utils.data_state import DataSuccess
+from project.utils.subscription_and_notification import send_notification
 
 
 class ChatBl:
@@ -24,12 +28,30 @@ class ChatBl:
         user_role = get_user_role(user_id)
         data_state = ChatDal.send_message(user_id, penpal_id,result.text,user_role)
         if data_state:
+            job_name = data_state.data
             sid_data_state = ChatDal.get_websocket_sid(penpal_id)
             if sid_data_state and sid_data_state.data:
                 socketio.emit("ping", {"penpal_id": user_id}, to=sid_data_state.data, namespace="/ws")
+            else:
+                data_state = BaseProfileDal.get_user(penpal_id)
+                if  data_state:
+                    user = data_state.data
+                    if user.auth_method == 'telegram':
+                        asyncio.run(send_notification(user.tg_id, get_text(job_name,result.text, user_id)))
+            return DataSuccess('Сообщение отправлено.')
 
         return data_state
 
     @staticmethod
     def add_websocket_connection(user_id: int, sid: str):
         return ChatDal.add_websocket_connection(user_id, sid)
+
+def get_text(job_name, text, penpal_id):
+    return f"""🔔 <b>Новое сообщение!</b>
+────────────────
+📢 <b>Объявление:</b> {job_name}
+
+📝<b>Сообщение:</b>
+<blockquote>{text}</blockquote>
+────────────────
+    🚀 <a href="https://t.me/PodrabotaiBot/app?startapp=user_{penpal_id}">Ответить</a>"""

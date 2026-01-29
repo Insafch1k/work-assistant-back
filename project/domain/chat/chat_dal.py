@@ -7,6 +7,7 @@ from project import settings
 from project.domain.core.models.chat import ChatModel
 from project.domain.core.models.jobs import JobModel
 from project.domain.core.models.message import MessageModel
+from project.domain.core.models.user import UserModel
 from project.utils.data_state import DataFailedMessage, DataSuccess
 from project.utils.db_connection import connection_db, connection_redis
 
@@ -20,6 +21,7 @@ class ChatDal:
 
         with Session() as session:
             try:
+
                 last_msg_subq = (
                     session.query(
                         MessageModel.chat_id.label("chat_id"),
@@ -74,9 +76,13 @@ class ChatDal:
                 result = []
 
                 for chat, last_message, unread_count in rows:
+                    penpal_id = chat.finder_id if user_id == chat.employer_id else chat.employer_id
+                    penpal = session.get(UserModel, penpal_id)
                     chat_dict = {
-                        "penpal_id": chat.finder_id if user_id == chat.employer_id else chat.employer_id,
-                        "name": chat.name,
+                        "penpal_id": penpal_id,
+                        "job_name": chat.name,
+                        "penpal_name": penpal.user_name,
+                        "penpal_avatar": penpal.photo,
                         "job_id": chat.job_id,
                         'unread_messages': unread_count,
                     }
@@ -115,6 +121,7 @@ class ChatDal:
         with Session() as session:
             try:
                 chat = session.query(ChatModel).filter(ChatModel.finder_id == finder_id, ChatModel.employer_id == employer_id).first()
+                penpal = session.get(UserModel,penpal_id)
                 if not chat:
                     return DataFailedMessage('Такого чата нету',code=404)
 
@@ -143,7 +150,9 @@ class ChatDal:
                                 ],
                     "chat": {
                                 "penpal_id": chat.finder_id if user_id == chat.employer_id else chat.employer_id,
-                                "name": chat.name,
+                                "job_name": chat.name,
+                                "penpal_name": penpal.user_name,
+                                "penpal_avatar": penpal.photo,
                                 "job_id": chat.job_id
                             }
                 }
@@ -236,7 +245,7 @@ class ChatDal:
                 session.add(message)
                 session.commit()
 
-                return DataSuccess('Собщение успешно отправлено')
+                return DataSuccess(chat.name)
             except Exception as e:
                 session.rollback()
                 return DataFailedMessage(

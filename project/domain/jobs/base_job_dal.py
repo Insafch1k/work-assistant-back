@@ -44,6 +44,26 @@ class BaseJobDal:
                 return DataFailedMessage(f"Ошибка при добавлении вакансии", error=e)
 
     @staticmethod
+    def delete_job(job_id, user_id):
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                job = session.get(JobModel, job_id)
+
+                if job.user_id != int(user_id):
+                    return DataFailedMessage("Нет доступа",code=406)
+
+                session.delete(job)
+                session.commit()
+                return DataSuccess('Вакансия удалена')
+            except Exception as e:
+                session.rollback()
+                return DataFailedMessage(f"Ошибка при удалении вакансии", error=e)
+
+    @staticmethod
     def get_all_info_job(user_id, job_id):
         Session = connection_db()
         if not Session:
@@ -100,7 +120,7 @@ class BaseJobDal:
             except Exception as e:
                 return DataFailedMessage("Ошибка при получении вакансии", error=e)
     @staticmethod
-    def get_all_jobs(user_id):
+    def get_all_jobs(user_id, search, finder_id):
         Session = connection_db()
         if not Session:
             return DataFailedMessage("Database connection error")
@@ -108,14 +128,21 @@ class BaseJobDal:
         with Session() as session:
             try:
                 FavoriteAlias = aliased(JobFavoriteModel)
-                jobs = (
-                    session.query( JobModel,
-            UserModel,
-            case(
+                query = session.query( JobModel,UserModel,
+                    case(
                 (FavoriteAlias.id.isnot(None), True),
-                else_=False
-            ).label("is_favorite"))
-                    .join(UserModel, UserModel.id == JobModel.user_id)
+                    else_=False
+                    ).label("is_favorite"))
+
+                if search:
+                    search_term = f"%{search.strip()}%"
+                    query = query.filter(JobModel.title.ilike(search_term))
+
+                if finder_id:
+                    query = query.filter(JobModel.user_id == finder_id)
+
+                jobs = (
+                    query.join(UserModel, UserModel.id == JobModel.user_id)
                     .outerjoin(
                         FavoriteAlias,
                         and_(
@@ -127,7 +154,8 @@ class BaseJobDal:
                 )
 
                 if not jobs:
-                    return DataFailedMessage("Ошибка в нахождении списка вакансий")
+                    return DataSuccess({"jobs": []})
+                    #return DataFailedMessage("Ошибка в нахождении списка вакансий")
 
                 # Преобразуем результат в JSON
                 jobs_json = []

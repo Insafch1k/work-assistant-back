@@ -35,20 +35,23 @@ def create_job():
         return DataFailedMessage(f"Ошибка добавления вакансии", error=e).to_response()
 
 
+
 @job_router.route("/jobs", methods=["GET"])
 @jwt_required()
 def get_all_jobs():
     """Получение всех вакансий"""
     try:
         user_id = get_jwt_identity()
-        data_state = BaseJobBl.get_all_jobs(user_id)
+        search = request.args.get("search")
+        finder_id = request.args.get("finder_id")
+        data_state = BaseJobBl.get_all_jobs(user_id,search,finder_id)
 
         return data_state.to_response()
     except Exception as e:
         return DataFailedMessage(f"Ошибка вывода всех вакансий", error=e).to_response()
 
 
-@job_router.route("/jobs/<int:job_id>/see_all", methods=["GET"])
+@job_router.route("/jobs/<int:job_id>", methods=["GET"])
 @jwt_required()
 def get_all_info_job(job_id: int):
     """Подробная информация вакансии"""
@@ -62,22 +65,31 @@ def get_all_info_job(job_id: int):
     except Exception as e:
         return DataFailedMessage(f"Ошибка просмотра вакансии", error=e).to_response()
 
-@job_router.route("/jobs/<int:job_id>/update", methods=["PATCH"])
+@job_router.route("/jobs/<int:job_id>", methods=["PATCH"])
 @jwt_required()
 def update_job(job_id):
     try:
         data = request.get_json()
         user_id = get_jwt_identity()
-        logger.info(f"Data from request {data}")
         validate_data_state = UpdateJobSchema.from_request(data)
-        logger.info(f"Data after validate {validate_data_state.data}")
 
         if not validate_data_state:
             return validate_data_state.to_response()
 
         updated_data = validate_data_state.data.get_update_fields()
-        logger.info(f"data after update {updated_data}")
         data_state = BaseJobBl.update_job(job_id,user_id, updated_data)
+
+        return data_state.to_response()
+
+    except Exception as e:
+        return DataFailedMessage(f"Ошибка обновления вакансии", error=e).to_response()
+
+@job_router.route("/jobs/<int:job_id>", methods=["DELETE"])
+@jwt_required()
+def delete_job(job_id):
+    try:
+        user_id = get_jwt_identity()
+        data_state = BaseJobBl.delete_job(job_id,user_id)
 
         return data_state.to_response()
 

@@ -53,6 +53,7 @@ class UserBaseInfo(BaseModel):
     id: Optional[int] = None
     user_name: str
     photo: Optional[str] = None
+    phone: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
