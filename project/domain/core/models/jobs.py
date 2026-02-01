@@ -24,6 +24,10 @@ class JobModel(Base):
     created_at = Column(DateTime, default=func.now())
     car = Column(Boolean, default=False)
 
-    favorites = relationship("JobFavoriteModel", back_populates="job")
-    histories = relationship("JobViewHistoryModel", back_populates="job")
+    favorites = relationship("JobFavoriteModel", back_populates="job",
+                           cascade="all, delete-orphan",
+                           passive_deletes=True)
+    histories = relationship("JobViewHistoryModel", back_populates="job",
+                           cascade="all, delete-orphan",
+                           passive_deletes=True)
 
