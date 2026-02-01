@@ -25,7 +25,7 @@ class FinderProfileBl:
             old_photo = data_state.data
             delete_avatar(old_photo)
 
-        return data_state
+        return DataSuccess({'new_avatar_url': avatar_url})
 
     @staticmethod
     def change_role(user_id: str) -> DataState:

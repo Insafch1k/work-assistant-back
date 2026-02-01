@@ -22,7 +22,7 @@ def _safe_unlink(path: Path) -> None:
         return
 
 def delete_avatar(photo_path: str | None) -> None:
-    if not uuid and not photo_path:
+    if not photo_path:
         return
     abs_path = Path(photo_path)
     abs_path = abs_path.resolve()
@@ -38,7 +38,7 @@ def save_avatar(img: Image.Image, size: int = 256) -> str:
     img = img.crop((left, top, left + side, top + side))
     img = img.resize((size, size), Image.Resampling.LANCZOS)
 
-    AVATAR_DIR.mkdir( exist_ok=True)
+    #AVATAR_DIR.mkdir( exist_ok=True)
 
     filename = f"{uuid.uuid4().hex}.webp"
     abs_path = AVATAR_DIR / filename

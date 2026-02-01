@@ -8,8 +8,10 @@ from project.application.routes.history.jobs_history_route import job_history_ro
 from project.application.routes.metrics.metric_route import mertic_router
 from project.application.routes.chat.chat_route import chat_router
 from project.application.routes.articles.article_route import article_router
+from project.application.routes.media import media_router
 all_routes = Blueprint("all_routes", __name__, url_prefix="/api")
-
+media = Blueprint("media_routes", __name__, url_prefix="/media")
+media.register_blueprint(media_router)
 all_routes.register_blueprint(admin_router)
 all_routes.register_blueprint(profile_router)
 all_routes.register_blueprint(auth_router)

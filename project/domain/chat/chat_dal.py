@@ -78,9 +78,10 @@ class ChatDal:
                 for chat, last_message, unread_count in rows:
                     penpal_id = chat.finder_id if user_id == chat.employer_id else chat.employer_id
                     penpal = session.get(UserModel, penpal_id)
+                    job = session.get(JobModel, chat.job_id)
                     chat_dict = {
                         "penpal_id": penpal_id,
-                        "job_name": chat.name,
+                        "job_name": job.title,
                         "penpal_name": penpal.user_name,
                         "penpal_avatar": penpal.photo,
                         "job_id": chat.job_id,
@@ -125,18 +126,21 @@ class ChatDal:
                 if not chat:
                     return DataFailedMessage('Такого чата нету',code=404)
 
-                messages = session.query(MessageModel).filter(
-                    MessageModel.chat_id == chat.id).order_by(MessageModel.id.desc()).offset(offset).limit(limit).all()
-                messages = list(reversed(messages))
-
+                job_id = chat.job_id
                 if new_job_id:
-                    new_job_id = int(new_job_id)
+                    job_id = int(new_job_id)
                     job = session.get(JobModel, new_job_id)
                     if job.user_id != employer_id:
                         return DataFailedMessage('Работя не принадлежит данному работодателю',code=403)
 
                     chat.job_id = new_job_id
-                    chat.name = job.title
+
+                job = session.get(JobModel, job_id)
+                messages = session.query(MessageModel).filter(
+                    MessageModel.chat_id == chat.id).order_by(MessageModel.id.desc()).offset(offset).limit(limit).all()
+                messages = list(reversed(messages))
+
+
 
                 result ={
                     "messages": [
@@ -149,11 +153,16 @@ class ChatDal:
                                     for m in messages
                                 ],
                     "chat": {
-                                "penpal_id": chat.finder_id if user_id == chat.employer_id else chat.employer_id,
-                                "job_name": chat.name,
-                                "penpal_name": penpal.user_name,
-                                "penpal_avatar": penpal.photo,
-                                "job_id": chat.job_id
+                                "job":{"title": job.title,
+                                       "time_start": job.time_start,
+                                       "time_end": job.time_end,
+                                       "is_urgent": job.is_urgent,
+                                       "car": job.car,
+                                       "salary": job.salary,},
+
+                                "penpal":{"id":  chat.finder_id if user_id == chat.employer_id else chat.employer_id,
+                                          "name": penpal.user_name,
+                                          "avatar": penpal.photo,}
                             }
                 }
 
@@ -191,6 +200,7 @@ class ChatDal:
         with Session() as session:
             try:
                 chat = session.query(ChatModel).filter(ChatModel.finder_id == finder_id, ChatModel.employer_id == employer_id).first()
+                penpal = session.get(UserModel, penpal_id)
                 if user_id == penpal_id:
                     return DataFailedMessage('Нельзя создать чат с самим собой', code=406)
                 if chat:
@@ -202,16 +212,23 @@ class ChatDal:
                 if job.user_id != employer_id:
                     return DataFailedMessage('Данная работа не принадлежит данном работодателю',code=403)
 
-                chat = ChatModel(finder_id=finder_id, employer_id=employer_id,name=job.title,job_id=job_id)
+                chat = ChatModel(finder_id=finder_id, employer_id=employer_id, job_id=job_id)
                 session.add(chat)
                 session.commit()
 
                 result = {
-                            "chat": {
-                                        "penpal_id": chat.finder_id if user_id == chat.employer_id else chat.employer_id,
-                                        "name": chat.name,
-                                        "job_id": chat.job_id
-                                    }
+                    "chat": {
+                        "job": {"title": job.title,
+                                "time_start": job.time_start,
+                                "time_end": job.time_end,
+                                "is_urgent": job.is_urgent,
+                                "car": job.car,
+                                "salary": job.salary, },
+
+                        "penpal": {"id": chat.finder_id if user_id == chat.employer_id else chat.employer_id,
+                                   "name": penpal.user_name,
+                                   "avatar": penpal.photo, }
+                    }
                         }
                 return DataSuccess(result)
             except Exception as e:
@@ -235,6 +252,7 @@ class ChatDal:
         with Session() as session:
             try:
                 chat = session.query(ChatModel).filter(ChatModel.finder_id == finder_id, ChatModel.employer_id == employer_id).first()
+                job = session.get(JobModel, chat.job_id)
                 if not chat:
                     return DataFailedMessage('Такого чата нету',code=404)
 
@@ -245,7 +263,7 @@ class ChatDal:
                 session.add(message)
                 session.commit()
 
-                return DataSuccess(chat.name)
+                return DataSuccess(job.title)
             except Exception as e:
                 session.rollback()
                 return DataFailedMessage(

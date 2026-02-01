@@ -34,6 +34,4 @@ class ChatModel(Base):
         default=-1,
     )
 
-    name = Column(String, nullable=False)
-
 

@@ -247,6 +247,7 @@ def register_tg():
         tg_id,
         tg_username,
         user_name,
+        avatar_url,
         user_role
     }
     :return:

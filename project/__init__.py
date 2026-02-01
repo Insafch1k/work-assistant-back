@@ -6,13 +6,14 @@ from prometheus_flask_exporter import PrometheusMetrics
 
 from extensions import socketio
 from project.config import settings, mail_config
-from project.application.routes import all_routes
+from project.application.routes import all_routes, media_router, media
 from project.domain.authorization.auth_dal import AuthDal
 
 mail = Mail()
 
 main_blueprint = Blueprint('main', __name__)
 main_blueprint.register_blueprint(all_routes)
+main_blueprint.register_blueprint(media)
 
 
 def create_app():
