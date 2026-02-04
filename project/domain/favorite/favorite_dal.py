@@ -18,6 +18,14 @@ class FavoriteJobDal:
 
         with Session() as session:
             try:
+                job = session.get(JobModel, job_id)
+                if not job:
+                    return DataFailedMessage("Вакансия не найдена")
+
+                job = session.query(JobFavoriteModel).filter(JobFavoriteModel.user_id == user_id, JobFavoriteModel.job_id == job_id).all()
+                if job:
+                    return DataFailedMessage("Вакансия уже есть в избранном")
+
                 job_favorite = JobFavoriteModel(user_id=user_id, job_id=job_id)
                 session.add(job_favorite)
                 session.commit()
@@ -50,6 +58,7 @@ class FavoriteJobDal:
                     job_data = Job.model_validate(job).to_json()
                     job_data["is_favorite"] = True
                     jobs_data.append(job_data)
+                return DataSuccess(jobs_data)
             except Exception as e:
                 return DataFailedMessage(f"Ошибка при получении списка избранных вакансий", error=e)
 

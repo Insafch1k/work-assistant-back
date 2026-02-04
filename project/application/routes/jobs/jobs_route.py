@@ -43,8 +43,18 @@ def get_all_jobs():
     try:
         user_id = get_jwt_identity()
         search = request.args.get("search")
-        finder_id = request.args.get("finder_id")
-        data_state = BaseJobBl.get_all_jobs(user_id,search,finder_id)
+        employeer_id = request.args.get("employeer_id")
+        time_start = request.args.get("time_start")
+        time_end = request.args.get("time_end")
+        car = request.args.get("car")
+        is_urgent = request.args.get("is_urgent")
+        salary = request.args.get("salary")
+        age = request.args.get("age")
+        xp = request.args.get("xp")
+        date = request.args.get("date")
+        city = request.args.get("city")
+        address = request.args.get("address")
+        data_state = BaseJobBl.get_all_jobs(user_id,search,employeer_id)
 
         return data_state.to_response()
     except Exception as e:

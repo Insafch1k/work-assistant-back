@@ -7,7 +7,7 @@ from project.domain.core.models.article_category import CategoryArticleModel
 from project.utils.base_model import Base
 
 
-class Categoryodel(Base):
+class CategoryModel(Base):
     __tablename__ = 'categories'
 
     id = Column(Integer, primary_key=True, server_default=text("nextval('categories_id_seq'::regclass)"))

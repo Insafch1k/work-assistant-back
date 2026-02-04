@@ -23,6 +23,7 @@ class HistoryDal:
 
         with Session() as session:
             try:
+
                 # Один SQL-запрос: JOIN истории + LEFT JOIN избранного
                 history_jobs = (
                     session.query(JobModel, JobFavoriteModel.id.label("favorite_id"))
@@ -62,6 +63,9 @@ class HistoryDal:
 
         with Session() as session:
             try:
+                job = session.get(JobModel, job_id)
+                if not job:
+                    return DataFailedMessage("Вакансия не найдена")
                 # Проверяем, есть ли запись
                 existing = (
                     session.query(JobViewHistoryModel)

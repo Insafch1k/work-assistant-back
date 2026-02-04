@@ -14,6 +14,8 @@ class FavoriteJobBL:
     @staticmethod
     def get_list_of_favorites(user_id: int) -> DataState[Job]:
         jobs_state = FavoriteJobDal.get_list_of_favorites(user_id)
+        if not jobs_state:
+            return jobs_state
         jobs = jobs_state.data
         logger.info(f"Список избранных: {jobs}")
         for job in jobs:

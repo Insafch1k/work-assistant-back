@@ -120,7 +120,7 @@ class BaseJobDal:
             except Exception as e:
                 return DataFailedMessage("Ошибка при получении вакансии", error=e)
     @staticmethod
-    def get_all_jobs(user_id, search, finder_id):
+    def get_all_jobs(user_id, search, employeer_id):
         Session = connection_db()
         if not Session:
             return DataFailedMessage("Database connection error")
@@ -138,8 +138,8 @@ class BaseJobDal:
                     search_term = f"%{search.strip()}%"
                     query = query.filter(JobModel.title.ilike(search_term))
 
-                if finder_id:
-                    query = query.filter(JobModel.user_id == finder_id)
+                if employeer_id:
+                    query = query.filter(JobModel.user_id == employeer_id)
 
                 jobs = (
                     query.join(UserModel, UserModel.id == JobModel.user_id)

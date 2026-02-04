@@ -10,6 +10,7 @@ class Article(BaseModel):
     slug: str
     image_url: str
     description: str
+    seo_title: str
     content: str
     categories: list[CategoryBase]
     created_at: datetime  # или datetime если преобразуете
@@ -28,6 +29,7 @@ class ArticleBaseInfo(BaseModel):
     slug: str
     image_url: str
     description: str
+    seo_title: str
     categories: list[CategoryBase]
     created_at: datetime  # или datetime если преобразуете
 

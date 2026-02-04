@@ -11,6 +11,7 @@ class CreateArticleValidateSchema(BaseModel):
     image_url: str
     description: str
     content: str
+    seo_title: str
     category_ids: list[int]
 
     @classmethod

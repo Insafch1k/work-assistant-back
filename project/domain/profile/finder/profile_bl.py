@@ -14,6 +14,11 @@ class FinderProfileBl:
             return data_state
 
         data = data_state.data.to_json()
+        data_state = EmployerProfileDal.get_resume(user_id)
+        if not data_state:
+            return data_state
+
+        data['resume'] = data_state.data.to_json()
         return DataSuccess(data)
 
     @staticmethod

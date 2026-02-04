@@ -14,7 +14,7 @@ from project.utils.db_connection import connection_db, connection_redis
 
 class ChatDal:
     @staticmethod
-    def get_user_chats(user_id: int):
+    def get_user_chats(user_id: int, user_role: str):
         Session = connection_db()
         if not Session:
             return DataFailedMessage("Database connection error")
@@ -49,6 +49,12 @@ class ChatDal:
                     .scalar_subquery()
                 ).label("unread_count")
 
+                if user_role == 'employer':
+                    # Для работодателя - показываем чаты, где он является employer
+                    filter_condition = ChatModel.employer_id == user_id
+                elif user_role == 'finder':
+                    # Для соискателя - показываем чаты, где он является finder
+                    filter_condition = ChatModel.finder_id == user_id
                 # основной запрос:
                 # чаты текущего пользователя + join на последнее сообщение
                 query = (
@@ -61,10 +67,7 @@ class ChatDal:
                         MessageModel,
                         MessageModel.id == last_msg_subq.c.last_message_id,
                     )
-                    .filter(
-                        (ChatModel.finder_id == user_id)
-                        | (ChatModel.employer_id == user_id)
-                    )
+                    .filter(filter_condition)
                     # сортировка по времени последнего сообщения (чаты без сообщений — в конец)
                     .order_by(
                         func.coalesce(MessageModel.id, 0).desc()
@@ -131,7 +134,7 @@ class ChatDal:
                     job_id = int(new_job_id)
                     job = session.get(JobModel, new_job_id)
                     if job.user_id != employer_id:
-                        return DataFailedMessage('Работя не принадлежит данному работодателю',code=403)
+                        return DataFailedMessage('Работа не принадлежит данному работодателю',code=403)
 
                     chat.job_id = new_job_id
 
@@ -158,7 +161,8 @@ class ChatDal:
                                        "time_end": job.time_end.isoformat(),
                                        "is_urgent": job.is_urgent,
                                        "car": job.car,
-                                       "salary": job.salary,},
+                                       "salary": job.salary,
+                                       "address": job.address},
 
                                 "penpal":{"id":  chat.finder_id if user_id == chat.employer_id else chat.employer_id,
                                           "name": penpal.user_name,

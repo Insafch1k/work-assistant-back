@@ -35,8 +35,8 @@ class BaseJobBl:
         return job
 
     @staticmethod
-    def get_all_jobs(user_id, search, finder_id) -> DataState:
-        return BaseJobDal.get_all_jobs(user_id,search, finder_id)
+    def get_all_jobs(user_id, search, employeer_id) -> DataState:
+        return BaseJobDal.get_all_jobs(user_id,search, employeer_id)
 
 
     @staticmethod

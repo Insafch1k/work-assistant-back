@@ -4,7 +4,7 @@ from project.application.entities.article import Article, ArticleBaseInfo
 from project.application.entities.category import Category
 from project.domain.core.models.article import ArticleModel
 from project.domain.core.models.article_category import CategoryArticleModel
-from project.domain.core.models.category import Categoryodel
+from project.domain.core.models.category import CategoryModel
 from project.utils.data_state import DataSuccess, DataFailedMessage
 from project.utils.db_connection import connection_db
 
@@ -25,7 +25,7 @@ class ArticleDal:
                     query = query.filter(ArticleModel.h1.like(search_term))
 
                 if category_id:
-                    query.join(ArticleModel.categories).filter(Category.id == int(category_id))
+                    query.join(ArticleModel.categories).filter(CategoryModel.id == int(category_id))
 
                 articles = query.order_by(ArticleModel.created_at.desc()).offset(offset).limit(limit).all()
                 if sort == 1:
@@ -49,14 +49,14 @@ class ArticleDal:
             try:
                 categories = (
                     session.query(
-                        Categoryodel.id,
-                        Categoryodel.title,
-                        Categoryodel.slug,
+                        CategoryModel.id,
+                        CategoryModel.title,
+                        CategoryModel.slug,
                         func.count(CategoryArticleModel.article_id).label('articles_count')
                     )
-                    .outerjoin(CategoryArticleModel, Categoryodel.id == CategoryArticleModel.category_id)
-                    .group_by(Categoryodel.id, Categoryodel.title, Categoryodel.slug)
-                    .order_by(Categoryodel.title)
+                    .outerjoin(CategoryArticleModel, CategoryModel.id == CategoryArticleModel.category_id)
+                    .group_by(CategoryModel.id, CategoryModel.title, CategoryModel.slug)
+                    .order_by(CategoryModel.title)
                 ).all()
 
                 return DataSuccess(list(map(lambda category: Category.model_validate(category).model_dump(), categories)))
@@ -79,7 +79,7 @@ class ArticleDal:
                     return DataFailedMessage("Статья не найдена",code=404)
 
                 category_ids = list(map(lambda cat: cat.category.id,article.categories))
-                query = (session.query(ArticleModel)).join(ArticleModel.categories).filter(Categoryodel.id.in_(category_ids),
+                query = (session.query(ArticleModel)).join(ArticleModel.categories).filter(CategoryModel.id.in_(category_ids),
                     CategoryArticleModel.article_id != article.id)
                 similar_articles = query.order_by(ArticleModel.created_at.desc()).limit(4).all()
 
@@ -95,6 +95,7 @@ class ArticleDal:
     def create_article(h1: str,
     image_url: str,
     description: str,
+    seo_title: str,
     content: str,
     category_ids:list[int]):
         Session = connection_db()
@@ -104,7 +105,7 @@ class ArticleDal:
         with Session() as session:
             try:
                 slug = slugify(h1)
-                article = ArticleModel(h1=h1,image_url=image_url,description=description,content=content,slug=slug)
+                article = ArticleModel(h1=h1,image_url=image_url,description=description,content=content,slug=slug,seo_title=seo_title)
                 session.add(article)
                 session.flush()
 
@@ -130,7 +131,7 @@ class ArticleDal:
         with Session() as session:
             try:
                 slug = slugify(title)
-                category = Categoryodel(title=title,slug=slug)
+                category = CategoryModel(title=title,slug=slug)
                 session.add(category)
                 session.commit()
 

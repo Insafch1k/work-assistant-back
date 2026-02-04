@@ -11,7 +11,8 @@ from project.utils.subscription_and_notification import send_notification
 class ChatBl:
     @staticmethod
     def get_user_chats(user_id: int):
-        return ChatDal.get_user_chats(user_id)
+        user_role = get_user_role(user_id)
+        return ChatDal.get_user_chats(user_id,user_role)
 
     @staticmethod
     def create_new_chat(result: CreateChatValidateSchema, user_id: int):

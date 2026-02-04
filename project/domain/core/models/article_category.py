@@ -6,8 +6,7 @@ from sqlalchemy.orm import relationship, Mapped
 from project.utils.base_model import Base
 if TYPE_CHECKING:
     from project.domain.core.models.article import ArticleModel
-    from project.domain.core.models.category import Categoryodel
-
+    from project.domain.core.models.category import CategoryModel
 
 
 class CategoryArticleModel(Base):
@@ -21,4 +20,4 @@ class CategoryArticleModel(Base):
                          primary_key=True)
 
     article: Mapped["ArticleModel"] = relationship(back_populates="categories")
-    category: Mapped["Categoryodel"] = relationship(back_populates="articles")
+    category: Mapped["CategoryModel"] = relationship(back_populates="articles")
