@@ -226,9 +226,9 @@ class BaseJobDal:
         with Session() as session:
             try:
 
-                query = session.query( JobModel,UserModel).filter(JobModel.user_id == user_id)
+                query = session.query( JobModel,UserModel,CityModel).filter(JobModel.user_id == user_id)
 
-                jobs = query.join(UserModel, UserModel.id == JobModel.user_id).all()
+                jobs = query.join(UserModel, UserModel.id == JobModel.user_id).join(CityModel, CityModel.id == JobModel.city_id).all()
 
                 if not jobs:
                     return DataSuccess({"jobs": []})
@@ -236,13 +236,14 @@ class BaseJobDal:
 
                 # Преобразуем результат в JSON
                 jobs_json = []
-                for job, user in jobs:
+                for job, user, city in jobs:
                     jobs_json.append(
                         JobBaseInfo(
                             id=job.id,
                             user=user,
                             title=job.title,
                             salary=job.salary,
+                            city= city.name,
                             time_start=job.time_start,
                             time_end=job.time_end,
                             address=job.address,
