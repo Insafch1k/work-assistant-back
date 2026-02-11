@@ -1,13 +1,15 @@
 from datetime import datetime
 
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, case
+from sqlalchemy.orm import aliased
 
-from project.application.entities.job import Job
+from project.application.entities.job import Job, JobBaseInfo
 from project.application.entities.job_favorite import JobFavorite
 from project.domain.core.models.cities import CityModel
 from project.domain.core.models.job_favorite import JobFavoriteModel
 from project.domain.core.models.job_view_history import JobViewHistoryModel
 from project.domain.core.models.jobs import JobModel
+from project.domain.core.models.user import UserModel
 from project.utils.data_state import DataFailedMessage, DataSuccess, DataState
 from project.utils.db_connection import connection_db
 
@@ -24,34 +26,48 @@ class HistoryDal:
         with Session() as session:
             try:
 
-                # Один SQL-запрос: JOIN истории + LEFT JOIN избранного
+                FavoriteAlias = aliased(JobFavoriteModel)
+
                 history_jobs = (
-                    session.query(JobModel, JobFavoriteModel.id.label("favorite_id"))
-                    .join(JobViewHistoryModel, JobViewHistoryModel.job_id == JobModel.id)
+                    session.query(JobModel, case(
+                (FavoriteAlias.id.isnot(None), True),
+                    else_=False
+                    ).label("is_favorite"),UserModel,CityModel)
+                    .join(JobFavoriteModel, JobFavoriteModel.job_id == JobModel.id)
                     .outerjoin(
-                        JobFavoriteModel,
+                        FavoriteAlias,
                         and_(
-                            JobFavoriteModel.job_id == JobModel.id,
-                            JobFavoriteModel.user_id == user_id
+                            FavoriteAlias.job_id == JobModel.id,
+                            FavoriteAlias.user_id == user_id
                         )
                     )
-                    .filter(JobViewHistoryModel.user_id == user_id)
-                    .order_by(JobViewHistoryModel.viewed_at.desc())
+                    .join(UserModel, UserModel.id == JobModel.user_id)
+                    .join(CityModel, CityModel.id == JobModel.city_id)
+                    .order_by(JobFavoriteModel.created_at.desc())
                     .all()
                 )
 
                 if not history_jobs:
                     return DataSuccess([])
 
-                # Формируем JSON
                 jobs_data = []
-                for job_model, favorite_id in history_jobs:
-                    job_data = Job.model_validate(job_model).to_json()
-                    job_data["is_favorite"] = favorite_id is not None
-                    jobs_data.append(job_data)
+                for job, is_favorite, user, city in history_jobs:
+                    jobs_data.append(
+                        JobBaseInfo(
+                            id=job.id,
+                            user=user,
+                            is_favorite=is_favorite,
+                            title=job.title,
+                            salary=job.salary,
+                            city=city.name,
+                            time_start=job.time_start,
+                            time_end=job.time_end,
+                            address=job.address,
+                            is_urgent=job.is_urgent,
+                            car=job.car
+                        ).model_dump())
 
                 return DataSuccess(jobs_data)
-
             except Exception as e:
                 return DataFailedMessage("Ошибка при получении истории просмотров", error=e)
 

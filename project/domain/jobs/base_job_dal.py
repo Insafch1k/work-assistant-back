@@ -85,6 +85,7 @@ class BaseJobDal:
                                       else_=False
                                   ).label("is_favorite"), CityModel)
                     .join(UserModel, UserModel.id == JobModel.user_id)
+                    .join(CityModel, CityModel.id == JobModel.city_id)
                     .outerjoin(
                         FavoriteAlias,
                         and_(

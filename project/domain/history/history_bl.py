@@ -10,17 +10,17 @@ from loguru import logger
 class HistoryBl:
     @staticmethod
     def get_list_of_jobs_history(user_id):
-        jobs_state = HistoryDal.get_list_of_history_job(user_id)
-        jobs = jobs_state.data
-        logger.info(f"Список истории: {jobs}")
-        for job in jobs:
-            city_state = CityBl.get_city_name_by_id(job['city_id'])
-            if not city_state:
-                return DataFailedMessage(error_message=f"Не удалось получить информацию о городе {city_state}")
-            city_name = city_state.data
-            job['city'] = city_name
-
-        return DataSuccess(jobs)
+        return HistoryDal.get_list_of_history_job(user_id)
+        # jobs = jobs_state.data
+        # logger.info(f"Список истории: {jobs}")
+        # for job in jobs:
+        #     city_state = CityBl.get_city_name_by_id(job['city_id'])
+        #     if not city_state:
+        #         return DataFailedMessage(error_message=f"Не удалось получить информацию о городе {city_state}")
+        #     city_name = city_state.data
+        #     job['city'] = city_name
+        #
+        # return DataSuccess(jobs)
     @staticmethod
     def add_job_to_history(user_id, job_id):
         return HistoryDal.add_job_to_history(user_id, job_id)
