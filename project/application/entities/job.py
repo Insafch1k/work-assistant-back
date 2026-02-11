@@ -21,8 +21,8 @@ class Job(BaseModel):
     address: Optional[str] = None
     is_urgent: bool = False
     status: bool = True
-    xp: Optional[str] = None
-    age: Optional[str] = None
+    xp: Optional[int] = None
+    age: Optional[int] = None
     created_at: Optional[datetime] = None
     car: bool = False
     is_favorite: Optional[bool] = False
@@ -58,6 +58,7 @@ class JobBaseInfo(BaseModel):
     id: Optional[int] = None
     user: UserBaseInfo
     title: str
+    city: str
     salary: Optional[int] = None
     time_start: Optional[str] = None
     time_end: Optional[str] = None
@@ -86,7 +87,6 @@ class JobBaseInfo(BaseModel):
 class JobInfo(BaseModel):
     id: Optional[int] = None
     user: UserBaseInfo
-    city_id: int
     city: Optional[str] = None
     title: str
     wanted_job: Optional[str] = None
@@ -98,8 +98,8 @@ class JobInfo(BaseModel):
     address: Optional[str] = None
     is_urgent: bool = False
     status: bool = True
-    xp: Optional[str] = None
-    age: Optional[str] = None
+    xp: Optional[int] = None
+    age: Optional[int] = None
     created_at: Optional[datetime] = None
     car: bool = False
     is_favorite: Optional[bool] = False

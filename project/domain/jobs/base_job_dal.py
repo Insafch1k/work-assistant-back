@@ -2,6 +2,7 @@ from sqlalchemy import update, and_, case
 from sqlalchemy.orm import aliased
 
 from project.application.entities.job import Job, JobBaseInfo, JobInfo
+from project.domain.core.models.cities import CityModel
 from project.domain.core.models.job_favorite import JobFavoriteModel
 from project.domain.core.models.jobs import JobModel
 from project.domain.core.models.user import UserModel
@@ -13,14 +14,18 @@ from loguru import logger
 
 class BaseJobDal:
     @staticmethod
-    def add_job(job_data):
+    def add_job(user_id, job_data):
         Session = connection_db()
         if not Session:
             return DataFailedMessage("Database connection error")
 
         with Session() as session:
             try:
-                job = JobModel(user_id=job_data.user_id,
+                city = session.get(CityModel, job_data.city_id)
+                if not city:
+                    return DataFailedMessage(f'Города с id = {job_data.city_id} не существует', code=406)
+
+                job = JobModel(user_id=user_id,
                                 city_id=job_data.city_id,
                                 title=job_data.title,
                                 wanted_job=job_data.wanted_job,
@@ -78,7 +83,7 @@ class BaseJobDal:
                                   case(
                                       (FavoriteAlias.id.isnot(None), True),
                                       else_=False
-                                  ).label("is_favorite"))
+                                  ).label("is_favorite"), CityModel)
                     .join(UserModel, UserModel.id == JobModel.user_id)
                     .outerjoin(
                         FavoriteAlias,
@@ -89,7 +94,7 @@ class BaseJobDal:
                     ).where(JobModel.id == job_id)
                     .first()
                 )
-                job, user, is_favorite = row
+                job, user, is_favorite, city = row
 
                 if not job:
                     return DataFailedMessage(f"Вакансия с id {job_id} не найдена")
@@ -97,7 +102,7 @@ class BaseJobDal:
                 job_data = JobInfo(
                     id=job.id,
                     user=user,
-                    city_id=job.city_id,
+                    city=city.name,
                     title=job.title,
                     wanted_job=job.wanted_job,
                     description=job.description,
@@ -119,8 +124,9 @@ class BaseJobDal:
 
             except Exception as e:
                 return DataFailedMessage("Ошибка при получении вакансии", error=e)
+
     @staticmethod
-    def get_all_jobs(user_id, search, employeer_id):
+    def get_all_jobs(user_id, search, employer_id, time_start,time_end,car,is_urgent,salary,age,xp,date,city_id,address):
         Session = connection_db()
         if not Session:
             return DataFailedMessage("Database connection error")
@@ -132,17 +138,48 @@ class BaseJobDal:
                     case(
                 (FavoriteAlias.id.isnot(None), True),
                     else_=False
-                    ).label("is_favorite"))
+                    ).label("is_favorite"),CityModel)
+
+                if time_start:
+                    query = query.filter(JobModel.time_start >= time_start)
+
+                if time_end:
+                    query = query.filter(JobModel.time_end <= time_end)
+
+                if car:
+                    query = query.filter(JobModel.car == car)
+
+                if is_urgent:
+                    query = query.filter(JobModel.is_urgent == is_urgent)
+
+                if salary:
+                    query = query.filter(JobModel.salary >= salary)
+
+                if age:
+                    query = query.filter(JobModel.age >= age)
+
+                if xp:
+                    query = query.filter(JobModel.xp >= xp)
+
+                if date:
+                    query = query.filter(JobModel.date == date)
+
+                if city_id:
+                    query = query.filter(JobModel.city_id == city_id)
+
+                if address:
+                    query = query.filter(JobModel.address.ilike(f'%{address}%'))
 
                 if search:
                     search_term = f"%{search.strip()}%"
                     query = query.filter(JobModel.title.ilike(search_term))
 
-                if employeer_id:
-                    query = query.filter(JobModel.user_id == employeer_id)
+                if employer_id:
+                    query = query.filter(JobModel.user_id == employer_id)
 
                 jobs = (
                     query.join(UserModel, UserModel.id == JobModel.user_id)
+                    .join(CityModel, CityModel.id == JobModel.city_id)
                     .outerjoin(
                         FavoriteAlias,
                         and_(
@@ -159,10 +196,11 @@ class BaseJobDal:
 
                 # Преобразуем результат в JSON
                 jobs_json = []
-                for job, user, is_favorite in jobs:
+                for job, user, is_favorite, city in jobs:
                     jobs_json.append(
                         JobBaseInfo(
                             id=job.id,
+                            city=city.name,
                             user=user,
                             title=job.title,
                             salary=job.salary,
@@ -178,6 +216,44 @@ class BaseJobDal:
                 return DataSuccess({"jobs":jobs_json})
             except Exception as e:
                 return DataFailedMessage(f"Ошибка при получении всех вакансии", error=e)
+
+    @staticmethod
+    def get_my_jobs(user_id):
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+
+                query = session.query( JobModel,UserModel).filter(JobModel.user_id == user_id)
+
+                jobs = query.join(UserModel, UserModel.id == JobModel.user_id).all()
+
+                if not jobs:
+                    return DataSuccess({"jobs": []})
+                    #return DataFailedMessage("Ошибка в нахождении списка вакансий")
+
+                # Преобразуем результат в JSON
+                jobs_json = []
+                for job, user in jobs:
+                    jobs_json.append(
+                        JobBaseInfo(
+                            id=job.id,
+                            user=user,
+                            title=job.title,
+                            salary=job.salary,
+                            time_start=job.time_start,
+                            time_end=job.time_end,
+                            address=job.address,
+                            is_urgent=job.is_urgent,
+                            car=job.car
+                        ).model_dump()
+                    )
+
+                return DataSuccess({"jobs":jobs_json})
+            except Exception as e:
+                return DataFailedMessage(f"Ошибка при получении моих вакансии", error=e)
 
     @staticmethod
     def update_job(job_id, user_id, job_data) -> DataState:
@@ -208,3 +284,21 @@ class BaseJobDal:
             except Exception as e:
                 session.rollback()
                 return DataFailedMessage(f"Ошибка в обновлении вакансии job_id = {job_id}", error=e)
+
+    @staticmethod
+    def get_cities():
+        Session = connection_db()
+        if not Session:
+            return DataFailedMessage("Database connection error")
+
+        with Session() as session:
+            try:
+                cities = session.query(CityModel).all()
+
+                cities_json = {}
+                for city in cities:
+                    cities_json[city.id]=city.name
+
+                return DataSuccess(cities_json)
+            except Exception as e:
+                return DataFailedMessage(f"Ошибка при получении моих вакансии", error=e)

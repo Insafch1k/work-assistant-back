@@ -1,27 +1,28 @@
 from __future__ import annotations
 
+from datetime import time, datetime
 from typing import Optional
 
 from loguru import logger
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, Field
 
 from project.utils.data_state import DataFailedMessage, DataState, DataSuccess
 
 
 class CreateNewJobValidateSchema(BaseModel):
-    title: Optional[str] = None
+    title: Optional[str]
     wanted_job: Optional[str] = None
     description: Optional[str] = None
     salary: Optional[int] = None
-    date: Optional[str] = None
-    time_start: Optional[str] = None
-    time_end: Optional[str] = None
+    date: Optional[datetime] = None
+    time_start: Optional[time] = None
+    time_end: Optional[time] = None
     address: Optional[str] = None
-    city: Optional[str] = None
-    xp: Optional[str] = None
-    age: Optional[str] = None
-    is_urgent: Optional[bool] = None
-    car: Optional[bool] = None
+    city_id: Optional[int]
+    xp: Optional[int]
+    age: Optional[int]
+    is_urgent: Optional[bool]
+    car: Optional[bool]
 
     @classmethod
     def from_request(cls, json_data) -> DataState[CreateNewJobValidateSchema]:
@@ -34,6 +35,32 @@ class CreateNewJobValidateSchema(BaseModel):
                 for err in e.errors()
             ]
             return DataFailedMessage(f'Ошибка валидации при создании работы: {errors}',error=e)
+
+class GetJobsValidateSchema(BaseModel):
+    search: Optional[str] = None
+    employer_id: Optional[int] = None
+    time_start: Optional[time] = None
+    time_end: Optional[time] = None
+    car: Optional[bool] = None
+    is_urgent: Optional[bool] = None
+    salary: Optional[int] = Field(default_factory=lambda: None, ge=0)
+    age: Optional[int] = Field(default_factory=lambda: None,gt=0)
+    xp: Optional[int] = Field(default_factory=lambda: None,ge=0)
+    date: Optional[datetime] = None
+    city_id: Optional[int] = None
+    address: Optional[str] = None
+
+    @classmethod
+    def from_request(cls, json_data) -> DataState[GetJobsValidateSchema]:
+        try:
+            return DataSuccess(GetJobsValidateSchema(**json_data))
+        except ValidationError as e:
+            errors = [
+                {"field": err["loc"][0],
+                 "message": err["msg"]}
+                for err in e.errors()
+            ]
+            return DataFailedMessage(f'Ошибка валидации при получении работ: {errors}',error=e)
 
 class UpdateJobSchema(BaseModel):
 

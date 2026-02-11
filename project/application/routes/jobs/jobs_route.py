@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from project.application.entities.event import MetricEvents
-from project.application.routes.jobs.jobs_schemas import CreateNewJobValidateSchema, UpdateJobSchema
+from project.application.routes.jobs.jobs_schemas import CreateNewJobValidateSchema, UpdateJobSchema, \
+    GetJobsValidateSchema
 from project.application.routes.metrics.metric_schemas import TrackEventValidateSchema
 from project.domain.jobs.base_job_bl import BaseJobBl
 from project.domain.metrics.metric_bl import MetricsBL
@@ -34,7 +35,17 @@ def create_job():
     except Exception as e:
         return DataFailedMessage(f"Ошибка добавления вакансии", error=e).to_response()
 
+@job_router.route("/jobs/me", methods=["GET"])
+@jwt_required()
+def get_my_jobs():
+    """вакансии текущего работодателя для стр мои объявления (id, title, time_end, time_start, salary, is_urgent, car, address)"""
+    try:
+        user_id = get_jwt_identity()
+        data_state = BaseJobBl.get_my_jobs(user_id)
 
+        return data_state.to_response()
+    except Exception as e:
+        return DataFailedMessage(f"Ошибка просмотра моих вакансии", error=e).to_response()
 
 @job_router.route("/jobs", methods=["GET"])
 @jwt_required()
@@ -42,24 +53,28 @@ def get_all_jobs():
     """Получение всех вакансий"""
     try:
         user_id = get_jwt_identity()
-        search = request.args.get("search")
-        employeer_id = request.args.get("employeer_id")
-        time_start = request.args.get("time_start")
-        time_end = request.args.get("time_end")
-        car = request.args.get("car")
-        is_urgent = request.args.get("is_urgent")
-        salary = request.args.get("salary")
-        age = request.args.get("age")
-        xp = request.args.get("xp")
-        date = request.args.get("date")
-        city = request.args.get("city")
-        address = request.args.get("address")
-        data_state = BaseJobBl.get_all_jobs(user_id,search,employeer_id)
+
+        validate_data_state = GetJobsValidateSchema.from_request(request.args)
+
+        if not validate_data_state:
+            return validate_data_state.to_response()
+
+        data_state = BaseJobBl.get_all_jobs(user_id, validate_data_state.data)
 
         return data_state.to_response()
     except Exception as e:
         return DataFailedMessage(f"Ошибка вывода всех вакансий", error=e).to_response()
 
+@job_router.route("/jobs/cities", methods=["GET"])
+@jwt_required()
+def get_cities():
+    """Получение всех вакансий"""
+    try:
+        data_state = BaseJobBl.get_cities()
+
+        return data_state.to_response()
+    except Exception as e:
+        return DataFailedMessage(f"Ошибка вывода населенных пунктов", error=e).to_response()
 
 @job_router.route("/jobs/<int:job_id>", methods=["GET"])
 @jwt_required()
@@ -68,10 +83,8 @@ def get_all_info_job(job_id: int):
     try:
         user_id = get_jwt_identity()
         data_state = BaseJobBl.get_all_info_job(user_id, job_id)
-        if not data_state:
-            return data_state.to_response()
+        return data_state.to_response()
 
-        return jsonify(data_state), 200
     except Exception as e:
         return DataFailedMessage(f"Ошибка просмотра вакансии", error=e).to_response()
 

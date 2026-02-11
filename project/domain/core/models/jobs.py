@@ -13,14 +13,14 @@ class JobModel(Base):
     wanted_job = Column(Text, nullable=True)
     description = Column(Text, nullable=True)
     salary = Column(Integer, nullable=True)
-    date = Column(DateTime, nullable=True)
+    date = Column(DateTime, nullable=False)
     time_start = Column(DateTime, nullable=True)
     time_end = Column(DateTime, nullable=True)
     address = Column(Text, nullable=True)
     is_urgent = Column(Boolean, default=False)
     status = Column(Boolean, default=True)
-    xp = Column(Text, nullable=True)
-    age = Column(Text, nullable=True)
+    xp = Column(Integer, nullable=False) # в месяцах
+    age = Column(Integer, nullable=False) # в годах
     created_at = Column(DateTime, default=func.now())
     car = Column(Boolean, default=False)
 

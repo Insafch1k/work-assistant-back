@@ -49,7 +49,7 @@ def get_users():
         return admin_data_state.to_response()
 
     except Exception as e:
-        return DataFailedMessage("Ошибка проверки админ прав", error=e).to_response()
+        return DataFailedMessage("Ошибка при получении пользователей", error=e).to_response()
 
 
 
