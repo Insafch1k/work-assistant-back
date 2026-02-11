@@ -12,6 +12,7 @@ class ArticleModel(Base):
     id = Column(Integer, primary_key=True, server_default=text("nextval('articles_id_seq'::regclass)"))
     h1 = Column(String, nullable=False)
     slug = Column(String, nullable=False)
+    seo_title = Column(String, nullable=False)
     image_url = Column(String)
     description = Column(String, nullable=False)
     content = Column(String, nullable=False)

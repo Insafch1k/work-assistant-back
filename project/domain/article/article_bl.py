@@ -23,7 +23,7 @@ class ArticleBl:
 
     @staticmethod
     def create_article(result: CreateArticleValidateSchema):
-        return ArticleDal.create_article(result.h1,result.image_url,result.description,result.content,result.category_ids)
+        return ArticleDal.create_article(result.h1,result.image_url,result.description,result.seo_title, result.content,result.category_ids)
 
     @staticmethod
     def create_category(result: CreateCategoryValidateSchema):
