@@ -127,7 +127,7 @@ class BaseJobDal:
                 return DataFailedMessage("Ошибка при получении вакансии", error=e)
 
     @staticmethod
-    def get_all_jobs(user_id, search, employer_id, time_start,time_end,car,is_urgent,salary,age,xp,date,city_id,address):
+    def get_all_jobs(user_id, search, employer_id, time_start,time_end,car,is_urgent,salary,age,xp,date,city_id,address,wanted_job):
         Session = connection_db()
         if not Session:
             return DataFailedMessage("Database connection error")
@@ -170,6 +170,9 @@ class BaseJobDal:
 
                 if address:
                     query = query.filter(JobModel.address.ilike(f'%{address}%'))
+
+                if wanted_job:
+                    query = query.filter(JobModel.wanted_job.ilike(f'%{wanted_job}%'))
 
                 if search:
                     search_term = f"%{search.strip()}%"

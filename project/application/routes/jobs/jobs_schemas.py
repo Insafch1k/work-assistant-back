@@ -49,6 +49,7 @@ class GetJobsValidateSchema(BaseModel):
     date: Optional[datetime] = None
     city_id: Optional[int] = None
     address: Optional[str] = None
+    wanted_job: Optional[str] = None
 
     @classmethod
     def from_request(cls, json_data) -> DataState[GetJobsValidateSchema]:

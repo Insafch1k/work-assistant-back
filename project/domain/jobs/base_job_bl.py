@@ -42,7 +42,7 @@ class BaseJobBl:
 
     @staticmethod
     def get_all_jobs(user_id, result: GetJobsValidateSchema) -> DataState:
-        return BaseJobDal.get_all_jobs(user_id, result.search, result.employer_id, result.time_start, result.time_end, result.car, result.is_urgent, result.salary, result.age, result.xp, result.date,result.city_id, result.address)
+        return BaseJobDal.get_all_jobs(user_id, result.search, result.employer_id, result.time_start, result.time_end, result.car, result.is_urgent, result.salary, result.age, result.xp, result.date,result.city_id, result.address, result.wanted_job)
 
     @staticmethod
     def get_my_jobs(user_id) -> DataState:
