@@ -33,7 +33,7 @@ def get_profile():
     except Exception as e:
         return DataFailedMessage(f"Не удалось получить профиль",error=e).to_response()
 
-@profile_router.route('/profile/update_avatar', methods=["GET"])
+@profile_router.route('/profile/update_avatar', methods=["POST"])
 @jwt_required()
 def update_avatar():
     try:
