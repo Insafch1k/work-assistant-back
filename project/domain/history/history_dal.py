@@ -33,7 +33,6 @@ class HistoryDal:
                 (FavoriteAlias.id.isnot(None), True),
                     else_=False
                     ).label("is_favorite"),UserModel,CityModel)
-                    .join(JobFavoriteModel, JobFavoriteModel.job_id == JobModel.id)
                     .outerjoin(
                         FavoriteAlias,
                         and_(
@@ -43,7 +42,8 @@ class HistoryDal:
                     )
                     .join(UserModel, UserModel.id == JobModel.user_id)
                     .join(CityModel, CityModel.id == JobModel.city_id)
-                    .order_by(JobFavoriteModel.created_at.desc())
+                    .join(JobViewHistoryModel, JobViewHistoryModel.job_id == JobModel.id)
+                    .filter(JobViewHistoryModel.user_id == int(user_id))
                     .all()
                 )
 
