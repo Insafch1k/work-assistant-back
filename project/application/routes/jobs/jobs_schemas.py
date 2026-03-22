@@ -8,6 +8,20 @@ from pydantic import BaseModel, ValidationError, Field
 
 from project.utils.data_state import DataFailedMessage, DataState, DataSuccess
 
+class JobSchema(BaseModel):
+    title: Optional[str] = None
+    wanted_job: Optional[str] = None
+    description: Optional[str] = None
+    salary: Optional[int] = None
+    date: Optional[datetime] = None
+    time_start: Optional[time] = None
+    time_end: Optional[time] = None
+    address: Optional[str] = None
+    city_id: Optional[int] = None
+    xp: Optional[int] = None
+    age: Optional[int] = None
+    is_urgent: Optional[bool] = None
+    car: Optional[bool] = None
 
 class CreateNewJobValidateSchema(BaseModel):
     title: Optional[str]
@@ -65,12 +79,12 @@ class GetJobsValidateSchema(BaseModel):
 
 class UpdateJobSchema(BaseModel):
 
-    job: Optional[CreateNewJobValidateSchema] = None
+    job: Optional[JobSchema] = None
 
     @staticmethod
     def from_request(json_data: dict) -> DataState:
         try:
-            data = CreateNewJobValidateSchema(**json_data)
+            data = JobSchema(**json_data)
             return DataSuccess(UpdateJobSchema(job=data))
         except ValidationError as e:
             errors = [
