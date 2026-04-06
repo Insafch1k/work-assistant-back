@@ -157,6 +157,7 @@ class ChatDal:
                                 ],
                     "chat": {
                                 "job":{"title": job.title,
+                                       "job_id": job.id,
                                        "time_start": job.time_start.isoformat(),
                                        "time_end": job.time_end.isoformat(),
                                        "is_urgent": job.is_urgent,
