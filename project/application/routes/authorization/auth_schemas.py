@@ -23,8 +23,8 @@ class ChangePasswordValidateSchema(BaseModel):
             return DataFailedMessage(f'Ошибка валидации при подтверждении почты: {errors}', error=e)
 
 class RecoveryPasswordValidateSchema(BaseModel):
-    temporary_id: int
-    code: int
+    temporary_id: str
+    code: str
     password: str = Field(min_length=8)
 
     @classmethod
@@ -40,8 +40,8 @@ class RecoveryPasswordValidateSchema(BaseModel):
             return DataFailedMessage(f'Ошибка валидации при подтверждении почты: {errors}', error=e)
 
 class ConfirmationValidateSchema(BaseModel):
-    temporary_id: int
-    code: int
+    temporary_id: str
+    code: str
 
     @classmethod
     def from_request(cls, json_data) -> DataState[ConfirmationValidateSchema]:

@@ -226,7 +226,7 @@ class AuthDal:
             if delete_after:
                 redis_client.delete(key)
 
-            return DataSuccess(user_id.decode('utf-8'))
+            return DataSuccess(user_id)
 
         except Exception as e:
             return DataFailedMessage(f"Ошибка при проверке кода",error=e)
